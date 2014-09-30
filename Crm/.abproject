@@ -5,12 +5,12 @@
   "AppIdentifier": "com.telerik.Crm",
   "DisplayName": "Crm",
   "Author": "",
-  "Description": "",
+  "Description": "Crm",
   "BundleVersion": "1.0",
   "AndroidVersionCode": "1",
   "iOSDeviceFamily": [
     "1",
-	"2"
+    "2"
   ],
   "iOSBackgroundMode": [],
   "WP8TileTitle": "",

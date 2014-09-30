@@ -7,6 +7,9 @@
     // create an object to store the models for each view
     window.APP = {
         models: {
+            test: {
+                title: 'Test'
+            },
             route: {
                 title: 'Route'
             },
@@ -51,7 +54,8 @@
             skin: 'flat',
 
             // the application needs to know which view to load first
-            initial: 'views/RouteList.html'
+            //initial: 'views/RouteList.html'
+            initial: 'views/Test.html'
         });
 
     }, false);
