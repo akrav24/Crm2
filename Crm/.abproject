@@ -4,7 +4,7 @@
   "projectVersion": 1,
   "AppIdentifier": "com.telerik.Crm",
   "DisplayName": "Crm",
-  "Author": "",
+  "Author": "Business Logic Group",
   "Description": "Crm",
   "BundleVersion": "1.0",
   "AndroidVersionCode": "1",

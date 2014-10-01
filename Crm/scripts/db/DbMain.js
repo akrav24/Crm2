@@ -7,7 +7,7 @@ function init() {
 	dbTools.openDB();
     dbTools.createSystemTables();
 }
-      
+     
       
 dbTools.openDB = function() {
     if (window.sqlitePlugin !== undefined) {
@@ -28,6 +28,18 @@ dbTools.createSystemTables = function() {
     }, dbTools.onTransError);
 }
 
+dbTools.onTransError = function(error) {
+    log("!!! SQLite transaction error: " + error.message);
+}
+
+dbTools.onSqlError = function(tx, error) {
+    log("!!! SQLite Sql error: " + error.message);
+}
+
+dbTools.serverUrl = function(serverName, port) {
+    return "http://" + serverName + (port !== null ? ":" + port : "") + "/"
+}
+
 dbTools.dropAllTables = function() {
     dbTools.db.transaction(function(tx) {
         tx.executeSql("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'android%' AND name NOT LIKE '%WebKit%'", [], function(tx, rs) {
@@ -42,16 +54,26 @@ dbTools.dropAllTables = function() {
 dbTools.tableCount = function() {
     dbTools.db.transaction(function(tx) {
         tx.executeSql("SELECT count(*) AS cnt FROM sqlite_master WHERE type='table'", [], function(tx, rs) {
-            alert("Table count = " + rs.rows.item(0)["cnt"].toString());
+            log("Table count = " + rs.rows.item(0)["cnt"].toString());
         });
     }, dbTools.onTransError);
 }
 
-dbTools.onTransError = function(error) {
-    alert("SQLite transaction error: " + error.message);
+dbTools.tableRowCount = function(tableName) {
+    dbTools.db.transaction(function(tx) {
+        tx.executeSql("SELECT count(*) AS cnt FROM " + tableName, [], function(tx, rs) {
+            log(tableName + " row count = " + rs.rows.item(0)["cnt"].toString());
+        });
+    }, dbTools.onTransError);
 }
 
-dbTools.onSqlError = function(tx, error) {
-    alert("SQLite Sql error: " + error.message);
+dbTools.getTablesInfo = function() {
+    log("----Tables info:");
+    dbTools.db.transaction(function(tx) {
+        tx.executeSql("SELECT name FROM sqlite_master WHERE type='table'", [], function(tx, rs) {
+            for (var i = 0; i < rs.rows.length; i++) {
+                dbTools.tableRowCount(rs.rows.item(i)["name"]);
+            }
+        });
+    }, dbTools.onTransError);
 }
-

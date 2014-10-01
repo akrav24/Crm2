@@ -1,6 +1,22 @@
 <div data-role="view" data-title="Test" data-layout="main" data-model="APP.models.test">
-    <h1 data-bind="html: title"></h1>
-    <a id="init-button" data-role="button" data-click="init">Init</a>
-    <a id="cnt-button" data-role="button" data-click="dbTools.tableCount">Table Count</a>
-    <a id="test-button" data-role="button" data-click="dbTools.dropAllTables">Drop All Tables</a>
+    <!--<h1 data-bind="html: title"></h1>-->
+    <div>
+        <h3>SQLite</h3>
+        <a id="init-button" data-role="button" data-click="init">Init</a>
+        <a id="cnt-button" data-role="button" data-click="dbTools.tableCount">Table Count</a>
+        <a id="drop-all-button" data-role="button" data-click="dbTools.dropAllTables">Drop All Tables</a>
+        <a id="info-button" data-role="button" data-click="dbTools.getTablesInfo">Get info</a>
+    </div>
+    <div>
+        <h3>Exchange</h3>
+        <a id="get-blockid-button" data-role="button" data-click="testGetBlockId">Get blockId</a>
+        <a id="get-button" data-role="button" data-click="testGetData">Get data</a>
+        <a id="post-button" data-role="button" data-click="testPostData">Send data</a>
+        <a id="exchange-button" data-role="button" data-click="testExchange">Exchange</a>
+    </div>
+    <div>
+        <h3>Log</h3>
+        <a id="log-clear-button" data-role="button" data-click="logClear">Clear log</a>
+        <ul id="console" data-role="listview" data-style="inset" data-type="group"></ul>
+    </div>
 </div>

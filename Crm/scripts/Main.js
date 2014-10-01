@@ -1,3 +1,8 @@
+//var serverName = "93.190.44.9";
+var serverName = "192.168.1.214";
+var port = 331
+var nodeId = 11;
+
 (function () {
 
     // store a reference to the application object that will be created
@@ -62,3 +67,17 @@
 
 
 }());
+
+//-------------------------------------------------
+// log
+//-------------------------------------------------
+
+function log(msg) {
+    var tm = new Date();
+    $("#console").append("<li>" + tm.toLocaleTimeString() + " " + msg + "</li>");
+}
+
+function logClear() {
+    $("#console").empty();
+}
+
