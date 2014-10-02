@@ -2,6 +2,7 @@
 dbTools.exchangeBlockIdGet = function(onSuccess, onError) {
     var blockId = 0;
     var url = dbTools.serverUrl(serverName, port) + "Api/ExchangeStart/?nodeId=" + nodeId;
+    log("exchangeBlockIdGet()");
     $.ajax({
         async: false,
         type: "GET",
@@ -11,21 +12,17 @@ dbTools.exchangeBlockIdGet = function(onSuccess, onError) {
             if (data.length !== 0) {
                 blockId = data[0].blockId;
             }
-            if (onSuccess !== undefined) {
-                onSuccess(blockId);
-            }
+            log("exchangeBlockIdGet blockId=" + blockId);
+            if (onSuccess !== undefined) {onSuccess(blockId);}
         },
-        error: function (jqXHR, textStatus, errorThrown) {
-            if (onError !== undefined) {
-                onError("Ajax Get Error: " + url + " jqXHR.responseText='" + jqXHR.responseText + "', textStatus='" + textStatus + "', errorThrown='" + errorThrown + "'");
-            }
-        }
+        error: function (jqXHR, textStatus, errorThrown) {if (onError !== undefined) {onError("Ajax Get Error: " + url);}}
     });
     return blockId;
 }
 
 // Get data from web service
 dbTools.exchangeDataGet = function(blockId, onSuccess, onError) {
+    log("exchangeDataGet(blockId=" + blockId + ")");
     var res = [];
     var url = dbTools.serverUrl(serverName, port) + "Api/Exchange/?blockId=" + blockId;
     $.ajax({
@@ -39,17 +36,14 @@ dbTools.exchangeDataGet = function(blockId, onSuccess, onError) {
                 onSuccess(blockId, data);
             }
         },
-        error: function (jqXHR, textStatus, errorThrown) {
-            if (onError !== undefined) {
-                onError("Ajax Get Error: " + url);
-            }
-        }
+        error: function (jqXHR, textStatus, errorThrown) {if (onError !== undefined) {onError("Ajax Get Error: " + url);}}
     });
     return res;
 }
 
 // Send data to web service
 dbTools.exchangeDataPost = function(blockId, data, onSuccess, onError) {
+    log("exchangeDataPost(blockId=" + blockId  + ", data=" + JSON.stringify(data) +  ")");
     var url = dbTools.serverUrl(serverName, port) + "Api/Exchange/?blockId=" + blockId;
     $.ajax({
         type: "POST",
@@ -62,11 +56,7 @@ dbTools.exchangeDataPost = function(blockId, data, onSuccess, onError) {
                 onSuccess(blockId, data);
             }
         },
-        error: function (jqXHR, textStatus, errorThrown) {
-            if (onError !== undefined) {
-                onError("Ajax Post Error: " + url);
-            }
-        }
+        error: function (jqXHR, textStatus, errorThrown) {if (onError !== undefined) {onError("Ajax Post Error: " + url);}}
     });
 }
 
@@ -75,25 +65,24 @@ dbTools.exchangeError = function(errorMsg) {
 }
 
 // Exchange data between app and web service
-dbTools.exchange = function(nodeId, onSuccess, onError) {
+dbTools.exchange = function(onSuccess, onError) {
+    log("exchange()");
     var blockId = dbTools.exchangeBlockIdGet(
         function(blockId) {
             dbTools.exchangeExport(blockId, 
                 function(blockId) {
-                    dbTools.exchangeImport(blockId);
-                }
+                    dbTools.exchangeImport(blockId, onSuccess, onError);
+                },
+                onError
             );
         },
-        function(errorMsg) {
-            if (onError !== undefined) {
-                onError(errorMsg);
-            }
-        }
+        onError
     );
     
 }
 
 dbTools.exchangeExport = function(blockId, onSuccess, onError) {
+    log("----------------------------");
     log("exchangeExport(blockId=" + blockId + ")");
     dbTools.exchangeMailExport(blockId, 
         function(blockId) {
@@ -103,61 +92,41 @@ dbTools.exchangeExport = function(blockId, onSuccess, onError) {
                     tx.executeSql("SELECT irow, data FROM MailBlockDataOut WHERE blockId = ?", [blockId], function(tx, rs) {
                         for (var i = 0; i < rs.rows.length; i++) {
                             dataOut.push({"blockId":blockId, "irow":rs.rows.item(i)["irow"], "data":rs.rows.item(i)["data"]});
+                            // TODO: uncomment
+                            if (i >= 3) {break;}
                         }
                         log("exchangeExport dataOut: " + JSON.stringify(dataOut));
-                        // TODO: uncomment
-                        /*dbTools.exchangeDataPost(blockId, dataOut, 
+                        dbTools.exchangeDataPost(blockId, dataOut, 
                             function(blockId, data) {
                                 if (onSuccess !== undefined) {
                                     onSuccess(blockId);
                                 }
                             }, 
-                            function(msg) {
-                                if (onError !== undefined) {
-                                    onError(msg);
-                                }
-                            }
-                        );*/
+                            onError
+                        );
                     });
                 }, 
-                function(error) {
-                    dbTools.onTransError;
-                    if (onError !== undefined) {
-                        onError("SQLite error: " + error.message);
-                    }
-                }
+                function(error) {if (onError !== undefined) {onError("SQLite error: " + error.message);}}
             );
         }
     );
 }
 
 dbTools.exchangeImport = function(blockId, onSuccess, onError) {
+    log("----------------------------");
     log("exchangeImport(blockId=" + blockId + ")");
     
     // TODO:
     dbTools.exchangeMailBlockDataIn(blockId,
-        onSuccess,
+        function(blockId) {
+            dbTools.exchangeMailBlockDataInProc(blockId, 
+                onSuccess, 
+                onError
+            );
+        },
         onError
     );
     
-    /*var dataIn = dbTools.exchangeDataGet(blockId);
-    log("insert into MailBlockDataIn begin");
-    dbTools.db.transaction(
-        function(tx) {
-            $.each(dataIn, function(i, item) {
-                tx.executeSql("INSERT INTO MailBlockDataIn (blockId, irow, data) VALUES(?, ?, ?)", [item.blockId, item.irow, item.data]
-                    , function(tx, rs) {if (i === dataIn.length - 1) {log("insert into MailBlockDataIn done: " + dataIn.length)}}
-                );
-            });
-        },
-        function(error) {
-            dbTools.onTransError;
-            if (onError !== undefined) {
-                onError("SQLite error: " + error.message);
-            }
-        }
-    );
-    */
     /*dbTools.db.transaction(function(tx) {
         tx.executeSql("SELECT data FROM MailBlockDataIn WHERE blockId = ? ORDER BY blockId, irow", [blockId], function(tx, rs) {
             var stage = 0, cmdBgn = "";
@@ -217,17 +186,8 @@ dbTools.exchangeMailExport = function(blockId, onSuccess, onError) {
                 }
             );
         },
-        function(error) {
-            dbTools.onTransError;
-            if (onError !== undefined) {
-                onError("SQLite error: " + error.message);
-            }
-        },
-        function() {
-            if (onSuccess !== undefined) {
-                onSuccess(blockId);
-            }
-        }
+        function(error) {if (onError !== undefined) {onError("SQLite error: " + error.message);}},
+        function() {if (onSuccess !== undefined) {onSuccess(blockId);}}
     );
 }
 
@@ -236,35 +196,59 @@ dbTools.exchangeMailBlockDataIn = function(blockId, onSuccess, onError) {
     log("exchangeMailBlockDataIn(blockId=" + blockId + ")");
     
     var dataIn = dbTools.exchangeDataGet(blockId, 
-        function(data) {
-            log("insert into MailBlockDataIn begin");
+        function(blockId, data) {
             dbTools.db.transaction(
                 function(tx) {
                     $.each(data, function(i, item) {
-                        tx.executeSql("INSERT INTO MailBlockDataIn (blockId, irow, data) VALUES(?, ?, ?)", [item.blockId, item.irow, item.data]
-                            , function(tx, rs) {if (i === dataIn.length - 1) {log("insert into MailBlockDataIn done: " + data.length)}}
-                        );
+                        tx.executeSql("INSERT INTO MailBlockDataIn (blockId, irow, data) VALUES(?, ?, ?)", [item.blockId, item.irow, item.data]);
                     });
+                    log("exchangeMailBlockDataIn " + data.length + " rows inserted");
                 },
-                function(error) {
-                    dbTools.onTransError;
-                    if (onError !== undefined) {
-                        onError("SQLite error: " + error.message);
-                    }
-                },
-                function() {
-                    if (onSuccess !== undefined) {
-                        onSuccess(blockId);
-                    }
-                }
+                function(error) {if (onError !== undefined) {onError("SQLite error: " + error.message);}},
+                function() {if (onSuccess !== undefined) {onSuccess(blockId);}}
             );
         },
-        function(msg) {
-            if (onError !== undefined) {
-                onError(msg);
-            }
-        }
+        onError
     );
+}
+
+dbTools.exchangeMailBlockDataInProc = function(blockId, onSuccess, onError) {
+    log("exchangeMailBlockDataInProc(blockId=" + blockId + ")");
+    
+    if (onSuccess !== undefined) {onSuccess(blockId);}
+}
+
+dbTools.exchangeMailBlockDataInProcScriptAdd = function(blockId, onSuccess, onError) {
+    log("exchangeMailBlockDataInProcScriptAdd(blockId=" + blockId + ")");
+    
+    /*dbTools.db.transaction(function(tx) {
+        tx.executeSql("SELECT data FROM MailBlockDataIn WHERE blockId = ? ORDER BY blockId, irow", [blockId], function(tx, rs) {
+            var stage = 0, cmdBgn = "";
+            for (var i = 0; i < rs.rows.length; i++) {
+                var data = rs.rows.item(i)["data"];
+                if (data.charAt(0) == "@") {
+                    var j = tail.indexOf(":");
+                    if (j >= 0) {
+                        var tblName = tail.substring(1, j);
+                        var tblFlds = tail.substring(j + 1);
+                    } else {
+                        var tblName = tail;
+                        var tblFlds = "";
+                    }
+                    if (tblName.tolowerCase() == "script") {
+                        stage = 1;
+                        cmdBgn = "insert into #tmpScript(" + tblFlds + ") values("
+                    } else {
+                        
+                    }
+                } else {
+                    
+                }
+            }
+        });
+    });
+    */
+    if (onSuccess !== undefined) {onSuccess(blockId);}
 }
 
 
@@ -288,6 +272,6 @@ function testPostData() {
 }
 
 function testExchange() {
-    dbTools.exchange(nodeId);
+    dbTools.exchange();
 }
 
