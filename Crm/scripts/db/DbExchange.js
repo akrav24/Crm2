@@ -83,6 +83,11 @@ dbTools.exchange = function(nodeId, onSuccess, onError) {
                     dbTools.exchangeImport(blockId);
                 }
             );
+        },
+        function(errorMsg) {
+            if (onError !== undefined) {
+                onError(errorMsg);
+            }
         }
     );
     
@@ -130,8 +135,10 @@ dbTools.exchangeImport = function(blockId, onSuccess, onError) {
     log("exchangeImport(blockId=" + blockId + ")");
     
     // TODO:
-    
-    var dataIn = dbTools.exchangeDataGet(blockId);
+    /*dbTools.exchangeMailBlockDataIn(blockId
+    );
+    */
+    /*var dataIn = dbTools.exchangeDataGet(blockId);
     log("insert into MailBlockDataIn begin");
     dbTools.db.transaction(
         function(tx) {
@@ -148,7 +155,7 @@ dbTools.exchangeImport = function(blockId, onSuccess, onError) {
             }
         }
     );
-    
+    */
     /*dbTools.db.transaction(function(tx) {
         tx.executeSql("SELECT data FROM MailBlockDataIn WHERE blockId = ? ORDER BY blockId, irow", [blockId], function(tx, rs) {
             var stage = 0, cmdBgn = "";
@@ -264,7 +271,7 @@ dbTools.exchangeMailBlockDataIn = function(blockId, onSuccess, onError) {
 //-------------------------------------------------
 
 function testGetBlockId() {
-    var blockId = dbTools.exchangeBlockIdGet(undefined);
+    var blockId = dbTools.exchangeBlockIdGet(undefined, function(errMsg) {log(errMsg)});
     log("blockId: " + blockId);
 }
 
