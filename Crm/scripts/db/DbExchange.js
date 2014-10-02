@@ -17,7 +17,7 @@ dbTools.exchangeBlockIdGet = function(onSuccess, onError) {
         },
         error: function (jqXHR, textStatus, errorThrown) {
             if (onError !== undefined) {
-                onError("Ajax Get Error: " + url);
+                onError("Ajax Get Error: " + url + " jqXHR.responseText='" + jqXHR.responseText + "', textStatus='" + textStatus + "', errorThrown='" + errorThrown + "'");
             }
         }
     });
@@ -135,9 +135,11 @@ dbTools.exchangeImport = function(blockId, onSuccess, onError) {
     log("exchangeImport(blockId=" + blockId + ")");
     
     // TODO:
-    /*dbTools.exchangeMailBlockDataIn(blockId
+    dbTools.exchangeMailBlockDataIn(blockId,
+        onSuccess,
+        onError
     );
-    */
+    
     /*var dataIn = dbTools.exchangeDataGet(blockId);
     log("insert into MailBlockDataIn begin");
     dbTools.db.transaction(
