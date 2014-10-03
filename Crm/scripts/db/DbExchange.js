@@ -126,34 +126,6 @@ dbTools.exchangeImport = function(blockId, onSuccess, onError) {
         },
         onError
     );
-    
-    /*dbTools.db.transaction(function(tx) {
-        tx.executeSql("SELECT data FROM MailBlockDataIn WHERE blockId = ? ORDER BY blockId, irow", [blockId], function(tx, rs) {
-            var stage = 0, cmdBgn = "";
-            for (var i = 0; i < rs.rows.length; i++) {
-                var data = rs.rows.item(i)["data"];
-                if (data.charAt(0) == "@") {
-                    var j = tail.indexOf(":");
-                    if (j >= 0) {
-                        var tblName = tail.substring(1, j);
-                        var tblFlds = tail.substring(j + 1);
-                    } else {
-                        var tblName = tail;
-                        var tblFlds = "";
-                    }
-                    if (tblName.tolowerCase() == "script") {
-                        stage = 1;
-                        cmdBgn = "insert into #tmpScript(" + tblFlds + ") values("
-                    } else {
-                        
-                    }
-                } else {
-                    
-                }
-            }
-        });
-    });
-    */
 }
 
 dbTools.exchangeMailExport = function(blockId, onSuccess, onError) {
@@ -215,40 +187,99 @@ dbTools.exchangeMailBlockDataIn = function(blockId, onSuccess, onError) {
 dbTools.exchangeMailBlockDataInProc = function(blockId, onSuccess, onError) {
     log("exchangeMailBlockDataInProc(blockId=" + blockId + ")");
     
-    if (onSuccess !== undefined) {onSuccess(blockId);}
+    dbTools.exchangeMailBlockDataInProcScriptExec(blockId,
+        function(blockId) {
+            dbTools.exchangeMailBlockDataInProcMailAdd(blockId, onSuccess, onError);
+        },
+        onError
+    );
 }
 
-dbTools.exchangeMailBlockDataInProcScriptAdd = function(blockId, onSuccess, onError) {
+dbTools.exchangeMailBlockDataInProcScriptExec = function(blockId, onSuccess, onError) {
     log("exchangeMailBlockDataInProcScriptAdd(blockId=" + blockId + ")");
     
-    /*dbTools.db.transaction(function(tx) {
-        tx.executeSql("SELECT data FROM MailBlockDataIn WHERE blockId = ? ORDER BY blockId, irow", [blockId], function(tx, rs) {
-            var stage = 0, cmdBgn = "";
-            for (var i = 0; i < rs.rows.length; i++) {
-                var data = rs.rows.item(i)["data"];
-                if (data.charAt(0) == "@") {
-                    var j = tail.indexOf(":");
-                    if (j >= 0) {
-                        var tblName = tail.substring(1, j);
-                        var tblFlds = tail.substring(j + 1);
+    dbTools.db.transaction(
+        function(tx) {
+            var sql = "SELECT A.data FROM MailBlockDataIn A"
+                + " CROSS JOIN (SELECT MIN(irow) AS irow FROM MailBlockDataIn WHERE blockId = ? AND data LIKE '@%' AND data NOT LIKE '@Script%') B"
+                + " WHERE A.blockId = ? AND (B.irow IS NULL OR A.irow < B.irow) ORDER BY A.irow";
+            tx.executeSql(sql, [blockId, blockId], function(tx, rs) {
+                var sql = "";
+                for (var i = 0; i < rs.rows.length; i++) {
+                    var data = rs.rows.item(i)["data"];
+                    var j;
+                    if (data.charAt(0) === "@") {
+                        j = data.indexOf(":");
+                        var tblName = data.substring(1, j);
+                        var tblFlds = data.substring(j + 1);
+                        sql = "INSERT INTO " + tblName + "(" + tblFlds + ") SELECT @1 WHERE @2 NOT IN (SELECT versionId FROM " + tblName + ")";
                     } else {
-                        var tblName = tail;
-                        var tblFlds = "";
+                        j = data.indexOf(",");
+                        var id = data.substring(0, j);
+                        tx.executeSql(sql.replace("@1", data).replace("@2", id), []);
                     }
-                    if (tblName.tolowerCase() == "script") {
-                        stage = 1;
-                        cmdBgn = "insert into #tmpScript(" + tblFlds + ") values("
-                    } else {
-                        
-                    }
-                } else {
-                    
                 }
-            }
-        });
-    });
-    */
-    if (onSuccess !== undefined) {onSuccess(blockId);}
+                tx.executeSql("SELECT versionId, sql FROM Script WHERE versionId > (SELECT dataVersionId FROM Parm)", [], function(tx, rs) {
+                    var errCode = 0;
+                    for (var i = 0; (i < rs.rows.length) && (errCode === 0); i++) {
+                        var versionId = rs.rows.item(i)["versionId"];
+                        var sql = rs.rows.item(i)["sql"];
+                        tx.executeSql(sqlPrepare(sql), [], 
+                            function(tx, rs) {
+                                tx.executeSql("UPDATE Parm SET dataVersionId = ?", [versionId]);
+                            }, 
+                            function(tx, error) {
+                                errCode = 1;
+                            }
+                        );
+                    }
+                });
+            });
+        },
+        function(error) {if (onError !== undefined) {onError("SQLite error: " + error.message);}},
+        function() {if (onSuccess !== undefined) {onSuccess(blockId);}}
+    );
+}
+
+dbTools.exchangeMailBlockDataInProcMailAdd = function(blockId, onSuccess, onError) {
+    log("exchangeMailBlockDataInProcMailAdd(blockId=" + blockId + ")");
+    
+    dbTools.db.transaction(
+        function(tx) {
+           var sql = "SELECT A.data FROM MailBlockDataIn A"
+                + " CROSS JOIN (SELECT MIN(irow) AS irow FROM MailBlockDataIn WHERE blockId = ? AND data LIKE '@%' AND data NOT LIKE '@Script%') B"
+                + " WHERE A.blockId = ? AND A.irow >= B.irow ORDER BY A.irow";
+            tx.executeSql(sql, [blockId, blockId], function(tx, rs) {
+                var sql = "";
+                for (var i = 0; i < rs.rows.length; i++) {
+                    var data = rs.rows.item(i)["data"];
+                    var j;
+                    if (data.charAt(0) === "@") {
+                        j = data.indexOf(":");
+                        var tblName = data.substring(1, j);
+                        var tblFlds = data.substring(j + 1);
+                        sql = "INSERT INTO Mail" + tblName + "(blockId," + tblFlds + ") VALUES(@1, @2)";
+                    } else {
+                        tx.executeSql(sql.replace("@1", blockId).replace("@2", data), []);
+                    }
+                }
+            });
+        },
+        function(error) {if (onError !== undefined) {onError("SQLite error: " + error.message);}},
+        function() {if (onSuccess !== undefined) {onSuccess(blockId);}}
+    );
+}
+
+dbTools.exchangeMailBlockDataInProcMailAdd = function(blockId, onSuccess, onError) {
+    log("exchangeMailBlockDataInProcMailAdd(blockId=" + blockId + ")");
+    
+    var sql = "SELECT refTypeId, name FROM RefType WHERE dir < 0 and parentId iS NULL AND name <> 'RefType'";
+    dbTools.db.transaction(
+        function(tx) {
+        },
+        function(error) {if (onError !== undefined) {onError("SQLite error: " + error.message);}},
+        function() {if (onSuccess !== undefined) {onSuccess(blockId);}}
+    );
 }
 
 
@@ -257,21 +288,21 @@ dbTools.exchangeMailBlockDataInProcScriptAdd = function(blockId, onSuccess, onEr
 //-------------------------------------------------
 
 function testGetBlockId() {
-    var blockId = dbTools.exchangeBlockIdGet(undefined, function(errMsg) {log(errMsg)});
+    var blockId = dbTools.exchangeBlockIdGet(undefined, function(errMsg) {log(errMsg);});
     log("blockId: " + blockId);
 }
 
 function testGetData() {
-    var data = dbTools.exchangeDataGet(130);
+    var data = dbTools.exchangeDataGet(130, undefined, function(errMsg) {log(errMsg);});
     log("Row count: " + data.length);
 }
 
 function testPostData() {
     var data = [{"blockId":130,"irow":1,"data":"@ExchParm:nodeId, exchDate","EntityKey":null},{"blockId":130,"irow":2,"data":"11,'20141001 13:00:00'","EntityKey":null}];
-    dbTools.exchangeDataPost(130, data);
+    dbTools.exchangeDataPost(130, data, undefined, function(errMsg) {log(errMsg);});
 }
 
 function testExchange() {
-    dbTools.exchange();
+    dbTools.exchange(undefined, function(errMsg) {log(errMsg);});
 }
 

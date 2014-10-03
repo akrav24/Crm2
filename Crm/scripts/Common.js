@@ -17,6 +17,10 @@ function dateToStr(dt, format) {
     return result;
 }
 
+function sqlPrepare(sql) {
+    return sql.replace("dbo.", "").replace("char(max)", "char(8000)");
+}
+
 /*function listNextItem(header, tail, separator) {
     var i = tail.indexOf(separator);
     if (i >= 0) {
