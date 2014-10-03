@@ -270,12 +270,30 @@ dbTools.exchangeMailBlockDataInProcMailAdd = function(blockId, onSuccess, onErro
     );
 }
 
-dbTools.exchangeMailBlockDataInProcMailAdd = function(blockId, onSuccess, onError) {
-    log("exchangeMailBlockDataInProcMailAdd(blockId=" + blockId + ")");
+dbTools.exchangeMailImport = function(blockId, onSuccess, onError) {
+    log("exchangeMailImport(blockId=" + blockId + ")");
     
-    var sql = "SELECT refTypeId, name FROM RefType WHERE dir < 0 and parentId iS NULL AND name <> 'RefType'";
     dbTools.db.transaction(
         function(tx) {
+            tx.executeSql("DELETE RefType", []);
+            var sql = "INSERT INTO RefType (refTypeId,name,parentId,test,useNodeId,dir,updateDate,sendAll,lvl)"
+                + " SELECT RefType (refTypeId,name,parentId,test,useNodeId,dir,updateDate,sendAll,lvl FROM MailRefType WHERE blockId = ?";
+            tx.executeSql(sql, [blockId]);
+            sql = "SELECT refTypeId, name FROM RefType WHERE dir < 0 and parentId iS NULL AND name <> 'RefType'";
+            tx.executeSql(sql, [], function(tx, rs) {
+                var sql = "";
+                for (var i = 0; i < rs.rows.length; i++) {
+                    var refTypeId = rs.rows.item(i)["refTypeId"];
+                    var tblName = rs.rows.item(i)["name"];
+                    var sql = "DELETE A FROM @tblName A INNER JOIN Mail@tblName B ON B.@tblNameId=A.@tblNameId AND B.blockId=? WHERE B.updateDate>A.updateDate";
+                    tx.executeSql(sql.replace(new RegExp("@tblName","g"), tblName), [blockId]);
+                    sql = "";
+                    tx.executeSql(sql, []);
+                    sql = "";
+                    tx.executeSql(sql, []);
+                    
+                }
+            });
         },
         function(error) {if (onError !== undefined) {onError("SQLite error: " + error.message);}},
         function() {if (onSuccess !== undefined) {onSuccess(blockId);}}
