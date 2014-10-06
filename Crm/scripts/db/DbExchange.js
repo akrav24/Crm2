@@ -92,8 +92,6 @@ dbTools.exchangeExport = function(blockId, onSuccess, onError) {
                     tx.executeSql("SELECT irow, data FROM MailBlockDataOut WHERE blockId = ?", [blockId], function(tx, rs) {
                         for (var i = 0; i < rs.rows.length; i++) {
                             dataOut.push({"blockId":blockId, "irow":rs.rows.item(i)["irow"], "data":rs.rows.item(i)["data"]});
-                            // TODO: uncomment
-                            if (i >= 3) {break;}
                         }
                         log("exchangeExport dataOut: " + JSON.stringify(dataOut));
                         dbTools.exchangeDataPost(blockId, dataOut, 
@@ -116,11 +114,12 @@ dbTools.exchangeImport = function(blockId, onSuccess, onError) {
     log("----------------------------");
     log("exchangeImport(blockId=" + blockId + ")");
     
-    // TODO:
     dbTools.exchangeMailBlockDataIn(blockId,
         function(blockId) {
             dbTools.exchangeMailBlockDataInProc(blockId, 
-                onSuccess, 
+                function(blockId) {
+                    dbTools.exchangeMailImport(blockId, onSuccess, onError);
+                }, 
                 onError
             );
         },
@@ -270,29 +269,124 @@ dbTools.exchangeMailBlockDataInProcMailAdd = function(blockId, onSuccess, onErro
     );
 }
 
+/*dbTools.exchangeMailImport = function(blockId, onSuccess, onError) {
+    log("exchangeMailImport(blockId=" + blockId + ")");
+    
+    dbTools.db.transaction(
+        function(tx) {
+            tx.executeSql("DELETE FROM RefType", [], function(tx) {
+                tx.executeSql("SELECT flds FROM MailRefType WHERE name = 'RefType'", [], function(tx, rs) {
+                    var flds = rs.rows.item(0)["flds"];
+                    var sql = "INSERT INTO RefType (@flds) SELECT @flds FROM MailRefType WHERE blockId = ?";
+                    var sqlExec = sql.replace(new RegExp("@flds", "g"), flds);
+                    tx.executeSql(sqlExec, [blockId], function(tx, rs) {
+                        var sql = "SELECT refTypeId, name, flds FROM RefType WHERE dir < 0 and parentId iS NULL AND name <> 'RefType'";
+                        log(sql);
+                        tx.executeSql(sql, [], function(tx, rs) {
+                            for (var i = 0; i < rs.rows.length; i++) {
+                                var refTypeId = rs.rows.item(i)["refTypeId"];
+                                var tblName = rs.rows.item(i)["name"];
+                                log("tblName: " + tblName);
+                                var flds = rs.rows.item(i)["flds"];
+                                var sql = "DELETE FROM @tblName WHERE EXISTS(SELECT 1 FROM Mail@tblName B WHERE B.@tblNameId=@tblName.@tblNameId AND B.blockId=? AND B.updateDate>@tblName.updateDate)";
+                                var sqlExec = sql.replace(new RegExp("@tblName","g"), tblName);
+                                log(sqlExec);
+                                tx.executeSql(sqlExec, [blockId]);
+                                sql = "SELECT @tblNameId AS id FROM Mail@tblName WHERE blockId = ? AND @tblNameId NOT IN (SELECT @tblNameId FROM @tblName)";
+                                sqlExec = sql.replace(new RegExp("@tblName", "g"), tblName);
+                                log(sqlExec);
+                                tx.executeSql(sqlExec, [blockId], function(tx, rs) {
+                                    log("tblName: " + tblName);
+                                    // !!! Код не работает. Из-за асинхронного режима выполнения запроса tblName всегда имеет одно и то же значение (последнее из внешнегоо цикла)
+                                    var idLst = [];
+                                    for (i = 0; i < rs.rows.length; i++) {
+                                        idLst.push(rs.rows.item(i).id);
+                                    }
+                                    var sql = "INSERT INTO @tblName(@flds) SELECT @flds FROM Mail@tblName WHERE blockId=? AND @tblNameId IN (@idLst)";
+                                    var sqlExec = sql.replace(new RegExp("@tblName", "g"), tblName).replace(new RegExp("@flds", "g"), flds).replace(new RegExp("@idLst", "g"), idLst.join(","));
+                                    log(sqlExec);
+                                    tx.executeSql(sqlExec, [blockId], function(tx) {
+                                        var sql = "SELECT name, flds FROM RefType WHERE dir<0 AND parentId=?";
+                                        log(sql);
+                                        tx.executeSql(sql, [refTypeId], function(tx, rs){
+                                            var sql = "INSERT INTO @dtlName(@dtlFlds) SELECT @dtlFlds FROM Mail@dtlName WHERE blockId=? AND @tblNameId IN (@idLst)";
+                                            for (i = 0; i < rs.rows.length; i++) {
+                                                var dtlName = rs.rows.item(i).name;
+                                                var dtlFlds = rs.rows.item(i).flds;
+                                                var sqlExec = sql.replace(new RegExp("@dtlName", "g"), dtlName).replace(new RegExp("@dtlFlds", "g"), dtlFlds).replace(new RegExp("@tblName", "g"), tblName).replace(new RegExp("@idLst", "g"), idLst.join(","));
+                                                log(sqlExec);
+                                                tx.executeSql(sqlExec, [blockId],
+                                                    function(tx) {
+                                                        log("Ok");
+                                                    },
+                                                    function(tx, error) {
+                                                        log("ERROR: " + error.message);
+                                                    }
+                                                );
+                                            }
+                                        });
+                                    });
+                                });
+                            }
+                        });
+                    });
+                });
+            });
+        },
+        function(error) {if (onError !== undefined) {onError("SQLite error: " + error.message);}},
+        function() {if (onSuccess !== undefined) {onSuccess(blockId);}}
+    );
+}
+*/
 dbTools.exchangeMailImport = function(blockId, onSuccess, onError) {
     log("exchangeMailImport(blockId=" + blockId + ")");
     
     dbTools.db.transaction(
         function(tx) {
-            tx.executeSql("DELETE RefType", []);
-            var sql = "INSERT INTO RefType (refTypeId,name,parentId,test,useNodeId,dir,updateDate,sendAll,lvl)"
-                + " SELECT RefType (refTypeId,name,parentId,test,useNodeId,dir,updateDate,sendAll,lvl FROM MailRefType WHERE blockId = ?";
-            tx.executeSql(sql, [blockId]);
-            sql = "SELECT refTypeId, name FROM RefType WHERE dir < 0 and parentId iS NULL AND name <> 'RefType'";
-            tx.executeSql(sql, [], function(tx, rs) {
-                var sql = "";
-                for (var i = 0; i < rs.rows.length; i++) {
-                    var refTypeId = rs.rows.item(i)["refTypeId"];
-                    var tblName = rs.rows.item(i)["name"];
-                    var sql = "DELETE A FROM @tblName A INNER JOIN Mail@tblName B ON B.@tblNameId=A.@tblNameId AND B.blockId=? WHERE B.updateDate>A.updateDate";
-                    tx.executeSql(sql.replace(new RegExp("@tblName","g"), tblName), [blockId]);
-                    sql = "";
-                    tx.executeSql(sql, []);
-                    sql = "";
-                    tx.executeSql(sql, []);
-                    
-                }
+            tx.executeSql("DELETE FROM RefType", [], function(tx) {
+                tx.executeSql("SELECT flds FROM MailRefType WHERE name = 'RefType'", [], function(tx, rs) {
+                    var flds = rs.rows.item(0)["flds"];
+                    var sql = "INSERT INTO RefType (@flds) SELECT @flds FROM MailRefType WHERE blockId = ?";
+                    var sqlExec = sql.replace(new RegExp("@flds", "g"), flds);
+                    tx.executeSql(sqlExec, [blockId], function(tx, rs) {
+                        var sql = "SELECT refTypeId, name, flds FROM RefType WHERE dir < 0 and parentId iS NULL AND name <> 'RefType'";
+                        tx.executeSql(sql, [], function(tx, rs) {
+                            for (var i = 0; i < rs.rows.length; i++) {
+                                var refTypeId = rs.rows.item(i)["refTypeId"];
+                                var tblName = rs.rows.item(i)["name"];
+                                var flds = rs.rows.item(i)["flds"];
+                                var tableUpdate = function(tblName, refTypeId, flds) {
+                                    var sql = "DELETE FROM @tblName WHERE EXISTS(SELECT 1 FROM Mail@tblName B WHERE B.@tblNameId=@tblName.@tblNameId AND B.blockId=? AND B.updateDate>@tblName.updateDate)";
+                                    var sqlExec = sql.replace(new RegExp("@tblName","g"), tblName);
+                                    tx.executeSql(sqlExec, [blockId]);
+                                    sql = "SELECT @tblNameId AS id FROM Mail@tblName WHERE blockId = ? AND @tblNameId NOT IN (SELECT @tblNameId FROM @tblName)";
+                                    sqlExec = sql.replace(new RegExp("@tblName", "g"), tblName);
+                                    tx.executeSql(sqlExec, [blockId], function(tx, rs) {
+                                        var idLst = [];
+                                        for (i = 0; i < rs.rows.length; i++) {
+                                            idLst.push(rs.rows.item(i).id);
+                                        }
+                                        var sql = "INSERT INTO @tblName(@flds) SELECT @flds FROM Mail@tblName WHERE blockId=? AND @tblNameId IN (@idLst)";
+                                        var sqlExec = sql.replace(new RegExp("@tblName", "g"), tblName).replace(new RegExp("@flds", "g"), flds).replace(new RegExp("@idLst", "g"), idLst.join(","));
+                                        tx.executeSql(sqlExec, [blockId], function(tx) {
+                                            var sql = "SELECT name, flds FROM RefType WHERE dir<0 AND parentId=?";
+                                            tx.executeSql(sql, [refTypeId], function(tx, rs){
+                                                var sql = "INSERT INTO @dtlName(@dtlFlds) SELECT @dtlFlds FROM Mail@dtlName WHERE blockId=? AND @tblNameId IN (@idLst)";
+                                                for (i = 0; i < rs.rows.length; i++) {
+                                                    var dtlName = rs.rows.item(i).name;
+                                                    var dtlFlds = rs.rows.item(i).flds;
+                                                    var sqlExec = sql.replace(new RegExp("@dtlName", "g"), dtlName).replace(new RegExp("@dtlFlds", "g"), dtlFlds).replace(new RegExp("@tblName", "g"), tblName).replace(new RegExp("@idLst", "g"), idLst.join(","));
+                                                    tx.executeSql(sqlExec, [blockId]);
+                                                }
+                                            });
+                                        });
+                                    });
+                                }
+                                tableUpdate(tblName, refTypeId, flds);
+                            }
+                        });
+                    });
+                });
             });
         },
         function(error) {if (onError !== undefined) {onError("SQLite error: " + error.message);}},
@@ -321,6 +415,6 @@ function testPostData() {
 }
 
 function testExchange() {
-    dbTools.exchange(undefined, function(errMsg) {log(errMsg);});
+    dbTools.exchange(function() {log("----SUCCSESS----------------");}, function(errMsg) {log("----" + errMsg);});
 }
 
