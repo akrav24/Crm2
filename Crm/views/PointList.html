@@ -1,3 +1,9 @@
-<div data-role="view" data-title="Points" data-layout="main" data-model="APP.models.points">
+<div data-role="view" data-title="Points" data-layout="main" data-show="pointListShow">
     <h1 data-bind="html: title"></h1>
+    <ul data-role="listview" id="point-list" class="list" data-template="point-tmpl"></ul>
+    <script id="point-tmpl" type="text/x-kendo-template">
+        <p class="list-item-header">#:name#</p>
+        <p class="list-item-text">#:cityName#, #:addr#</p>
+    </script>
 </div>
+<script src="scripts/PointList.js"></script>

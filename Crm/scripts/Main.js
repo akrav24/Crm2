@@ -1,7 +1,7 @@
-//var serverName = "93.190.44.9";
 var serverName = "93.190.44.9";
 var port = 331
 var nodeId = 11;
+var empId = 1;
 
 (function () {
 
@@ -10,7 +10,7 @@ var nodeId = 11;
     var app;
 
     // create an object to store the models for each view
-    window.APP = {
+    /*window.APP = {
         models: {
             test: {
                 title: 'Test'
@@ -20,28 +20,29 @@ var nodeId = 11;
             },
             points: {
                 title: 'Points'
-            }/*,
-            contacts: {
-                title: 'Contacts',
-                ds: new kendo.data.DataSource({
-                    data: [{
-                        id: 1,
-                        name: 'Bob'
-                    }, {
-                        id: 2,
-                        name: 'Mary'
-                    }, {
-                        id: 3,
-                        name: 'John'
-                    }]
-                }),
-                alert: function (e) {
-                    alert(e.data.name);
-                }
-            }*/
+            }
+            //,
+            //contacts: {
+            //    title: 'Contacts',
+            //    ds: new kendo.data.DataSource({
+            //        data: [{
+            //            id: 1,
+            //            name: 'Bob'
+            //        }, {
+            //            id: 2,
+            //            name: 'Mary'
+            //        }, {
+            //            id: 3,
+            //            name: 'John'
+            //        }]
+            //    }),
+            //    alert: function (e) {
+            //        alert(e.data.name);
+            //    }
+            //}
         }
     };
-
+    */
     // this function is called by Cordova when the application is loaded by the device
     document.addEventListener('deviceready', function () {
 
@@ -50,17 +51,16 @@ var nodeId = 11;
         navigator.splashscreen.hide();
 
         app = new kendo.mobile.Application(document.body, {
-
             // you can change the default transition (slide, zoom or fade)
             transition: 'slide',
-
+            
             // comment out the following line to get a UI which matches the look
             // and feel of the operating system
             skin: 'flat',
-
+            
             // the application needs to know which view to load first
             //initial: 'views/RouteList.html'
-            initial: 'views/Test.html'
+            initial: 'views/PointList.html'
         });
 
     }, false);
@@ -74,6 +74,7 @@ var nodeId = 11;
 
 function log(msg) {
     var tm = new Date();
+    console.log(tm.toLocaleTimeString() + " " + msg);
     $("#console").append("<li>" + tm.toLocaleTimeString() + " " + msg + "</li>");
 }
 

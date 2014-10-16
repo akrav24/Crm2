@@ -13,9 +13,9 @@ dbTools.exchangeBlockIdGet = function(onSuccess, onError) {
                 blockId = data[0].blockId;
             }
             log("exchangeBlockIdGet blockId=" + blockId);
-            if (onSuccess !== undefined) {onSuccess(blockId);}
+            if (onSuccess != undefined) {onSuccess(blockId);}
         },
-        error: function (jqXHR, textStatus, errorThrown) {if (onError !== undefined) {onError("Ajax Get Error: " + url);}}
+        error: function (jqXHR, textStatus, errorThrown) {if (onError != undefined) {onError("Ajax Get Error: " + url);}}
     });
     return blockId;
 }
@@ -32,11 +32,11 @@ dbTools.exchangeDataGet = function(blockId, onSuccess, onError) {
         dataType: "json",
         success: function(data) {
             res = data;
-            if (onSuccess !== undefined) {
+            if (onSuccess != undefined) {
                 onSuccess(blockId, data);
             }
         },
-        error: function (jqXHR, textStatus, errorThrown) {if (onError !== undefined) {onError("Ajax Get Error: " + url);}}
+        error: function (jqXHR, textStatus, errorThrown) {if (onError != undefined) {onError("Ajax Get Error: " + url);}}
     });
     return res;
 }
@@ -51,12 +51,12 @@ dbTools.exchangeDataPost = function(blockId, data, onSuccess, onError) {
         contentType: "application/json",
         data: JSON.stringify(data),
         success: function(data) {
-            if (onSuccess !== undefined) {
+            if (onSuccess != undefined) {
                 log("exchangeDataPost data sent");
                 onSuccess(blockId, data);
             }
         },
-        error: function (jqXHR, textStatus, errorThrown) {if (onError !== undefined) {onError("Ajax Post Error: " + url);}}
+        error: function (jqXHR, textStatus, errorThrown) {if (onError != undefined) {onError("Ajax Post Error: " + url);}}
     });
 }
 
@@ -78,7 +78,12 @@ dbTools.exchange = function(onSuccess, onError) {
         },
         onError
     );
-    
+    for (var i = 0; i < dbTools.objectList.length; i++) {
+        dbTools.objectList[i].needReloadData = true;
+        if (dbTools.objectList[i].callback != undefined) {
+            dbTools.objectList[i].callback();
+        }
+    }
 }
 
 dbTools.exchangeExport = function(blockId, onSuccess, onError) {
@@ -96,7 +101,7 @@ dbTools.exchangeExport = function(blockId, onSuccess, onError) {
                         log("exchangeExport dataOut: " + JSON.stringify(dataOut).substring(0, 500));
                         dbTools.exchangeDataPost(blockId, dataOut, 
                             function(blockId, data) {
-                                if (onSuccess !== undefined) {
+                                if (onSuccess != undefined) {
                                     onSuccess(blockId);
                                 }
                             }, 
@@ -104,7 +109,7 @@ dbTools.exchangeExport = function(blockId, onSuccess, onError) {
                         );
                     });
                 }, 
-                function(error) {if (onError !== undefined) {onError("SQLite error: " + error.message);}}
+                function(error) {if (onError != undefined) {onError("SQLite error: " + error.message);}}
             );
         },
         onError
@@ -161,8 +166,8 @@ dbTools.exchangeMailExport = function(blockId, onSuccess, onError) {
                 }
             );
         },
-        function(error) {if (onError !== undefined) {onError("SQLite error: " + error.message);}},
-        function() {if (onSuccess !== undefined) {onSuccess(blockId);}}
+        function(error) {if (onError != undefined) {onError("SQLite error: " + error.message);}},
+        function() {if (onSuccess != undefined) {onSuccess(blockId);}}
     );
 }
 
@@ -179,8 +184,8 @@ dbTools.exchangeMailBlockDataIn = function(blockId, onSuccess, onError) {
                     });
                     log("exchangeMailBlockDataIn " + data.length + " rows inserted");
                 },
-                function(error) {if (onError !== undefined) {onError("SQLite error: " + error.message);}},
-                function() {if (onSuccess !== undefined) {onSuccess(blockId);}}
+                function(error) {if (onError != undefined) {onError("SQLite error: " + error.message);}},
+                function() {if (onSuccess != undefined) {onSuccess(blockId);}}
             );
         },
         onError
@@ -227,6 +232,7 @@ dbTools.exchangeMailBlockDataInProcScriptExec = function(blockId, onSuccess, onE
                     for (var i = 0; (i < rs.rows.length) && (errCode === 0); i++) {
                         var versionId = rs.rows.item(i)["versionId"];
                         var sql = rs.rows.item(i)["sql"];
+                        log(".." + sqlPrepare(sql));
                         tx.executeSql(sqlPrepare(sql), [], 
                             function(tx, rs) {
                                 tx.executeSql("UPDATE Parm SET dataVersionId = ?", [versionId]);
@@ -239,8 +245,8 @@ dbTools.exchangeMailBlockDataInProcScriptExec = function(blockId, onSuccess, onE
                 });
             });
         },
-        function(error) {if (onError !== undefined) {onError("SQLite error: " + error.message);}},
-        function() {if (onSuccess !== undefined) {onSuccess(blockId);}}
+        function(error) {if (onError != undefined) {onError("SQLite error: " + error.message);}},
+        function() {if (onSuccess != undefined) {onSuccess(blockId);}}
     );
 }
 
@@ -268,8 +274,8 @@ dbTools.exchangeMailBlockDataInProcMailAdd = function(blockId, onSuccess, onErro
                 }
             });
         },
-        function(error) {if (onError !== undefined) {onError("SQLite error: " + error.message);}},
-        function() {if (onSuccess !== undefined) {onSuccess(blockId);}}
+        function(error) {if (onError != undefined) {onError("SQLite error: " + error.message);}},
+        function() {if (onSuccess != undefined) {onSuccess(blockId);}}
     );
 }
 
@@ -298,7 +304,7 @@ dbTools.exchangeMailImport = function(blockId, onSuccess, onError) {
                                     sqlExec = sql.replace(new RegExp("@tblName", "g"), tblName);
                                     tx.executeSql(sqlExec, [blockId], function(tx, rs) {
                                         var idLst = [];
-                                        for (i = 0; i < rs.rows.length; i++) {
+                                        for (var i = 0; i < rs.rows.length; i++) {
                                             idLst.push(rs.rows.item(i).id);
                                         }
                                         var sql = "INSERT INTO @tblName(@flds) SELECT @flds FROM Mail@tblName WHERE blockId=? AND @tblNameId IN (@idLst)";
@@ -307,7 +313,7 @@ dbTools.exchangeMailImport = function(blockId, onSuccess, onError) {
                                             var sql = "SELECT name, flds FROM RefType WHERE dir<0 AND parentId=?";
                                             tx.executeSql(sql, [refTypeId], function(tx, rs){
                                                 var sql = "INSERT INTO @dtlName(@dtlFlds) SELECT @dtlFlds FROM Mail@dtlName WHERE blockId=? AND @tblNameId IN (@idLst)";
-                                                for (i = 0; i < rs.rows.length; i++) {
+                                                for (var i = 0; i < rs.rows.length; i++) {
                                                     var dtlName = rs.rows.item(i).name;
                                                     var dtlFlds = rs.rows.item(i).flds;
                                                     var sqlExec = sql.replace(new RegExp("@dtlName", "g"), dtlName).replace(new RegExp("@dtlFlds", "g"), dtlFlds).replace(new RegExp("@tblName", "g"), tblName).replace(new RegExp("@idLst", "g"), idLst.join(","));
@@ -324,8 +330,8 @@ dbTools.exchangeMailImport = function(blockId, onSuccess, onError) {
                 });
             });
         },
-        function(error) {if (onError !== undefined) {onError("SQLite error: " + error.message);}},
-        function() {if (onSuccess !== undefined) {onSuccess(blockId);}}
+        function(error) {if (onError != undefined) {onError("SQLite error: " + error.message);}},
+        function() {if (onSuccess != undefined) {onSuccess(blockId);}}
     );
 }
 

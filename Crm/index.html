@@ -5,17 +5,17 @@
     <title></title>
     <meta charset="utf-8" />
     <link href="kendo/styles/kendo.mobile.all.min.css" rel="stylesheet" />
-    <!--<link href="styles/main.css" rel="stylesheet" />-->
+    <link href="styles/Main.css" rel="stylesheet" />
     
     <script src="cordova.js"></script>
     <script src="kendo/js/jquery.min.js"></script>
     <script src="kendo/js/kendo.mobile.min.js"></script>
-    <script src="bower_components/jquery/dist/jquery.min.js"></script>
     
     <script src="scripts/Main.js"></script>
     <script src="scripts/Common.js"></script>
     <script src="scripts/db/DbMain.js"></script>
     <script src="scripts/db/DbExchange.js"></script>
+    <script src="scripts/db/DbPoint.js"></script>
 </head>
 
 <body>
@@ -28,9 +28,9 @@
         <!-- application views will be rendered here -->
         <div data-role="footer">
             <div data-role="tabstrip">
-                <a href="views/Test.html">Test</a> 
-                <a href="views/RouteList.html" data-icon="globe">Route</a> 
-                <a href="views/PointList.html" data-icon="organize">Points</a> 
+                <a href="views/Test.html"><span class="tabstrip-button">Test</span></a>
+                <a href="views/RouteList.html"><span class="tabstrip-button">Route</span></a>
+                <a href="views/PointList.html"><span class="tabstrip-button">Points</span></a>
             </div>
         </div>
     </div>
