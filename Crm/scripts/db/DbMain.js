@@ -113,6 +113,7 @@ dbTools.tableRowCount = function(tableName) {
 
 dbTools.getTablesInfo = function() {
     log("----Tables info:");
+    dbTools.tableCount();
     dbTools.db.transaction(function(tx) {
         tx.executeSql("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name", [], function(tx, rs) {
             for (var i = 0; i < rs.rows.length; i++) {

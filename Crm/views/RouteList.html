@@ -1,3 +1,20 @@
-<div data-role="view" data-title="Route" data-layout="main">
-    <h1 data-bind="html: title"></h1>
-</div>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Route</title>
+</head>
+<body>
+    <script src="scripts/RouteList.js"></script>
+    <div data-role="view" data-title="Route" data-layout="main" data-init="routeListInit" data-show="routeListShow">
+        <h1 data-bind="html: title"></h1>
+        <!--<div>
+            <input data-role="datepicker" data-culture="en-NZ">
+        </div>-->
+        <ul data-role="listview" id="route-list" class="list" data-template="route-tmpl"></ul>
+        <script id="route-tmpl" type="text/x-kendo-template">
+            <p class="list-item-header">#:name#</p>
+            <p class="list-item-text">#:dateBgn#: #:cityName#, #:addr#</p>
+        </script>
+    </div>
+</body>
+</html>

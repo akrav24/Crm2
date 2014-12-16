@@ -1,6 +1,17 @@
-dbTools.objectListItemSet("point-list", true/*, renderPointList*/);
+dbTools.objectListItemSet("point-list", true, renderPointList);
+
+function pointListInit(e) {
+    log("..pointListInit");
+    /*$("#point-list").data("kendoMobileListView"
+    )
+    .kendoTouch({
+        filter: ">li",
+        tap: function(e) {log("....ListView tap");}
+    });*/
+}
 
 function pointListShow(e) {
+    log("..pointListShow");
     renderPointList();
 }
 
@@ -12,7 +23,7 @@ function renderPointList() {
 }
 
 function renderPointListView(tx, rs) {
-    log("...renderView");
+    log("..renderPointView");
     data = dbTools.rsToJson(rs);
     $("#point-list").data("kendoMobileListView").dataSource.data(data);
 }
