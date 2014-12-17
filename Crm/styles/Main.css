@@ -1,8 +1,13 @@
 body {
 }
-
-.tabstrip-button {
-    font-size: 200%;
+/*
+.km-android .km-navbar .km-view-title
+{
+    visibility: visible;
+}
+*/
+.date {
+    width: 140px;
 }
 
 .list {
@@ -13,3 +18,11 @@ body {
 .list-item-text {
     font-size: 80%;
 }
+.list-item-selected {
+    background-color: #FFFF00;
+}
+
+.tabstrip-button {
+    font-size: 200%;
+}
+

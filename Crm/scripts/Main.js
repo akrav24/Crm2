@@ -60,7 +60,8 @@ var empId = 1;
             
             // the application needs to know which view to load first
             //initial: 'views/RouteList.html'
-            initial: 'views/PointList.html'
+            //initial: 'views/PointList.html'
+            initial: 'views/Test.html'
         });
 
     }, false);

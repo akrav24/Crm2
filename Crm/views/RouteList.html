@@ -5,16 +5,45 @@
 </head>
 <body>
     <script src="scripts/RouteList.js"></script>
-    <div data-role="view" data-title="Route" data-layout="main" data-init="routeListInit" data-show="routeListShow">
-        <h1 data-bind="html: title"></h1>
-        <!--<div>
-            <input data-role="datepicker" data-culture="en-NZ">
-        </div>-->
-        <ul data-role="listview" id="route-list" class="list" data-template="route-tmpl"></ul>
+    
+    <div data-role="view" id="route-view" data-title="Visits" data-layout="main" data-init="routeListInit" data-show="routeListShow">
+        <header data-role="header">
+            <div data-role="navbar">
+                <label>
+                    <input type="date" class="date" id="route-prdbgn" data-align="left">
+                </label>
+                <span data-role="view-title"></span>
+            </div>
+        </header>
+        
+        <div>
+            <input data-role="datepicker" value="01/02/2014"/>
+        </div>
+        <ul data-role="listview" id="route-list" class="list" data-template="route-tmpl" data-click="routeListOnClick"></ul>
+        
         <script id="route-tmpl" type="text/x-kendo-template">
             <p class="list-item-header">#:name#</p>
             <p class="list-item-text">#:dateBgn#: #:cityName#, #:addr#</p>
         </script>
+    </div>
+    
+    <div data-role="view" id="route-view-edit" data-title="Visit" data-layout="main" data-show="routeListItemShow">
+        <header data-role="header">
+            <div data-role="navbar">
+                <a class="nav-button" data-align="left" data-role="backbutton" id="route-edit-cancel">Cancel</a>
+                <span data-role="view-title"></span>
+                <a class="nav-button" data-align="right" data-role="button" id="route-edit-save">Save</a>
+            </div>
+        </header>
+        
+        <form>
+            <div>
+                <input data-role="datepicker" id="route-edit-datebgn" data-culture="en-NZ">
+            </div>
+            <div>
+                <input id="route-edit-custname">
+            </div>
+        </form>
     </div>
 </body>
 </html>
