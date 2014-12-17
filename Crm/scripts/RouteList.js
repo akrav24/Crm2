@@ -1,4 +1,5 @@
 var prdBgn = new Date();
+var prdBgn = new Date(2014, 1, 2);
 prdBgn.setHours(0,0,0,0);
 dbTools.objectListItemSet("route-list", true, renderRouteList);
 
@@ -6,11 +7,6 @@ dbTools.objectListItemSet("route-list", true, renderRouteList);
 
 function routeListInit(e) {
     log("..routeListInit");
-    log(dateToStr(prdBgn, "YYYY-MM-DD"));
-    log($("route-prdbgn").val());
-    $("route-prdbgn").val(dateToStr(prdBgn, "YYYY-MM-DD"));
-    log($("route-prdbgn").val());
-    //$("#route-datepicker").kendoDatePicker();
 }
 
 function routeListShow(e) {
@@ -23,7 +19,6 @@ function routeListShow(e) {
 }
 
 function renderRouteList() {
-    var prdBgn = new Date(2014, 1, 2);
     if (dbTools.objectListItemGet("route-list").needReloadData) {
         dbTools.routeListGet(prdBgn, renderRouteListView);
         dbTools.objectListItemSet("route-list", false);
@@ -42,6 +37,12 @@ function routeListOnClick(e) {
     kendo.mobile.application.navigate("#route-view-edit?visitPlanItemId=" + e.dataItem.visitPlanItemId);
 }
 
+function routePrdBgnOnChange(e) {
+    log("..routePrdBgnOnChange");
+    prdBgn = e.sender.value();
+    dbTools.routeListGet(prdBgn, renderRouteListView);
+}
+
 //-- Route List Item ---------------------------------------------
 
 function routeListItemShow(e) {
@@ -49,3 +50,14 @@ function routeListItemShow(e) {
     //renderRouteList();
 }
 
+
+function testOnClick() {
+    var o = $("test");
+    alert("test:" + o.toString());
+    keys = "";
+    for (var key in o) {
+        keys += key + ";";
+        log("...." + key + "=" + o[key]);
+    }
+    alert("keys:" + keys);
+}

@@ -14,6 +14,12 @@ function dateToStr(dt, format) {
         case "YYYY-MM-DD":
             result = result.concat(y, "-", m < 10 ? "0" + m : m, "-", d < 10 ? "0" + d : d);
             break;
+        case "DD/MM/YYYY":
+            result = result.concat(d < 10 ? "0" + d : d, "/", m < 10 ? "0" + m : m, "/", y);
+            break;
+        case "HH:NN:SS:ZZZ":
+            result = result.concat(h < 10 ? "0" + h : h, ":", n < 10 ? "0" + n : n, ":", s < 10 ? "0" + s : s, ":", z < 10 ? "00" + z : (z < 100 ? "0" + z : z));
+            break;
         default:
             break;
     }

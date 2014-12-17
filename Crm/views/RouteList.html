@@ -10,20 +10,18 @@
         <header data-role="header">
             <div data-role="navbar">
                 <label>
-                    <input type="date" class="date" id="route-prdbgn" data-align="left">
+                    <input data-role="datepicker" class="date" id="route-prdbgn" data-align="left" data-change="routePrdBgnOnChange">
                 </label>
-                <span data-role="view-title"></span>
+                <span data-role="view-title" id="test"></span>
+                <a data-align="right" data-role="button" data-click="testOnClick">test</a>
             </div>
         </header>
         
-        <div>
-            <input data-role="datepicker" value="01/02/2014"/>
-        </div>
         <ul data-role="listview" id="route-list" class="list" data-template="route-tmpl" data-click="routeListOnClick"></ul>
         
         <script id="route-tmpl" type="text/x-kendo-template">
             <p class="list-item-header">#:name#</p>
-            <p class="list-item-text">#:dateBgn#: #:cityName#, #:addr#</p>
+            <p class="list-item-text">#:cityName#, #:addr#</p>
         </script>
     </div>
     
@@ -37,12 +35,18 @@
         </header>
         
         <form>
-            <div>
-                <input data-role="datepicker" id="route-edit-datebgn" data-culture="en-NZ">
-            </div>
-            <div>
-                <input id="route-edit-custname">
-            </div>
+            <ul data-role="listview">
+                <li>
+                    <label>Date
+                        <input data-role="datepicker" id="route-edit-datebgn">
+                    </label>
+                </li>
+                <li>
+                    <label>Customer
+                        <input id="route-edit-custname">
+                    </label>
+                </li>
+            </ul>
         </form>
     </div>
 </body>

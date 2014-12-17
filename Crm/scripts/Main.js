@@ -63,6 +63,8 @@ var empId = 1;
             //initial: 'views/PointList.html'
             initial: 'views/Test.html'
         });
+        
+        kendo.culture("en-GB");
 
     }, false);
 
@@ -75,8 +77,8 @@ var empId = 1;
 
 function log(msg) {
     var tm = new Date();
-    console.log(tm.toLocaleTimeString() + " " + msg);
-    $("#console").append("<li>" + tm.toLocaleTimeString() + " " + msg + "</li>");
+    console.log(dateToStr(tm, "HH:NN:SS:ZZZ") + " " + msg);
+    $("#console").append("<li>" + dateToStr(tm, "HH:NN:SS:ZZZ") + " " + msg + "</li>");
 }
 
 function logClear() {
