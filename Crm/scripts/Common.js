@@ -26,6 +26,11 @@ function dateToStr(dt, format) {
     return result;
 }
 
+function sqlDateToKendoDate(dt) {
+    var result = ""
+    return result.concat(dt.substring(6, 8), "/", dt.substring(4, 6), "/", dt.substring(0, 4));
+}
+
 function sqlPrepare(sql) {
     return sql.replace("dbo.", "").replace("char(max)", "char(8000)");
 }
