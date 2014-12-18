@@ -34,7 +34,13 @@
         </header>
         
         <form>
-            <ul data-role="listview">
+            <ul data-role="listview" data-style="inset">
+                <!--<li>
+                    <label>
+                        checkbox:
+                        <input type="checkbox"/>
+                    </label>
+                </li>-->
                 <li>
                     <label>Date
                         <input data-role="datepicker" id="route-edit-datebgn">
@@ -46,9 +52,20 @@
                     </label>
                 </li>
                 <li>
-                    <ul data-role="listview" id="route-edit-skulist" class="list" data-fixed-headers="true" data-template="route-edit-skulist-tmpl" data-header-template="route-edit-skulist-header-tmpl"></ul>
+                    <ul data-role="listview" id="route-edit-skulist" class="list" data-fixed-headers="true" data-template="route-edit-skulist-tmpl" data-header-template="route-edit-skulist-header-tmpl" data-click="routeEditSkulistOnClick"></ul>
                     <script id="route-edit-skulist-tmpl" type="text/x-kendo-template">
-                        <p class="list-item-header">#:name#</p>
+                        <p class="list-item-header">
+                            <input data-role="switch" data-on-label="Yes" data-off-label="No" data-bind="checked: qnt"/>
+                            <span>
+                            #switch (qnt) { case 0:# <img src="styles/images/RouteVisitNot.png" /> #; break; case 1:# <img src="styles/images/Ok.png" /> #; break; default:#  #; break }#
+                            </span>
+                            <span>#:name#</span>
+                        </p>
+                        <!--<a data-role="button">Order</a>-->
+                        <!--<div class="item click" data="${skuId}">
+                            <input type="checkbox" class="click" />
+                            <span class="checkbox">=:name=</span>
+                        </div>-->
                     </script>
                     <script id="route-edit-skulist-header-tmpl" type="text/x-kendo-template">
                         #: value #

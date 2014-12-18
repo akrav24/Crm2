@@ -31,7 +31,7 @@ dbTools.routeListDocItemListGet = function(visitPlanItemId, datasetGet) {
     log("routeListItemGet");
     dbTools.db.transaction(function(tx) {
         var sql = "SELECT NULL AS visitPlanId, NULL AS docId, S.skuId, S.name, S.brandGrpId, BG.name AS brandGrpName, BG.brandId, B.name AS brandName,"
-            + " S.skuCatId, SC.name AS skuCatName, SC.parentId AS skuCatParentId, NULL AS qnt"
+            + " S.skuCatId, SC.name AS skuCatName, SC.parentId AS skuCatParentId, 1 AS qnt"
             + " FROM Sku S"
             + " LEFT JOIN BrandGrp BG ON S.brandGrpId = BG.brandGrpId"
             + " LEFT JOIN Brand B ON BG.brandId = B.brandId"

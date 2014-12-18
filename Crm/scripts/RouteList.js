@@ -78,6 +78,11 @@ function renderRouteListItemSkuListView(tx, rs) {
     $("#route-edit-skulist").data("kendoMobileListView").setDataSource(dataSource);
 }
 
+function routeEditSkulistOnClick(e) {
+    log("..routeEditSkulistItemOnClick name=" + e.dataItem.name + ", qnt=" + e.dataItem.qnt);
+    //e.item.toggleClass("list-item-selected");
+    e.dataItem.qnt = 1;
+}
 
 //-- TODO: DEl Test -----------------------------------------------
 
