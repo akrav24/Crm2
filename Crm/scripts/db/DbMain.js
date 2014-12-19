@@ -45,7 +45,7 @@ dbTools.serverUrl = function(serverName, port) {
 }
 
 dbTools.rsToJson = function (rs) {
-    data = [];
+    var data = [];
     for (var i = 0; i < rs.rows.length; i++) {
         data.push(rs.rows.item(i));
     }

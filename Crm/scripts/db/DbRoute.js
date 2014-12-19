@@ -16,7 +16,7 @@ dbTools.routeListGet = function(prdBgn, datasetGet) {
 }
 
 dbTools.routeListDocGet = function(visitPlanItemId, datasetGet) {
-    log("routeListItemGet");
+    log("routeListDocGet");
     dbTools.db.transaction(function(tx) {
         var sql = "SELECT VPI.visitPlanId, VP.dateBgn, VPI.visitPlanItemId, VPI.custId, K.name AS custName, NULL AS docId"
             + " FROM VisitPlanItem VPI"
@@ -28,10 +28,11 @@ dbTools.routeListDocGet = function(visitPlanItemId, datasetGet) {
 }
 
 dbTools.routeListDocItemListGet = function(visitPlanItemId, datasetGet) {
-    log("routeListItemGet");
+    log("routeListDocItemListGet");
     dbTools.db.transaction(function(tx) {
-        var sql = "SELECT NULL AS visitPlanId, NULL AS docId, S.skuId, S.name, S.brandGrpId, BG.name AS brandGrpName, BG.brandId, B.name AS brandName,"
-            + " S.skuCatId, SC.name AS skuCatName, SC.parentId AS skuCatParentId, 1 AS qnt"
+        //var sql = "SELECT NULL AS visitPlanId, NULL AS docId, S.skuId, S.name, S.brandGrpId, BG.name AS brandGrpName, BG.brandId, B.name AS brandName,"
+        //    + " S.skuCatId, SC.name AS skuCatName, SC.parentId AS skuCatParentId, 1 AS qnt"
+        var sql = "SELECT S.skuId, S.name, S.brandGrpId, BG.name AS brandGrpName, 1 AS qnt"
             + " FROM Sku S"
             + " LEFT JOIN BrandGrp BG ON S.brandGrpId = BG.brandGrpId"
             + " LEFT JOIN Brand B ON BG.brandId = B.brandId"

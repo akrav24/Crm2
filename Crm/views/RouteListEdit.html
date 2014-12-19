@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <script src="scripts/RouteListEdit.js"></script>
+    
+    <div data-role="view" id="route-view-edit" data-title="Visit" data-layout="main" data-show="routeListItemShow">
+        <header data-role="header">
+            <div data-role="navbar">
+                <a class="nav-button" data-align="left" data-role="backbutton" id="route-edit-cancel">Cancel</a>
+                <span data-role="view-title"></span>
+                <a class="nav-button" data-align="right" data-role="button" id="route-edit-save">Save</a>
+            </div>
+        </header>
+        
+        <form>
+            <ul data-role="listview" data-style="inset">
+                <li>
+                    <label>
+                        checkbox:
+                        <input type="checkbox" id="checkbox"/>
+                    </label>
+                </li>
+                <li>
+                    <label>Date
+                        <input data-role="datepicker" id="route-edit-datebgn">
+                    </label>
+                </li>
+                <li>
+                    <label>Customer
+                        <input id="route-edit-custid">
+                    </label>
+                </li>
+                <li>
+                    <ul data-role="listview" id="route-edit-skulist" class="list" data-fixed-headers="true" data-template="route-edit-skulist-tmpl" data-header-template="route-edit-skulist-header-tmpl" data-click="routeEditSkulistOnClick"></ul>
+                    <script id="route-edit-skulist-tmpl" type="text/x-kendo-template">
+                        <p class="list-item-header">
+                            <!--<input type="checkbox" class="checkbox"/>-->
+                            <input data-role="switch" data-on-label="Yes" data-off-label="No" data-bind="checked: qnt"/>
+                            <!--<span>
+                            @switch (qnt) { case 0:@ <img id="route-edit-skulist-check" src="styles/images/RouteVisitNot.png" /> @; break; case 1:@ <img id="route-edit-skulist-check" src="styles/images/Ok.png" /> @; break; default:@  @; break }@
+                            </span>-->
+                            <span>#:name#</span>
+                        </p>
+                        <!--<a data-role="button">Order</a>-->
+                        <!--<div class="item click" data="${skuId}">
+                            <input type="checkbox" class="click" />
+                            <span class="checkbox">=:name=</span>
+                        </div>-->
+                    </script>
+                    <script id="route-edit-skulist-header-tmpl" type="text/x-kendo-template">
+                        #: value #
+                    </script>
+
+                </li>
+            </ul>
+        </form>
+    </div>
+</body>
+</html>

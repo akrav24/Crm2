@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <script>
+        var tmplParams = [];
+        
+        function routeListItemShow(e) {
+            log("..routeListItemShow visitPlanItemId=" + e.view.params.visitPlanItemId);
+            tmplParams = e.view.params;
+            renderRouteListItem(e.view.params.visitPlanItemId);
+            renderRouteListItemSkuList(e.view.params.visitPlanItemId);
+        }
+
+        function renderRouteListItem(visitPlanItemId) {
+            dbTools.routeListDocGet(visitPlanItemId, renderRouteListItemView);
+        }
+
+        function renderRouteListItemSkuList(visitPlanItemId) {
+            dbTools.routeListDocItemListGet(visitPlanItemId, renderRouteListItemSkuListView);
+        }
+
+        function renderRouteListItemView(tx, rs) {
+            log("..s renderRouteListItemView");
+            var data = dbTools.rsToJson(rs);
+            /*log("--data:" + data);
+            for (var key in data[0]) {
+                log("----" + key + "=" + data[0][key]);
+            }*/
+        }
+
+        function renderRouteListItemSkuListView(tx, rs) {
+            log("..s renderRouteListItemSkuListView");
+            var data = dbTools.rsToJson(rs);
+            log("..s renderRouteListItemSkuListView 2");
+            var dataSource;
+            if (tmplParams.grouped == 0) {
+                dataSource = new kendo.data.DataSource({data: data});
+            } else {
+                dataSource = new kendo.data.DataSource({data: data, group: { field: "brandGrpName" }});
+            }
+            log("..s renderRouteListItemSkuListView 3");
+            $("#route-edit-skulist-tmpl").data("kendoMobileListView").setDataSource(dataSource);
+            log("..s renderRouteListItemSkuListView 4");
+        }
+
+    </script>
+    
+    <div data-role="view" id="route-view-edit-tmpl" data-title="Tmpl view" data-layout="main" data-show="routeListItemShow">
+        <header data-role="header">
+            <div data-role="navbar">
+                <a class="nav-button" data-align="left" data-role="backbutton">Cancel</a>
+                <span data-role="view-title"></span>
+                <a class="nav-button" data-align="right" data-role="button">Save</a>
+            </div>
+        </header>
+        
+        <form>
+            <ul data-role="listview" data-style="inset">
+                <li>
+                    <label>
+                        checkbox:
+                        <input type="checkbox" id="checkbox-tmpl"/>
+                    </label>
+                </li>
+                <li>
+                    <ul data-role="listview" id="route-edit-skulist-tmpl" class="list" data-template="route-edit-skulist-template"></ul>
+                    <script id="route-edit-skulist-template" type="text/x-kendo-template">
+                        <p class="list-item-header">
+                            <!--<input type="checkbox" class="checkbox"/>-->
+                            <!--<input data-role="switch" data-on-label="Yes" data-off-label="No" data-bind="checked: qnt"/>-->
+                            <span>#:name#</span>
+                        </p>
+                        <!--<a data-role="button">Order</a>-->
+                        <!--<div class="item click" data="${skuId}">
+                            <input type="checkbox" class="click" />
+                            <span class="checkbox">=:name=</span>
+                        </div>-->
+                    </script>
+                    <script id="route-edit-skulist-header-template" type="text/x-kendo-template">
+                        #: value #
+                    </script>
+                </li>
+            </ul>
+        </form>
+    </div>
+</body>
+</html>

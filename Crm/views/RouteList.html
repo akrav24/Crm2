@@ -9,72 +9,63 @@
     <div data-role="view" id="route-view" data-title="Visits" data-layout="main" data-init="routeListInit" data-show="routeListShow">
         <header data-role="header">
             <div data-role="navbar">
-                <label>
-                    <input data-role="datepicker" class="date" id="route-prdbgn" data-align="left" data-change="routePrdBgnOnChange">
-                </label>
+                <a class="nav-button" data-align="right" data-role="button" data-click="ShowViewOnClick">Show sku view</a>
+                <input data-role="datepicker" class="date" id="route-prdbgn" data-align="right" data-change="routePrdBgnOnChange">
                 <span data-role="view-title"></span>
                 <!--<a data-align="right" data-role="button" data-click="testOnClick">test</a>-->
             </div>
         </header>
         
-        <ul data-role="listview" id="route-list" class="list" data-template="route-tmpl" data-click="routeListOnClick"></ul>
-        <script id="route-tmpl" type="text/x-kendo-template">
-            <p class="list-item-header">#:name#</p>
-            <p class="list-item-text">#:cityName#, #:addr#</p>
-        </script>
-    </div>
-    
-    <div data-role="view" id="route-view-edit" data-title="Visit" data-layout="main" data-show="routeListItemShow">
-        <header data-role="header">
-            <div data-role="navbar">
-                <a class="nav-button" data-align="left" data-role="backbutton" id="route-edit-cancel">Cancel</a>
-                <span data-role="view-title"></span>
-                <a class="nav-button" data-align="right" data-role="button" id="route-edit-save">Save</a>
-            </div>
-        </header>
-        
-        <form>
-            <ul data-role="listview" data-style="inset">
-                <li>
-                    <label>
-                        checkbox:
-                        <input type="checkbox" id="checkbox"/>
-                    </label>
-                </li>
-                <li>
-                    <label>Date
-                        <input data-role="datepicker" id="route-edit-datebgn">
-                    </label>
-                </li>
-                <li>
-                    <label>Customer
-                        <input id="route-edit-custid">
-                    </label>
-                </li>
-                <li>
-                    <ul data-role="listview" id="route-edit-skulist" class="list" data-fixed-headers="true" data-template="route-edit-skulist-tmpl" data-header-template="route-edit-skulist-header-tmpl" data-click="routeEditSkulistOnClick"></ul>
-                    <script id="route-edit-skulist-tmpl" type="text/x-kendo-template">
-                        <p class="list-item-header">
-                            <!--<input type="checkbox" class="checkbox"/>-->
-                            <input data-role="switch" data-on-label="Yes" data-off-label="No" data-bind="checked: qnt"/>
-                            <span>
-                            #switch (qnt) { case 0:# <img id="route-edit-skulist-check" src="styles/images/RouteVisitNot.png" /> #; break; case 1:# <img id="route-edit-skulist-check" src="styles/images/Ok.png" /> #; break; default:#  #; break }#
-                            </span>
-                            <span>#:name#</span>
-                        </p>
-                        <!--<a data-role="button">Order</a>-->
-                        <!--<div class="item click" data="${skuId}">
-                            <input type="checkbox" class="click" />
-                            <span class="checkbox">=:name=</span>
-                        </div>-->
-                    </script>
-                    <script id="route-edit-skulist-header-tmpl" type="text/x-kendo-template">
-                        #: value #
-                    </script>
-
-                </li>
-            </ul>
-        </form>
+        <ul data-role="listview" data-type="group">
+            <li>
+                Sku view type
+                <ul>
+                    <li>
+                        <label>
+                            <input name="radio" type="radio" id="simple-view-radio" checked="checked" />
+                            Simple view
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input name="radio" type="radio" id="tmpl-view-radio" />
+                            Template view
+                        </label>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                Sku view settings
+                <ul>
+                    <li>
+                        <label>
+                            <input type="checkbox" id="grouped-view-checkbox" />
+                            Grouped view
+                        </label>
+                    </li>
+                    <!--<li>
+                        <label>
+                            <input type="checkbox" id="show-checkbutton-checkbox" />
+                            Show checkbutton
+                        </label>
+                    </li>-->
+                    <li>
+                        <label>
+                            <input type="checkbox" id="show-switch-checkbox" />
+                            Show switch
+                        </label>
+                    </li>
+                </ul>
+            </li>
+            <li>
+                Visits
+                <ul data-role="listview" id="route-list" class="list" data-template="route-tmpl" data-click="routeListOnClick"></ul>
+                <script id="route-tmpl" type="text/x-kendo-template">
+                    <p class="list-item-header">#:name#</p>
+                    <p class="list-item-text">#:cityName#, #:addr#</p>
+                </script>
+            </li>
+        </ul>
     </div>
 </body>
 </html>

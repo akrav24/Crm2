@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <script>
+        var params;
+        
+        function routeListItemShow(e) {
+            log("..routeListItemShow visitPlanItemId=" + e.view.params.visitPlanItemId);
+            params = e.view.params;
+            renderRouteListItem(e.view.params.visitPlanItemId);
+            renderRouteListItemSkuList(e.view.params.visitPlanItemId);
+        }
+
+        function renderRouteListItem(visitPlanItemId) {
+            dbTools.routeListDocGet(visitPlanItemId, renderRouteListItemView);
+        }
+
+        function renderRouteListItemSkuList(visitPlanItemId) {
+            dbTools.routeListDocItemListGet(visitPlanItemId, renderRouteListItemSkuListView);
+        }
+
+        function renderRouteListItemView(tx, rs) {
+            log("..s renderRouteListItemView");
+            //var data = dbTools.rsToJson(rs);
+            /*log("--data:" + data);
+            for (var key in data[0]) {
+                log("----" + key + "=" + data[0][key]);
+            }*/
+        }
+
+        function renderRouteListItemSkuListView(tx, rs) {
+            log("..s renderRouteListItemSkuListView");
+            //var data = dbTools.rsToJson(rs);
+            var dataSource;
+            var data2 = [];
+            if (params.grouped == 0) {
+                for (var i = 0; i < rs.rows.length; i++) {
+                    data2.push(rs.rows.item(i).name);
+                }
+                log("..s renderRouteListItemSkuListView 2");
+                dataSource = new kendo.data.DataSource({data: data2});
+            } else {
+                for (var i = 0; i < rs.rows.length; i++) {
+                    data2.push({name: rs.rows.item(i).name, brandGrpName: rs.rows.item(i).brandGrpName});
+                }
+                log("..s renderRouteListItemSkuListView 2");
+                dataSource = new kendo.data.DataSource({data: data2, group: { field: "brandGrpName" }});
+            }
+            log("..s renderRouteListItemSkuListView 3");
+            $("#route-edit-skulist-simple").data("kendoMobileListView").setDataSource(dataSource);
+            log("..s renderRouteListItemSkuListView 4");
+        }
+
+    </script>
+    
+    <div data-role="view" id="route-view-edit-simple" data-title="Simple view" data-layout="main" data-show="routeListItemShow">
+        <header data-role="header">
+            <div data-role="navbar">
+                <a class="nav-button" data-align="left" data-role="backbutton">Cancel</a>
+                <span data-role="view-title"></span>
+                <a class="nav-button" data-align="right" data-role="button">Save</a>
+            </div>
+        </header>
+        
+        <form>
+            <ul data-role="listview" data-style="inset">
+                <li>
+                    <label>
+                        checkbox:
+                        <input type="checkbox" id="checkbox-simple"/>
+                    </label>
+                </li>
+                <li>
+                    <ul data-role="listview" id="route-edit-skulist-simple" class="list"></ul>
+                </li>
+            </ul>
+        </form>
+    </div>
+</body>
+</html>
