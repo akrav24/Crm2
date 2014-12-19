@@ -9,6 +9,11 @@ dbTools.objectListItemSet("route-list", true, renderRouteList);
 function routeListInit(e) {
     log("..routeListInit");
     $("#route-prdbgn").data("kendoDatePicker").value(prdBgn);
+    /*$(".checkbox").iCheck({
+        checkboxClass: 'icheckbox_flat-green',
+        radioClass: 'iradio_flat-green',
+        increaseArea: '20%' // optional
+    });*/
 }
 
 function routeListShow(e) {
