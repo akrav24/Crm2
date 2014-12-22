@@ -49,35 +49,3 @@ function visitPrdBgnOnChange(e) {
     dbTools.visitListGet(prdBgn, renderVisitListView);
 }
 
-//-- TODO: DEl Test -----------------------------------------------
-
-function ShowViewOnClick() {
-    var parm = "&checkbox=" + ($('#show-checkbox-checkbox').is(":checked") ? "1" : "0");
-    parm += "&switch=" + ($('#show-switch-checkbox').is(":checked") ? "1" : "0");
-    parm += "&grouped=" + ($('#grouped-view-checkbox').is(":checked") ? "1" : "0");
-    parm += "&endless=" + ($('#endless-scrolling-checkbox').is(":checked") ? "1" : "0");
-    kendo.mobile.application.navigate("views/test/RouteListEditTmpl.html?visitPlanItemId=1377782" + parm);
-}
-
-function testOnClick() {
-    alert($("#visit-prdbgn").data("kendoDatePicker").value());
-    var o = $("#visit-prdbgn");
-    alert("o:" + o.toString());
-    var keys = "";
-    for (var key in o) {
-        keys += key + ";";
-        //log("...." + key + "=" + o[key]);
-    }
-    alert("o.keys:" + keys);
-    log("------------------------------------------------------------");
-    var d = o.data("kendoDatePicker");
-    alert("d:" + d);
-    var keys = "";
-    for (var key in d) {
-        keys += key + ";";
-        log("...." + key + "=" + d[key]);
-    }
-    alert("d.keys:" + keys);
-    alert("d.v:" + d.value());
-}
-

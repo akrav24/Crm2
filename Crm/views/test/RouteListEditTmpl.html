@@ -8,6 +8,15 @@
     <script>
         var tmplParams = [];
         
+        // to call
+        function ShowViewOnClick() {
+            var parm = "&checkbox=" + ($('#show-checkbox-checkbox').is(":checked") ? "1" : "0");
+            parm += "&switch=" + ($('#show-switch-checkbox').is(":checked") ? "1" : "0");
+            parm += "&grouped=" + ($('#grouped-view-checkbox').is(":checked") ? "1" : "0");
+            parm += "&endless=" + ($('#endless-scrolling-checkbox').is(":checked") ? "1" : "0");
+            kendo.mobile.application.navigate("views/test/RouteListEditTmpl.html?visitPlanItemId=1377782" + parm);
+        }
+        
         function routeListItemShow(e) {
             log("..routeListItemShow visitPlanItemId=" + e.view.params.visitPlanItemId);
             tmplParams = e.view.params;
@@ -16,11 +25,11 @@
         }
 
         function renderRouteListItem(visitPlanItemId) {
-            dbTools.routeListDocGet(visitPlanItemId, renderRouteListItemView);
+            dbTools.visitGet(visitPlanItemId, renderRouteListItemView);
         }
 
         function renderRouteListItemSkuList(visitPlanItemId) {
-            dbTools.routeListDocItemListGet(visitPlanItemId, renderRouteListItemSkuListView2);
+            dbTools.visitProductsGet(visitPlanItemId, renderRouteListItemSkuListView2);
         }
 
         function renderRouteListItemView(tx, rs) {

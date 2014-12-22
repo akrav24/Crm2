@@ -7,7 +7,7 @@
 <body>
     <script src="scripts/VisitProducts.js"></script>
     
-    <div data-role="view" id="visit-view-edit" data-title="Visit" data-layout="main" data-show="visitListItemShow">
+    <div data-role="view" data-title="Visit" data-layout="main" data-show="visitProductsShow">
         <header data-role="header">
             <div data-role="navbar">
                 <a class="nav-button" data-align="left" data-role="backbutton" data-icon="back"></a>
@@ -16,17 +16,17 @@
         </header>
         
         <form>
-            <ul data-role="listview" id="visit-edit-skulist" class="list" data-fixed-headers="true" data-template="visit-edit-skulist-tmpl" 
-                data-header-template="visit-edit-skulist-header-tmpl">
+            <ul data-role="listview" id="visit-products-list" class="list" data-fixed-headers="true" data-template="visit-products-list-tmpl" 
+                data-header-template="visit-products-list-header-tmpl">
             </ul>
-            <script id="visit-edit-skulist-tmpl" type="text/x-kendo-template">
+            <script id="visit-products-list-tmpl" type="text/x-kendo-template">
                 <p class="list-item-header">
                     <input type="checkbox" class="checkbox"/>
                     <!--<input data-role="switch" data-on-label="Yes" data-off-label="No" data-bind="checked: qnt"/>-->
                     <span>#:name#</span>
                 </p>
             </script>
-            <script id="visit-edit-skulist-header-tmpl" type="text/x-kendo-template">
+            <script id="visit-products-list-header-tmpl" type="text/x-kendo-template">
                 #: value #
             </script>
         </form>
