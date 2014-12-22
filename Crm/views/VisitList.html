@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Route</title>
+    <title>Visit</title>
 </head>
 <body>
-    <script src="scripts/RouteList.js"></script>
+    <script src="scripts/VisitList.js"></script>
     
-    <div data-role="view" id="route-view" data-title="Visits" data-layout="main" data-init="routeListInit" data-show="routeListShow">
+    <div data-role="view" id="visit-view" data-title="Visits" data-layout="main" data-init="visitListInit" data-show="visitListShow">
         <header data-role="header">
             <div data-role="navbar">
                 <a class="nav-button" data-align="right" data-role="button" data-click="ShowViewOnClick">Show sku view</a>
-                <input data-role="datepicker" class="date" id="route-prdbgn" data-align="right" data-change="routePrdBgnOnChange">
+                <input data-role="datepicker" class="date" id="visit-prdbgn" data-align="right" data-change="visitPrdBgnOnChange">
                 <span data-role="view-title"></span>
                 <!--<a data-align="right" data-role="button" data-click="testOnClick">test</a>-->
             </div>
@@ -28,13 +28,13 @@
                     </li>
                     <li>
                         <label>
-                            <input type="checkbox" id="endless-scrolling-checkbox" />
+                            <input type="checkbox" id="endless-scrolling-checkbox"/>
                             Endless scrolling
                         </label>
                     </li>
                     <li>
                         <label>
-                            <input type="checkbox" id="show-checkbutton-checkbox" />
+                            <input type="checkbox" id="show-checkbox-checkbox" />
                             Show checkbox
                         </label>
                     </li>
@@ -48,9 +48,9 @@
             </li>
             <li>
                 Visits
-                <ul data-role="listview" id="route-list" class="list" data-template="route-tmpl" data-click="routeListOnClick"></ul>
-                <script id="route-tmpl" type="text/x-kendo-template">
-                    <a href="views/RouteListEditSimple.html?visitPlanItemId=#:visitPlanItemId#">
+                <ul data-role="listview" id="visit-list" class="list" data-template="visit-tmpl" data-click="visitListOnClick"></ul>
+                <script id="visit-tmpl" type="text/x-kendo-template">
+                    <a href="views/VisitProducts.html?visitPlanItemId=#:visitPlanItemId#">
                       <span class="list-item-text">#:name#, #:cityName#, #:addr#</span>
                     </a>
                 </script>

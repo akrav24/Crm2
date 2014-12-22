@@ -20,7 +20,7 @@
         }
 
         function renderRouteListItemSkuList(visitPlanItemId) {
-            dbTools.routeListDocItemListGet(visitPlanItemId, renderRouteListItemSkuListView);
+            dbTools.routeListDocItemListGet(visitPlanItemId, renderRouteListItemSkuListView2);
         }
 
         function renderRouteListItemView(tx, rs) {
@@ -41,11 +41,11 @@
             }
             if (tmplParams.endless == 1) {
               $("#route-edit-skulist-tmpl").data("kendoMobileListView").endlessScroll = true;
-              $("#route-edit-skulist-tmpl").data("kendoMobileListView").virtualViewSize = 10;
+              $("#route-edit-skulist-tmpl").data("kendoMobileListView").virtualViewSize = 50;
             }
             log("..s renderRouteListItemSkuListView render beg");
             /*var template = '<li data-uid="#=uid#"><p class="list-item-header">';
-            if (tmplParams.checkbutton == 1) {
+            if (tmplParams.checkbox == 1) {
               template += '<input type="checkbox" class="checkbox"/>';
             }
             if (tmplParams.switch == 1) {
@@ -62,6 +62,46 @@
               radioClass: 'iradio_flat-green',
               increaseArea: '20%' // optional
             });
+            //$("#route-edit-skulist-tmpl").data("kendoMobileListView").refresh();
+            log("..s renderRouteListItemSkuListView render end");
+        }
+
+        function renderRouteListItemSkuListView2(tx, rs) {
+            log("..s renderRouteListItemSkuListView");
+            var data = dbTools.rsToJson(rs);
+            var dataSource = new kendo.data.DataSource({data: data});
+            if (tmplParams.grouped == 1) {
+              dataSource.group("brandGrpName");
+            }
+            /*if (tmplParams.endless == 1) {
+              $("#route-edit-skulist-tmpl").data("kendoMobileListView").endlessScroll = true;
+              $("#route-edit-skulist-tmpl").data("kendoMobileListView").virtualViewSize = 20;
+            }*/
+            log("..s renderRouteListItemSkuListView render beg");
+            /*$("#route-edit-skulist-tmpl").data("kendoMobileListView").setDataSource(dataSource);
+            dataSource.read();*/
+            $("#route-edit-skulist-tmpl").data("kendoMobileListView").destroy();
+            if (tmplParams.endless == 1) {
+                log("....tmplParams.endless == 1");
+                $("#route-edit-skulist-tmpl").kendoMobileListView({
+                    dataSource: dataSource,
+                    template: $("#route-edit-skulist-template").html(),
+                    endlessScroll: true,
+                    virtualViewSize: 20
+                });
+            } else {
+                log("....tmplParams.endless != 1");
+                $("#route-edit-skulist-tmpl").kendoMobileListView({
+                    dataSource: dataSource,
+                    template: $("#route-edit-skulist-template").html()
+                });
+            }
+            $('.checkbox').iCheck({
+              checkboxClass: 'icheckbox_flat-green',
+              radioClass: 'iradio_flat-green',
+              increaseArea: '20%' // optional
+            });
+            //$("#route-edit-skulist-tmpl").data("kendoMobileListView").refresh();
             log("..s renderRouteListItemSkuListView render end");
         }
 
@@ -77,18 +117,12 @@
         </header>
         
         <form>
-            <ul data-role="listview">
-                <li>
-                    <label>
-                        checkbox:
-                        <input type="checkbox" class="checkbox2"/>
-                    </label>
-                </li>
-            </ul>
-            <ul data-role="listview" id="route-edit-skulist-tmpl" data-template="route-edit-skulist-template" class="list" data-auto-bind="false"></ul>
+            <!--<ul data-role="listview" id="route-edit-skulist-tmpl" data-template="route-edit-skulist-template" class="list" data-auto-bind="false"></ul>-->
+            <!--<ul data-role="listview" id="route-edit-skulist-tmpl" data-template="route-edit-skulist-template" class="list" data-auto-bind="false" data-endless-scroll="true" data-virtual-view-size="10"></ul>-->
+            <ul data-role="listview" id="route-edit-skulist-tmpl"></ul>
             <script id="route-edit-skulist-template" type="text/x-kendo-template">
                 <p class="list-item-header">
-                  #if (tmplParams.checkbutton == 1) {#
+                  #if (tmplParams.checkox == 1) {#
                     <input type="checkbox" class="checkbox"/>
                   #}#
                   #if (tmplParams.switch == 1) {#

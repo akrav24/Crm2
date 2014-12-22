@@ -26,9 +26,11 @@ function dateToStr(dt, format) {
     return result;
 }
 
-function sqlDateToKendoDate(dt) {
-    var result = ""
-    return result.concat(dt.substring(6, 8), "/", dt.substring(4, 6), "/", dt.substring(0, 4));
+function sqlDateToDate(sqlDate) {
+    var y = sqlDate.substring(0, 4);
+    var m = sqlDate.substring(4, 6);
+    var d = sqlDate.substring(6, 8);
+    return new Date(y, m - 1, d);
 }
 
 function sqlPrepare(sql) {

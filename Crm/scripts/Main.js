@@ -59,9 +59,9 @@ var empId = 1;
             skin: 'flat',
             
             // the application needs to know which view to load first
-            //initial: 'views/RouteList.html'
+            //initial: 'views/VisitList.html'
             //initial: 'views/PointList.html'
-            initial: 'views/Test.html'
+            initial: 'views/test/Test.html'
         });
         
         kendo.culture("en-GB");

@@ -2,11 +2,11 @@ var prdBgn = new Date();
 // TODO: DEL
 var prdBgn = new Date(2014, 0, 2);
 prdBgn.setHours(0,0,0,0);
-dbTools.objectListItemSet("route-list", true, renderRouteList);
+dbTools.objectListItemSet("visit-list", true, renderVisitList);
 
-function routeListInit(e) {
-    log("..routeListInit");
-    $("#route-prdbgn").data("kendoDatePicker").value(prdBgn);
+function visitListInit(e) {
+    log("..visitListInit");
+    $("#visit-prdbgn").data("kendoDatePicker").value(prdBgn);
     /*$(".checkbox").iCheck({
         checkboxClass: 'icheckbox_flat-green',
         radioClass: 'iradio_flat-green',
@@ -14,54 +14,54 @@ function routeListInit(e) {
     });*/
 }
 
-function routeListShow(e) {
-    log("..routeListShow");
-    renderRouteList();
+function visitListShow(e) {
+    log("..visitListShow");
+    renderVisitList();
     /* // select item
-    var listView = $("#route-list").data("kendoMobileListView");
+    var listView = $("#visit-list").data("kendoMobileListView");
     listView.selectable = true;
     listView.select(listView.element.children().first());*/
 }
 
-function renderRouteList() {
-    if (dbTools.objectListItemGet("route-list").needReloadData) {
-        dbTools.routeListGet(prdBgn, renderRouteListView);
-        dbTools.objectListItemSet("route-list", false);
+function renderVisitList() {
+    if (dbTools.objectListItemGet("visit-list").needReloadData) {
+        dbTools.visitListGet(prdBgn, renderVisitListView);
+        dbTools.objectListItemSet("visit-list", false);
     }
 }
 
-function renderRouteListView(tx, rs) {
-    log("..renderRouteView");
+function renderVisitListView(tx, rs) {
+    log("..renderVisitView");
     var data = dbTools.rsToJson(rs);
-    $("#route-list").data("kendoMobileListView").dataSource.data(data);
+    $("#visit-list").data("kendoMobileListView").dataSource.data(data);
 }
 
-function routeListOnClick(e) {
-    log("..routeListOnClick visitPlanItemId=" + e.dataItem.visitPlanItemId);
+function visitListOnClick(e) {
+    log("..visitListOnClick visitPlanItemId=" + e.dataItem.visitPlanItemId);
     //e.item.parent("ul").find("li").removeClass("list-item-selected");
     //e.item.addClass("list-item-selected");
-    //kendo.mobile.application.navigate("views/RouteListEdit.html?visitPlanItemId=" + e.dataItem.visitPlanItemId);
+    //kendo.mobile.application.navigate("views/VisitListEdit.html?visitPlanItemId=" + e.dataItem.visitPlanItemId);
 }
 
-function routePrdBgnOnChange(e) {
-    log("..routePrdBgnOnChange");
+function visitPrdBgnOnChange(e) {
+    log("..visitPrdBgnOnChange");
     prdBgn = e.sender.value();
-    dbTools.routeListGet(prdBgn, renderRouteListView);
+    dbTools.visitListGet(prdBgn, renderVisitListView);
 }
 
 //-- TODO: DEl Test -----------------------------------------------
 
 function ShowViewOnClick() {
-    var parm = "&checkbutton=" + ($('#show-checkbutton-checkbox').is(":checked") ? "1" : "0");
+    var parm = "&checkbox=" + ($('#show-checkbox-checkbox').is(":checked") ? "1" : "0");
     parm += "&switch=" + ($('#show-switch-checkbox').is(":checked") ? "1" : "0");
     parm += "&grouped=" + ($('#grouped-view-checkbox').is(":checked") ? "1" : "0");
     parm += "&endless=" + ($('#endless-scrolling-checkbox').is(":checked") ? "1" : "0");
-    kendo.mobile.application.navigate("views/RouteListEditTmpl.html?visitPlanItemId=1377782" + parm);
+    kendo.mobile.application.navigate("views/test/RouteListEditTmpl.html?visitPlanItemId=1377782" + parm);
 }
 
 function testOnClick() {
-    alert($("#route-prdbgn").data("kendoDatePicker").value());
-    var o = $("#route-prdbgn");
+    alert($("#visit-prdbgn").data("kendoDatePicker").value());
+    var o = $("#visit-prdbgn");
     alert("o:" + o.toString());
     var keys = "";
     for (var key in o) {

@@ -1,5 +1,5 @@
-dbTools.routeListGet = function(prdBgn, datasetGet) {
-    log("routeListGet");
+dbTools.visitListGet = function(prdBgn, datasetGet) {
+    log("visitListGet");
     // visitType: 1 - визита не было, 2 - был запланированный визит, 3 - был незапланированный визит
     dbTools.db.transaction(function(tx) {
         var sql = "SELECT VP.visitPlanId, VPI.visitPlanItemId, VP.empId, VP.dateBgn, VPI.custId, K.name, K.cityId, C.name AS cityName,"
@@ -15,8 +15,8 @@ dbTools.routeListGet = function(prdBgn, datasetGet) {
     }, dbTools.onTransError);
 }
 
-dbTools.routeListDocGet = function(visitPlanItemId, datasetGet) {
-    log("routeListDocGet");
+dbTools.visitGet = function(visitPlanItemId, datasetGet) {
+    log("visitGet");
     dbTools.db.transaction(function(tx) {
         var sql = "SELECT VPI.visitPlanId, VP.dateBgn, VPI.visitPlanItemId, VPI.custId, K.name AS custName, NULL AS docId"
             + " FROM VisitPlanItem VPI"
@@ -27,8 +27,8 @@ dbTools.routeListDocGet = function(visitPlanItemId, datasetGet) {
     }, dbTools.onTransError);
 }
 
-dbTools.routeListDocItemListGet = function(visitPlanItemId, datasetGet) {
-    log("routeListDocItemListGet");
+dbTools.visitProductsGet = function(visitPlanItemId, datasetGet) {
+    log("visitProductsGet");
     dbTools.db.transaction(function(tx) {
         //var sql = "SELECT NULL AS visitPlanId, NULL AS docId, S.skuId, S.name, S.brandGrpId, BG.name AS brandGrpName, BG.brandId, B.name AS brandName,"
         //    + " S.skuCatId, SC.name AS skuCatName, SC.parentId AS skuCatParentId, 1 AS qnt"

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+  <div data-role="view" data-layout="main" data-init="viewInit">
+        <header data-role="header">
+            <div data-role="navbar">
+                <span data-role="view-title"></span>
+            </div>
+        </header>
+    <ul id="listView1"></ul>
+  </div>
+  
+    <script>
+        function getData() {
+          var data = [], idx = 0;
+          
+          for (; idx < 1000; idx++) {
+            data.push({
+              name: "Name" + idx
+            });
+          }
+          
+          return data;
+        }
+
+        function viewInit() {
+            var dataSource = new kendo.data.DataSource({
+              data: getData()
+            });
+            
+          $("#listView1").kendoMobileListView({
+            dataSource: dataSource,
+            template: "#: name #",
+            endlessScroll: true, 
+            virtualViewSize: 30
+          });
+        }
+    </script>
+</body>
+</html>
