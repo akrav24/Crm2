@@ -35,16 +35,34 @@
         function renderRouteListItemSkuListView(tx, rs) {
             log("..s renderRouteListItemSkuListView");
             var data = dbTools.rsToJson(rs);
-            log("..s renderRouteListItemSkuListView 2");
-            var dataSource;
-            if (tmplParams.grouped == 0) {
-                dataSource = new kendo.data.DataSource({data: data});
-            } else {
-                dataSource = new kendo.data.DataSource({data: data, group: { field: "brandGrpName" }});
+            var dataSource = new kendo.data.DataSource({data: data});
+            if (tmplParams.grouped == 1) {
+              dataSource.group("brandGrpName");
             }
-            log("..s renderRouteListItemSkuListView 3");
+            if (tmplParams.endless == 1) {
+              $("#route-edit-skulist-tmpl").data("kendoMobileListView").endlessScroll = true;
+              $("#route-edit-skulist-tmpl").data("kendoMobileListView").virtualViewSize = 10;
+            }
+            log("..s renderRouteListItemSkuListView render beg");
+            /*var template = '<li data-uid="#=uid#"><p class="list-item-header">';
+            if (tmplParams.checkbutton == 1) {
+              template += '<input type="checkbox" class="checkbox"/>';
+            }
+            if (tmplParams.switch == 1) {
+              template += '<input data-role="switch" data-on-label="Yes" data-off-label="No" data-bind="checked: #:qnt#"/>';
+            }
+            template += '<span>#:name#</span></p></li>';
+            log("template=" + template);
+            $("#route-edit-skulist-tmpl").data("kendoMobileListView").template = kendo.template(template);
+            log("t=" + $("#route-edit-skulist-tmpl").data("kendoMobileListView").template);*/
             $("#route-edit-skulist-tmpl").data("kendoMobileListView").setDataSource(dataSource);
-            log("..s renderRouteListItemSkuListView 4");
+            dataSource.read();
+            $('.checkbox').iCheck({
+              checkboxClass: 'icheckbox_flat-green',
+              radioClass: 'iradio_flat-green',
+              increaseArea: '20%' // optional
+            });
+            log("..s renderRouteListItemSkuListView render end");
         }
 
     </script>
@@ -59,32 +77,29 @@
         </header>
         
         <form>
-            <ul data-role="listview" data-style="inset">
+            <ul data-role="listview">
                 <li>
                     <label>
                         checkbox:
-                        <input type="checkbox" id="checkbox-tmpl"/>
+                        <input type="checkbox" class="checkbox2"/>
                     </label>
                 </li>
-                <li>
-                    <ul data-role="listview" id="route-edit-skulist-tmpl" class="list" data-template="route-edit-skulist-template"></ul>
-                    <script id="route-edit-skulist-template" type="text/x-kendo-template">
-                        <p class="list-item-header">
-                            <!--<input type="checkbox" class="checkbox"/>-->
-                            <!--<input data-role="switch" data-on-label="Yes" data-off-label="No" data-bind="checked: qnt"/>-->
-                            <span>#:name#</span>
-                        </p>
-                        <!--<a data-role="button">Order</a>-->
-                        <!--<div class="item click" data="${skuId}">
-                            <input type="checkbox" class="click" />
-                            <span class="checkbox">=:name=</span>
-                        </div>-->
-                    </script>
-                    <script id="route-edit-skulist-header-template" type="text/x-kendo-template">
-                        #: value #
-                    </script>
-                </li>
             </ul>
+            <ul data-role="listview" id="route-edit-skulist-tmpl" data-template="route-edit-skulist-template" class="list" data-auto-bind="false"></ul>
+            <script id="route-edit-skulist-template" type="text/x-kendo-template">
+                <p class="list-item-header">
+                  #if (tmplParams.checkbutton == 1) {#
+                    <input type="checkbox" class="checkbox"/>
+                  #}#
+                  #if (tmplParams.switch == 1) {#
+                    <input data-role="switch" data-on-label="Yes" data-off-label="No" data-bind="checked: #:qnt#"/>
+                  #}#
+                  <span>#:name#</span>
+                </p>
+            </script>
+            <script id="route-edit-skulist-header-template" type="text/x-kendo-template">
+                #: value #
+            </script>
         </form>
     </div>
 </body>

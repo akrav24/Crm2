@@ -38,9 +38,9 @@ function renderRouteListView(tx, rs) {
 
 function routeListOnClick(e) {
     log("..routeListOnClick visitPlanItemId=" + e.dataItem.visitPlanItemId);
-    //e.item.toggleClass("list-item-selected");
-    //kendo.mobile.application.navigate("#route-view-edit?visitPlanItemId=" + e.dataItem.visitPlanItemId);
-    kendo.mobile.application.navigate("views/RouteListEdit.html?visitPlanItemId=" + e.dataItem.visitPlanItemId);
+    //e.item.parent("ul").find("li").removeClass("list-item-selected");
+    //e.item.addClass("list-item-selected");
+    //kendo.mobile.application.navigate("views/RouteListEdit.html?visitPlanItemId=" + e.dataItem.visitPlanItemId);
 }
 
 function routePrdBgnOnChange(e) {
@@ -55,17 +55,8 @@ function ShowViewOnClick() {
     var parm = "&checkbutton=" + ($('#show-checkbutton-checkbox').is(":checked") ? "1" : "0");
     parm += "&switch=" + ($('#show-switch-checkbox').is(":checked") ? "1" : "0");
     parm += "&grouped=" + ($('#grouped-view-checkbox').is(":checked") ? "1" : "0");
-    if ($('#simple-view-radio').is(":checked"))
-    {
-        kendo.mobile.application.navigate("views/RouteListEditSimple.html?visitPlanItemId=1377782" + parm);
-    } else {
-        if ($('#show-switch-checkbox').is(":checked"))
-        {
-            kendo.mobile.application.navigate("views/RouteListEditTmpl2.html?visitPlanItemId=1377782" + parm);
-        } else {
-            kendo.mobile.application.navigate("views/RouteListEditTmpl.html?visitPlanItemId=1377782" + parm);
-        }
-    }
+    parm += "&endless=" + ($('#endless-scrolling-checkbox').is(":checked") ? "1" : "0");
+    kendo.mobile.application.navigate("views/RouteListEditTmpl.html?visitPlanItemId=1377782" + parm);
 }
 
 function testOnClick() {

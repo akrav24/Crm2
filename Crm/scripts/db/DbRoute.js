@@ -3,7 +3,7 @@ dbTools.routeListGet = function(prdBgn, datasetGet) {
     // visitType: 1 - визита не было, 2 - был запланированный визит, 3 - был незапланированный визит
     dbTools.db.transaction(function(tx) {
         var sql = "SELECT VP.visitPlanId, VPI.visitPlanItemId, VP.empId, VP.dateBgn, VPI.custId, K.name, K.cityId, C.name AS cityName,"
-            + " K.addr, K.chainId, CN.name AS chainName, NULL AS docId, 1 AS visitType"
+            + " K.addr, K.name + ', ' + C.name + ', ' + k.addr AS fullName, K.chainId, CN.name AS chainName, NULL AS docId, 1 AS visitType"
             + " FROM VisitPlan VP"
             + " INNER JOIN VisitPlanItem VPI ON VP.visitPlanId = VPI.visitPlanId"
             + " LEFT JOIN Cust K ON VPI.custId = K.custId"

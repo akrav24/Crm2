@@ -17,10 +17,10 @@ body {
     font-size: 100%;
 }
 .list-item-text {
-    font-size: 80%;
+    font-size: 100%;
 }
 .list-item-selected {
-    background-color: #FFFF00;
+    background-color:#01796F;
 }
 
 .tabstrip-button {
