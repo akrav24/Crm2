@@ -6,6 +6,22 @@ body {
     visibility: visible;
 }
 */
+/*Font Icons Display as Squares in Android v4+*/
+/*
+ .km-root .km-on-android .km-view span.km-icon
+{
+    background: none;
+}
+
+.km-root .km-pane.km-pane.km-on-android .km-view span.km-icon:after
+{
+    background: none;
+    -webkit-text-fill-color: inherit;
+}
+*/
+.hidden {
+    display:none;
+}
 
 .date {
     width: 140px;
@@ -21,6 +37,17 @@ body {
 }
 .list-item-selected {
     background-color:#01796F;
+}
+
+.visit-menu-button {
+    width:250px;
+}
+
+.menu-section {
+    width: 100%;
+}
+.menu-section p {
+    margin: 0 0 5px;
 }
 
 .tabstrip-button {

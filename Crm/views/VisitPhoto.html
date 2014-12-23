@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+  <script src="scripts/VisitPhoto.js"></script>
+  <div data-role="view" id="visit-photo-view" data-title="Фотоотчет" data-layout="main" data-init="visitPhotoInit" data-show="visitPhotoShow">
+    <header data-role="header">
+      <div data-role="navbar">
+        <a class="nav-button" data-align="left" data-role="backbutton" data-icon="back"></a>
+        <span data-role="view-title"></span>
+          <a data-role="button" data-icon="add" data-align="right" data-click="visitNewPhotoOnClick"></a>
+      </div>
+    </header>
+    <div align="center">
+      <img id="visit-photo-img" src=""/>
+    </div>
+  </div>
+  <style>
+      #visit-photo-view0 .km-content0
+      {
+        background-image: url("styles/images/Ok.png");
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+      }
+  </style>
+</body>
+</html>
