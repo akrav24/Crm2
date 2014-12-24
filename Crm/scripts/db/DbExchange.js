@@ -60,6 +60,60 @@ dbTools.exchangeDataPost = function(blockId, data, onSuccess, onError) {
     });
 }
 
+// Upload file to web service
+dbTools.exchangeDataFileUpload = function(blockId, dstFileName, fileURI, mimeType, onSuccess, onError) {
+    log("exchangeDataFileUpload(blockId=" + blockId  + ", dstFileName=" + dstFileName + ", fileURI=" + fileURI + ", mimeType=" + mimeType +  ")");
+    /*var url = dbTools.serverUrl(serverName, port) + "Api/Exchange/PostFile/?blockId=" + blockId + "&fileName=" + dstFileName;
+    $.ajax({
+        type: "POST",
+        url: url,
+        contentType: "application/json",
+        data: JSON.stringify(data),
+        success: function(data) {
+            if (onSuccess != undefined) {
+                log("exchangeDataPost data sent");
+                onSuccess(blockId, data);
+            }
+        },
+        error: function (jqXHR, textStatus, errorThrown) {if (onError != undefined) {onError("Ajax Post Error: " + url);}}
+    });
+    */
+    var uploadOnSuccess = function(r) {
+log("--success");
+        if (onSuccess != undefined) {
+            log("exchangeDataFileUpload file sent");
+            var data = {responseCode: r.responseCode, response: r.response, bytesSent: r.bytesSent};
+            onSuccess(blockId, data);
+        }
+    }
+
+    var uploadOnError = function(error) {
+log("--error");
+log("FileTransfer Upload Error: code=" + error.code + ", source=" + error.source + ", target=" + error.target);
+log(JSON.stringify(error));
+        if (onError != undefined) {
+            onError("FileTransfer Upload Error: code=" + error.code + ", source=" + error.source + ", target=" + error.target);
+        }
+    }
+    
+    var options = new FileUploadOptions();
+    options.fileKey = "file";
+    options.fileName = dstFileName;
+    options.mimeType = mimeType;
+
+    var params = {};
+    params.blockId = blockId;
+    params.fileName = dstFileName;
+
+    options.params = params;
+
+    var ft = new FileTransfer();
+log("--upload beg");
+    ft.upload(fileURI, encodeURI(dbTools.serverUrl(serverName, port) + "Api/Exchange/PostFile/"), uploadOnSuccess, uploadOnError, options);
+log("--upload end");
+}
+
+// on error
 dbTools.exchangeError = function(errorMsg) {
     log(errorMsg);
 }
