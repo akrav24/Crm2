@@ -1,5 +1,5 @@
 var serverName = "93.190.44.9";
-var port = 331
+var port = 331;
 var nodeId = 11;
 var empId = 1;
 

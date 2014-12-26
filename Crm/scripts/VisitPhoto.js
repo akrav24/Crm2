@@ -10,13 +10,16 @@ function visitNewPhotoOnClick(e) {
     
     image.attr("src", data);
     
-    var dstFileName = "test2.jpg";
+    var dt = new Date();
+    var dstFileName = nodeId.toString() + "_" + dateToStr(dt, "YYYY_MM_DD_HH_NN_SS_ZZZ") + ".jpg";
     var mimeType = "image/jpeg";
-    dbTools.exchangeDataFileUpload(0, dstFileName, data, mimeType/*, onSuccess, onError*/);
+    dbTools.exchangeDataFileUpload(0, dstFileName, data, mimeType, function() {log("----" + dstFileName + " uploaded");}, function(errMsg) {log("----" + dstFileName +  " upload error: " + errMsg);});
   };
+  
   var error = function() {
     navigator.notification.alert("Unfortunately we could not add the image");
   };
+  
   var config = {
     sourceType : Camera.PictureSourceType.CAMERA,
     //destinationType: Camera.DestinationType.DATA_URL,  
@@ -28,5 +31,6 @@ function visitNewPhotoOnClick(e) {
     targetHeight: imgSize,
     targetWidth: imgSize
   };
+  
   navigator.camera.getPicture(success, error, config);
 }
