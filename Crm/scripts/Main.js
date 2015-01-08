@@ -1,7 +1,9 @@
 var serverName = "93.190.44.9";
 var port = 331;
+//var serverName = "127.0.0.1";
+//var port = 59278;
 var nodeId = 11;
-var empId = 1;
+var empId = 1013;
 
 (function () {
 

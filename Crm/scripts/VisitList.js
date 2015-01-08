@@ -1,6 +1,6 @@
 var prdBgn = new Date();
 // TODO: DEL
-var prdBgn = new Date(2014, 0, 2);
+var prdBgn = new Date(2014, 11, 31);
 prdBgn.setHours(0,0,0,0);
 dbTools.objectListItemSet("visit-list", true, renderVisitList);
 

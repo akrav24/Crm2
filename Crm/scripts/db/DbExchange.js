@@ -122,6 +122,7 @@ dbTools.exchange = function(onSuccess, onError) {
     }
 }
 
+// Exchange. Send data to web service
 dbTools.exchangeExport = function(blockId, onSuccess, onError) {
     log("----------------------------");
     log("exchangeExport(blockId=" + blockId + ")");
@@ -152,6 +153,7 @@ dbTools.exchangeExport = function(blockId, onSuccess, onError) {
     );
 }
 
+// Exchange. Receive data from web service
 dbTools.exchangeImport = function(blockId, onSuccess, onError) {
     log("----------------------------");
     log("exchangeImport(blockId=" + blockId + ")");
@@ -217,6 +219,10 @@ dbTools.exchangeMailBlockDataIn = function(blockId, onSuccess, onError) {
                 function(tx) {
                     $.each(data, function(i, item) {
                         tx.executeSql("INSERT INTO MailBlockDataIn (blockId, irow, data) VALUES(?, ?, ?)", [item.blockId, item.irow, item.data]);
+                        if (item.irow == 9006 || item.irow >= 14500 && item.irow <= 14524) {
+                            //log(JSON.stringify(item));
+                            log("blockId=" + item.blockId + ", irow=" + item.irow + ", data=" + item.data);
+                        }
                     });
                     log("exchangeMailBlockDataIn " + data.length + " rows inserted");
                 },
