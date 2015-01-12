@@ -23,40 +23,41 @@ dbTools.exchangeBlockIdGet = function(onSuccess, onError) {
 // Get data from web service
 dbTools.exchangeDataGet = function(blockId, onSuccess, onError) {
     log("exchangeDataGet(blockId=" + blockId + ")");
-    var res = [];
     var url = dbTools.serverUrl(serverName, port) + "Api/Exchange/?blockId=" + blockId;
+    log("exchangeDataGet: receiving data...");
     $.ajax({
         async: false,
         type: "GET",
         url: url,
         dataType: "json",
         success: function(data) {
-            res = data;
+            log("exchangeDataGet: " + data.length + " rows received");
             if (onSuccess != undefined) {
                 onSuccess(blockId, data);
             }
         },
         error: function (jqXHR, textStatus, errorThrown) {if (onError != undefined) {onError("Ajax Get Error: " + url);}}
     });
-    return res;
 }
 
 // Send data to web service
 dbTools.exchangeDataPost = function(blockId, data, onSuccess, onError) {
-    log("exchangeDataPost(blockId=" + blockId  + ", data=" + JSON.stringify(data).substring(0, 500) +  ")");
+    dataLength = data.length;
+    log("exchangeDataPost(blockId=" + blockId  + ", data=[" + data.length + " rows])");
     var url = dbTools.serverUrl(serverName, port) + "Api/Exchange/?blockId=" + blockId;
+    log("exchangeDataPost: sending data...");
     $.ajax({
         type: "POST",
         url: url,
         contentType: "application/json",
         data: JSON.stringify(data),
         success: function(data) {
+            log("exchangeDataPost: " + dataLength + " rows sent");
             if (onSuccess != undefined) {
-                log("exchangeDataPost data sent");
                 onSuccess(blockId, data);
             }
         },
-        error: function (jqXHR, textStatus, errorThrown) {if (onError != undefined) {onError("Ajax Post Error: " + url);}}
+        error: function (jqXHR, textStatus, errorThrown) {log("====error");/*if (onError != undefined) {onError("Ajax Post Error: " + url);}*/}
     });
 }
 
@@ -102,6 +103,7 @@ dbTools.exchangeError = function(errorMsg) {
 
 // Exchange data between app and web service
 dbTools.exchange = function(onSuccess, onError) {
+    log("----------------------------");
     log("exchange()");
     var blockId = dbTools.exchangeBlockIdGet(
         function(blockId) {
@@ -135,7 +137,7 @@ dbTools.exchangeExport = function(blockId, onSuccess, onError) {
                         for (var i = 0; i < rs.rows.length; i++) {
                             dataOut.push({"blockId":blockId, "irow":rs.rows.item(i)["irow"], "data":rs.rows.item(i)["data"]});
                         }
-                        log("exchangeExport dataOut: " + JSON.stringify(dataOut).substring(0, 500));
+                        /*log("exchangeExport dataOut: " + JSON.stringify(dataOut).substring(0, 500));*/
                         dbTools.exchangeDataPost(blockId, dataOut, 
                             function(blockId, data) {
                                 if (onSuccess != undefined) {
@@ -194,7 +196,13 @@ dbTools.exchangeMailExport = function(blockId, onSuccess, onError) {
                                     for (var i = 0; i < rs.rows.length; i++) {
                                         irow++;
                                         var sql = "INSERT INTO MailBlockDataOut(blockId, irow, data) VALUES(?, ?, ?)";
-                                        tx.executeSql(sql, [blockId, irow, "" + refTypeId + "," + rs.rows.item(i)["id"] + ",'" + rs.rows.item(i)["updateDate"] + "'"]);
+                                        var data = "" + refTypeId + "," + rs.rows.item(i)["id"] + ",";
+                                        if (rs.rows.item(i)["updateDate"] == null){
+                                            data += "null";
+                                        } else {
+                                            data += "'" + rs.rows.item(i)["updateDate"] + "'"
+                                        }
+                                        tx.executeSql(sql, [blockId, irow, data]);
                                     }
                                 }
                             );
@@ -213,18 +221,18 @@ dbTools.exchangeMailExport = function(blockId, onSuccess, onError) {
 dbTools.exchangeMailBlockDataIn = function(blockId, onSuccess, onError) {
     log("exchangeMailBlockDataIn(blockId=" + blockId + ")");
     
-    var dataIn = dbTools.exchangeDataGet(blockId, 
+    dbTools.exchangeDataGet(blockId, 
         function(blockId, data) {
             dbTools.db.transaction(
                 function(tx) {
                     $.each(data, function(i, item) {
                         tx.executeSql("INSERT INTO MailBlockDataIn (blockId, irow, data) VALUES(?, ?, ?)", [item.blockId, item.irow, item.data]);
-                        if (item.irow == 9006 || item.irow >= 14500 && item.irow <= 14524) {
+                        /*if (item.irow == 9006 || item.irow >= 14500 && item.irow <= 14524) {
                             //log(JSON.stringify(item));
                             log("blockId=" + item.blockId + ", irow=" + item.irow + ", data=" + item.data);
-                        }
+                        }*/
                     });
-                    log("exchangeMailBlockDataIn " + data.length + " rows inserted");
+                    /*log("exchangeMailBlockDataIn " + data.length + " rows inserted");*/
                 },
                 function(error) {if (onError != undefined) {onError("SQLite error: " + error.message);}},
                 function() {if (onSuccess != undefined) {onSuccess(blockId);}}
@@ -388,8 +396,7 @@ function testGetBlockId() {
 }
 
 function testGetData() {
-    var data = dbTools.exchangeDataGet(130, undefined, function(errMsg) {log(errMsg);});
-    log("Row count: " + data.length);
+    dbTools.exchangeDataGet(130, function(blockId, data) {log("Row count: " + data.length);}, function(errMsg) {log(errMsg);});
 }
 
 function testPostData() {
