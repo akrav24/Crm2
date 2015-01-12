@@ -4,8 +4,6 @@ var port = 331;
 var port = 59278;
 */
 var nodeId = 11;
-// TODO: DEL (empId)
-//var empId = 1013;
 
 (function () {
 
