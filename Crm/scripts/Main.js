@@ -76,11 +76,12 @@ var nodeId = 11;
 }());
 
 function nodeIdSet(newNodeId) {
-    log("nodeIdSet(" + newNodeId + ")");
+    log("nodeIdSet(newNodeId=" + newNodeId + ")");
     if (newNodeId != nodeId) {
         nodeId = newNodeId;
         dbTools.dropAllTables();
         dbTools.createSystemTables();
+        log("nodeIdSet done");
     }
 }
 

@@ -1,6 +1,4 @@
 function testInit(e) {
-    log("..testInit");
-    //$("#node-id-edit").val(nodeId);
 }
 
 function nodeIdSetOnClick() {
