@@ -35,13 +35,50 @@ dbTools.createSystemTables = function() {
 }
 
 dbTools.onTransError = function(error) {
-    log("!!! SQLite transaction error: " + error.message);
-    console.log("!!! SQLite transaction error: " + error.message);
+    log("!!! SQLite transaction error: " + dbTools.errorMsg(error));
+    console.log("!!! SQLite transaction error: " + dbTools.errorMsg(error));
 }
 
 dbTools.onSqlError = function(tx, error) {
-    log("!!! SQLite Sql error: " + error.message);
-    console.log("!!! SQLite Sql error: " + error.message);
+    log("!!! SQLite sql error: " + dbTools.errorMsg(error));
+    console.log("!!! SQLite sql error: " + dbTools.errorMsg(error));
+}
+
+dbTools.errorName = function(errorCode) {
+    var codeStr = ""
+    switch (error.code) {
+        case 0:
+            codeStr = "UNKNOWN_ERR"
+            break
+        case 1:
+            codeStr = "DATABASE_ERR"
+            break
+        case 2:
+            codeStr = "VERSION_ERR"
+            break
+        case 3:
+            codeStr = "TOO_LARGE_ERR"
+            break
+        case 4:
+            codeStr = "QUOTA_ERR"
+            break
+        case 5:
+            codeStr = "SYNTAX_ERR"
+            break
+        case 6:
+            codeStr = "CONSTRAINT_ERR"
+            break
+        case 7:
+            codeStr = "TIMEOUT_ERR"
+            break
+        default:
+            break
+    }
+    return codeStr;
+}
+
+dbTools.errorMsg = function(error) {
+    return "[" + error.code + "-" + dbTools.errorName(error.code) + "] " + error.message;
 }
 
 dbTools.serverUrl = function(serverName, port) {

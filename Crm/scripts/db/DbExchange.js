@@ -148,7 +148,7 @@ dbTools.exchangeExport = function(blockId, onSuccess, onError) {
                         );
                     });
                 }, 
-                function(error) {if (onError != undefined) {onError("SQLite error: " + error.message);}}
+                function(error) {if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error));}}
             );
         },
         onError
@@ -212,7 +212,7 @@ dbTools.exchangeMailExport = function(blockId, onSuccess, onError) {
                 }
             );
         },
-        function(error) {if (onError != undefined) {onError("SQLite error: " + error.message);}},
+        function(error) {if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error));}},
         function() {if (onSuccess != undefined) {onSuccess(blockId);}}
     );
 }
@@ -234,7 +234,7 @@ dbTools.exchangeMailBlockDataIn = function(blockId, onSuccess, onError) {
                     });
                     /*log("exchangeMailBlockDataIn " + data.length + " rows inserted");*/
                 },
-                function(error) {if (onError != undefined) {onError("SQLite error: " + error.message);}},
+                function(error) {if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error));}},
                 function() {if (onSuccess != undefined) {onSuccess(blockId);}}
             );
         },
@@ -261,41 +261,56 @@ dbTools.exchangeMailBlockDataInProcScriptExec = function(blockId, onSuccess, onE
             var sql = "SELECT A.data FROM MailBlockDataIn A"
                 + " CROSS JOIN (SELECT MIN(irow) AS irow FROM MailBlockDataIn WHERE blockId = ? AND data LIKE '@%' AND data NOT LIKE '@Script%') B"
                 + " WHERE A.blockId = ? AND (B.irow IS NULL OR A.irow < B.irow) ORDER BY A.irow";
-            tx.executeSql(sql, [blockId, blockId], function(tx, rs) {
-                var sql = "";
-                for (var i = 0; i < rs.rows.length; i++) {
-                    var data = rs.rows.item(i)["data"];
-                    var j;
-                    if (data.charAt(0) === "@") {
-                        j = data.indexOf(":");
-                        var tblName = data.substring(1, j);
-                        var tblFlds = data.substring(j + 1);
-                        sql = "INSERT INTO " + tblName + "(" + tblFlds + ") SELECT @1 WHERE @2 NOT IN (SELECT versionId FROM " + tblName + ")";
-                    } else {
-                        j = data.indexOf(",");
-                        var id = data.substring(0, j);
-                        tx.executeSql(sql.replace("@1", data).replace("@2", id), []);
+            tx.executeSql(sql, [blockId, blockId], 
+                function(tx, rs) {
+                    var sql = "";
+                    for (var i = 0; i < rs.rows.length; i++) {
+                        var data = rs.rows.item(i)["data"];
+                        var j;
+                        if (data.charAt(0) === "@") {
+                            j = data.indexOf(":");
+                            var tblName = data.substring(1, j);
+                            var tblFlds = data.substring(j + 1);
+                            sql = "INSERT INTO " + tblName + "(" + tblFlds + ") SELECT @1 WHERE @2 NOT IN (SELECT versionId FROM " + tblName + ")";
+                        } else {
+                            j = data.indexOf(",");
+                            var id = data.substring(0, j);
+                            tx.executeSql(sql.replace("@1", data).replace("@2", id), [],
+                                function(tx, rs) {
+                                }, 
+                                dbTools.onSqlError
+                            );
+                        }
                     }
-                }
-                tx.executeSql("SELECT versionId, sql FROM Script WHERE versionId > (SELECT dataVersionId FROM Parm)", [], function(tx, rs) {
-                    var errCode = 0;
-                    for (var i = 0; (i < rs.rows.length) && (errCode === 0); i++) {
-                        var versionId = rs.rows.item(i)["versionId"];
-                        var sql = rs.rows.item(i)["sql"];
-                        log(".." + sqlPrepare(sql));
-                        tx.executeSql(sqlPrepare(sql), [], 
-                            function(tx, rs) {
-                                tx.executeSql("UPDATE Parm SET dataVersionId = ?", [versionId]);
-                            }, 
-                            function(tx, error) {
-                                errCode = 1;
+                    tx.executeSql("SELECT versionId, sql FROM Script WHERE versionId > (SELECT dataVersionId FROM Parm)", [], 
+                        function(tx, rs) {
+                            var errCode = 0;
+                            for (var i = 0; (i < rs.rows.length) && (errCode === 0); i++) {
+                                var versionId = rs.rows.item(i)["versionId"];
+                                var sql = rs.rows.item(i)["sql"];
+                                log(".." + sqlPrepare(sql));
+                                tx.executeSql(sqlPrepare(sql), [], 
+                                    function(tx, rs) {
+                                        tx.executeSql("UPDATE Parm SET dataVersionId = ?", [versionId],
+                                            function(tx, rs) {
+                                            }, 
+                                            dbTools.onSqlError
+                                        );
+                                    }, 
+                                    function(tx, error) {
+                                        errCode = 1;
+                                        dbTools.onSqlError(tx, error);
+                                    }
+                                );
                             }
-                        );
-                    }
-                });
-            });
+                        },
+                        dbTools.onSqlError
+                    );
+                },
+                dbTools.onSqlError
+            );
         },
-        function(error) {if (onError != undefined) {onError("SQLite error: " + error.message);}},
+        function(error) {if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error));}},
         function() {if (onSuccess != undefined) {onSuccess(blockId);}}
     );
 }
@@ -324,7 +339,7 @@ dbTools.exchangeMailBlockDataInProcMailAdd = function(blockId, onSuccess, onErro
                 }
             });
         },
-        function(error) {if (onError != undefined) {onError("SQLite error: " + error.message);}},
+        function(error) {if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error));}},
         function() {if (onSuccess != undefined) {onSuccess(blockId);}}
     );
 }
@@ -380,7 +395,7 @@ dbTools.exchangeMailImport = function(blockId, onSuccess, onError) {
                 });
             });
         },
-        function(error) {if (onError != undefined) {onError("SQLite error: " + error.message);}},
+        function(error) {if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error));}},
         function() {if (onSuccess != undefined) {onSuccess(blockId);}}
     );
 }
