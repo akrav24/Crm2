@@ -5,7 +5,7 @@ dbTools.db = null;             // SQLite database
 dbTools.objectList = []; // [{name: <name>, needReloadData: <true|false>, callback: <callback function>}, ...]
 
 function init() {
-	dbTools.openDB();
+	  dbTools.openDB();
     dbTools.createSystemTables();
 }
 
@@ -27,6 +27,10 @@ dbTools.createSystemTables = function() {
         tx.executeSql("CREATE TABLE IF NOT EXISTS MailBlockDataOut(blockId int, irow int, data varchar(8000), constraint pkMailBlockDataOut primary key(blockId, irow))", []);
         tx.executeSql("CREATE TABLE IF NOT EXISTS RefType(refTypeId int, name varchar(100), parentId int, test int, useNodeId int, dir int, updateDate datetime, sendAll int, lvl int, flds varchar(1000), constraint pkRefType primary key (refTypeId))", []);
         tx.executeSql("INSERT INTO Parm(nodeId, dataVersionId) SELECT ?, 0 WHERE NOT EXISTS(SELECT 1 FROM Parm WHERE nodeId = ?)", [nodeId, nodeId]);
+        tx.executeSql("SELECT nodeId FROM Parm", [], function(tx, rs) {
+            nodeId = rs.rows.item(0)["nodeId"];
+            nodeIdGetOnClick();
+        });
     }, dbTools.onTransError);
 }
 

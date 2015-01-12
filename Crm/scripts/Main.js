@@ -4,7 +4,8 @@ var port = 331;
 var port = 59278;
 */
 var nodeId = 11;
-var empId = 1013;
+// TODO: DEL (empId)
+//var empId = 1013;
 
 (function () {
 
@@ -73,6 +74,15 @@ var empId = 1013;
 
 
 }());
+
+function nodeIdSet(newNodeId) {
+    log("nodeIdSet(" + newNodeId + ")");
+    if (newNodeId != nodeId) {
+        nodeId = newNodeId;
+        dbTools.dropAllTables();
+        dbTools.createSystemTables();
+    }
+}
 
 //-------------------------------------------------
 // log

@@ -9,9 +9,13 @@ dbTools.visitListGet = function(prdBgn, datasetGet) {
             + " LEFT JOIN Cust K ON VPI.custId = K.custId"
             + " LEFT JOIN City C ON K.cityId = C.cityId"
             + " LEFT JOIN Chain CN ON K.chainId = CN.chainId"
-            + " WHERE VP.empId = ? AND VP.dateBgn >= ? AND VP.dateBgn <= ?"
+            // TODO: DEL (empId)
+            //+ " WHERE VP.empId = ? AND VP.dateBgn >= ? AND VP.dateBgn <= ?"
+            + " WHERE VP.dateBgn >= ? AND VP.dateBgn <= ?"
             + " ORDER BY VP.dateBgn, VPI.lvl";
-        tx.executeSql(sql, [empId, dateToStr(prdBgn, "YYYYMMDD HH:NN:SS:ZZZ"), dateToStr(prdBgn, "YYYYMMDD HH:NN:SS:ZZZ")], datasetGet, dbTools.onSqlError);
+        // TODO: DEL (empId)
+        //tx.executeSql(sql, [empId, dateToStr(prdBgn, "YYYYMMDD HH:NN:SS:ZZZ"), dateToStr(prdBgn, "YYYYMMDD HH:NN:SS:ZZZ")], datasetGet, dbTools.onSqlError);
+        tx.executeSql(sql, [dateToStr(prdBgn, "YYYYMMDD HH:NN:SS:ZZZ"), dateToStr(prdBgn, "YYYYMMDD HH:NN:SS:ZZZ")], datasetGet, dbTools.onSqlError);
     }, dbTools.onTransError);
 }
 

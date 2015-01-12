@@ -4,8 +4,11 @@ dbTools.pointListGet = function(datasetGet) {
         var sql = "SELECT C.custId, C.name, CT.name AS cityName, C.addr"
             + " FROM Cust C"
             + " LEFT JOIN City CT ON C.cityId = CT.cityId"
-            + " WHERE C.empId = ?"
+            // TODO: DEL (empId)
+            //+ " WHERE C.empId = ?"
             + " ORDER BY C.name, CT.name, C.addr, C.custId";
-        tx.executeSql(sql, [empId], datasetGet, dbTools.onSqlError);
+        // TODO: DEL (empId)
+        //tx.executeSql(sql, [empId], datasetGet, dbTools.onSqlError);
+        tx.executeSql(sql, [], datasetGet, dbTools.onSqlError);
     }, dbTools.onTransError);
 }
