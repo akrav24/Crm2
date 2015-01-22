@@ -13,5 +13,11 @@ function nodeIdSetOnClick() {
 }
 
 function nodeIdGetOnClick() {
+    log("nodeIdGetOnClick() nodeId=" + nodeId);
     $("#node-id-edit").val(nodeId);
+}
+
+function getInfo() {
+    dbTools.getTablesInfo();
+    dbTools.getSQLiteInfo();
 }

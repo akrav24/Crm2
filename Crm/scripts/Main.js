@@ -3,7 +3,7 @@ var port = 331;
 /*var serverName = "127.0.0.1";
 var port = 59278;
 */
-var nodeId = 11;
+var nodeId = 0;
 
 (function () {
 
@@ -75,12 +75,12 @@ var nodeId = 11;
 
 function nodeIdSet(newNodeId) {
     log("nodeIdSet(newNodeId=" + newNodeId + ")");
-    if (newNodeId != nodeId) {
+    //if (newNodeId != nodeId) {
         nodeId = newNodeId;
         dbTools.dropAllTables();
         dbTools.createSystemTables();
         log("nodeIdSet done");
-    }
+    //}
 }
 
 //-------------------------------------------------
@@ -91,6 +91,25 @@ function log(msg) {
     var tm = new Date();
     console.log(dateToStr(tm, "HH:NN:SS:ZZZ") + " " + msg);
     $("#console").append("<li>" + dateToStr(tm, "HH:NN:SS:ZZZ") + " " + msg + "</li>");
+}
+
+function logSqlResult(sql, onSuccess, onError) {
+    dbTools.db.transaction(
+        function(tx) {
+            tx.executeSql(sql, [],
+                function(tx, rs) {
+                    log("sql: " + sql);
+                    log("..sql result: ");
+                    for (var i = 0; (i < rs.rows.length); i++) {
+                        log(".." + JSON.stringify(rs.rows.item(i)));
+                    }
+                },
+                dbTools.onSqlError
+            );
+        },
+        function(error) {if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error));}},
+        function() {if (onSuccess != undefined) {onSuccess(blockId);}}
+    );
 }
 
 function logClear() {

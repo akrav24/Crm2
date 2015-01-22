@@ -1,14 +1,19 @@
-document.addEventListener("deviceready", init, false);
-
 var dbTools = {};
 dbTools.db = null;             // SQLite database
 dbTools.objectList = []; // [{name: <name>, needReloadData: <true|false>, callback: <callback function>}, ...]
 
-function init() {
-	  dbTools.openDB();
+document.addEventListener("deviceready", dbInit, false);
+
+function dbInit() {
+    log("init()");
+    dbTools.openDB();
     dbTools.createSystemTables();
+    dbTools.loadSettings(onLoadSettings);
 }
 
+function onLoadSettings() {
+    $("#node-id-edit").val(nodeId);
+}
 
 dbTools.openDB = function() {
     if (window.sqlitePlugin != undefined) {
@@ -20,33 +25,53 @@ dbTools.openDB = function() {
 }
 
 dbTools.createSystemTables = function() {
+    log("createSystemTables()");
     dbTools.db.transaction(function(tx) {
-        tx.executeSql("CREATE TABLE IF NOT EXISTS Script(versionId int, sql varchar(8000), constraint pkScript primary key(versionId))", []);
-        tx.executeSql("CREATE TABLE IF NOT EXISTS Parm(nodeId int, dataVersionId int, constraint pkParm primary key(nodeId))", []);
-        tx.executeSql("CREATE TABLE IF NOT EXISTS MailBlockDataIn(blockId int, irow int, data varchar(8000), constraint pkMailBlockDataIn primary key(blockId, irow))", []);
-        tx.executeSql("CREATE TABLE IF NOT EXISTS MailBlockDataOut(blockId int, irow int, data varchar(8000), constraint pkMailBlockDataOut primary key(blockId, irow))", []);
-        tx.executeSql("CREATE TABLE IF NOT EXISTS RefType(refTypeId int, name varchar(100), parentId int, test int, useNodeId int, dir int, updateDate datetime, sendAll int, lvl int, flds varchar(1000), constraint pkRefType primary key (refTypeId))", []);
-        tx.executeSql("INSERT INTO Parm(nodeId, dataVersionId) SELECT ?, 0 WHERE NOT EXISTS(SELECT 1 FROM Parm WHERE nodeId = ?)", [nodeId, nodeId]);
-        tx.executeSql("SELECT nodeId FROM Parm", [], function(tx, rs) {
-            nodeId = rs.rows.item(0)["nodeId"];
-            nodeIdGetOnClick();
-        });
+        tx.executeSql("CREATE TABLE IF NOT EXISTS Script(versionId int, sql varchar(8000), constraint pkScript primary key(versionId))", [], undefined, dbTools.onSqlError);
+        tx.executeSql("CREATE TABLE IF NOT EXISTS Parm(nodeId int, dataVersionId int, constraint pkParm primary key(nodeId))", [], undefined, dbTools.onSqlError);
+        tx.executeSql("CREATE TABLE IF NOT EXISTS MailBlockDataIn(blockId int, irow int, data varchar(8000), constraint pkMailBlockDataIn primary key(blockId, irow))", [], undefined, dbTools.onSqlError);
+        tx.executeSql("CREATE TABLE IF NOT EXISTS MailBlockDataOut(blockId int, irow int, data varchar(8000), constraint pkMailBlockDataOut primary key(blockId, irow))", [], undefined, dbTools.onSqlError);
+        tx.executeSql("CREATE TABLE IF NOT EXISTS RefType(refTypeId int, name varchar(100), parentId int, test int, useNodeId int, dir int, updateDate datetime, sendAll int, lvl int, flds varchar(1000), constraint pkRefType primary key (refTypeId))", [], undefined, dbTools.onSqlError);
+        if (nodeId > 0) {
+            tx.executeSql("INSERT INTO Parm(nodeId, dataVersionId) SELECT ?, 0 WHERE NOT EXISTS(SELECT 1 FROM Parm WHERE nodeId = ?)", [nodeId, nodeId], undefined, dbTools.onSqlError);
+        }
+    }, dbTools.onTransError);
+}
+
+dbTools.loadSettings = function(onSuccess) {
+    log("loadSettings()");
+    dbTools.db.transaction(function(tx) {
+        tx.executeSql("SELECT nodeId, dataVersionId FROM Parm", [], 
+            function(tx, rs) {
+                if (rs.rows.length > 0) {
+                    nodeId = rs.rows.item(0)["nodeId"];
+                    //$("#node-id-edit").val(nodeId);
+                    if (onSuccess != undefined) {onSuccess();}
+                }
+            }, 
+            dbTools.onSqlError
+        );
     }, dbTools.onTransError);
 }
 
 dbTools.onTransError = function(error) {
-    log("!!! SQLite transaction error: " + dbTools.errorMsg(error));
-    console.log("!!! SQLite transaction error: " + dbTools.errorMsg(error));
+    log("!!! SQLite transaction error, " + dbTools.errorMsg(error));
 }
 
-dbTools.onSqlError = function(tx, error) {
-    log("!!! SQLite sql error: " + dbTools.errorMsg(error));
-    console.log("!!! SQLite sql error: " + dbTools.errorMsg(error));
+dbTools.onSqlError = function(tx, error, sql) {
+    var errMsg = "!!! SQLite sql error, " + dbTools.errorMsg(error);
+    if (sql != undefined) {
+        errMsg += ", sql: " + sql;
+    }
+    log(errMsg);
 }
 
 dbTools.errorName = function(errorCode) {
     var codeStr = ""
-    switch (error.code) {
+    switch (errorCode) {
+        case -1:
+            codeStr = "UNDEFINED_CODE"
+            break
         case 0:
             codeStr = "UNKNOWN_ERR"
             break
@@ -78,7 +103,33 @@ dbTools.errorName = function(errorCode) {
 }
 
 dbTools.errorMsg = function(error) {
-    return "[" + error.code + "-" + dbTools.errorName(error.code) + "] " + error.message;
+    var errMsg = "[undefined error]";
+    if (error != undefined) {
+        if (error.message != undefined) {
+            errMsg = error.message;
+            if (error.code != undefined) {
+                errMsg = "code: " + error.code + " (" + dbTools.errorName(error.code) + "), message: " + errMsg;
+            } else {
+                errMsg = "code: -1 (" + dbTools.errorName(-1) + "), message: " + errMsg;
+            }
+        } else {
+            errMsg = "";
+            for (var key in error) {
+                if (errMsg == "") {
+                    errMsg = "(" + key + "=" + error[key];
+                } else {
+                    errMsg += ', ' + key + "=" + error[key];
+                }
+            }
+            if (errMsg == "") {
+                errMsg = error;
+            } else {
+                errMsg += ")";
+            }
+            errMsg = "code: -1 (" + dbTools.errorName(-1) + "), message: " + errMsg;
+        }
+    }
+    return errMsg;
 }
 
 dbTools.serverUrl = function(serverName, port) {
@@ -126,9 +177,9 @@ dbTools.dropAllTables = function() {
         tx.executeSql("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'android%' AND name NOT LIKE '%WebKit%'", [], function(tx, rs) {
             for (var i = 0; i < rs.rows.length; i++) {
                 var sql = "DROP TABLE " + rs.rows.item(i)["name"];
-                tx.executeSql(sql, []);
+                tx.executeSql(sql, [], undefined, dbTools.onSqlError);
             }
-        });
+        }, dbTools.onSqlError);
     }, dbTools.onTransError);
 }
 
@@ -140,7 +191,7 @@ dbTools.tableCount = function() {
     dbTools.db.transaction(function(tx) {
         tx.executeSql("SELECT count(*) AS cnt FROM sqlite_master WHERE type='table'", [], function(tx, rs) {
             log("Table count = " + rs.rows.item(0)["cnt"].toString());
-        });
+        }, dbTools.onSqlError);
     }, dbTools.onTransError);
 }
 
@@ -148,7 +199,7 @@ dbTools.tableRowCount = function(tableName) {
     dbTools.db.transaction(function(tx) {
         tx.executeSql("SELECT count(*) AS cnt FROM " + tableName, [], function(tx, rs) {
             log(tableName + " row count = " + rs.rows.item(0)["cnt"].toString());
-        });
+        }, dbTools.onSqlError);
     }, dbTools.onTransError);
 }
 
@@ -160,6 +211,18 @@ dbTools.getTablesInfo = function() {
             for (var i = 0; i < rs.rows.length; i++) {
                 dbTools.tableRowCount(rs.rows.item(i)["name"]);
             }
-        });
+            logSqlResult("select * from parm");
+        }, dbTools.onSqlError);
+    }, dbTools.onTransError);
+}
+
+dbTools.getSQLiteInfo = function() {
+    dbTools.db.transaction(function(tx) {
+        tx.executeSql("SELECT sqlite_version() AS version, sqlite_source_id() AS sourceId", [], function(tx, rs) {
+            if (rs.rows.length > 0) {
+                log("SQLite version: " + rs.rows.item(0)["version"]);
+                log("SQLite sourceId: " + rs.rows.item(0)["sourceId"]);
+            }
+        }, dbTools.onSqlError);
     }, dbTools.onTransError);
 }

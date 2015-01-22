@@ -2,7 +2,7 @@
 dbTools.exchangeBlockIdGet = function(onSuccess, onError) {
     var blockId = 0;
     var url = dbTools.serverUrl(serverName, port) + "Api/ExchangeStart/?nodeId=" + nodeId;
-    log("exchangeBlockIdGet()");
+    log("exchangeBlockIdGet() nodeId=" + nodeId);
     $.ajax({
         async: false,
         type: "GET",
@@ -105,22 +105,28 @@ dbTools.exchangeError = function(errorMsg) {
 dbTools.exchange = function(onSuccess, onError) {
     log("----------------------------");
     log("exchange()");
-    var blockId = dbTools.exchangeBlockIdGet(
-        function(blockId) {
-            dbTools.exchangeExport(blockId, 
-                function(blockId) {
-                    dbTools.exchangeImport(blockId, onSuccess, onError);
-                },
-                onError
-            );
-        },
-        onError
-    );
-    for (var i = 0; i < dbTools.objectList.length; i++) {
-        dbTools.objectList[i].needReloadData = true;
-        if (dbTools.objectList[i].callback != undefined) {
-            dbTools.objectList[i].callback();
+    if (nodeId > 0) {
+        var blockId = dbTools.exchangeBlockIdGet(
+            function(blockId) {
+                dbTools.exchangeExport(blockId, 
+                    function(blockId) {
+                        dbTools.exchangeImport(blockId, onSuccess, onError);
+                    },
+                    onError
+                );
+            },
+            onError
+        );
+        for (var i = 0; i < dbTools.objectList.length; i++) {
+            dbTools.objectList[i].needReloadData = true;
+            if (dbTools.objectList[i].callback != undefined) {
+                dbTools.objectList[i].callback();
+            }
         }
+    } else {
+        var errMsg = "nodeId undefined";
+        log(errMsg);
+        if (onError != undefined) {onError(errMsg);}
     }
 }
 
@@ -254,7 +260,7 @@ dbTools.exchangeMailBlockDataInProc = function(blockId, onSuccess, onError) {
 }
 
 dbTools.exchangeMailBlockDataInProcScriptExec = function(blockId, onSuccess, onError) {
-    log("exchangeMailBlockDataInProcScriptAdd(blockId=" + blockId + ")");
+    log("exchangeMailBlockDataInProcScriptExec(blockId=" + blockId + ")");
     
     dbTools.db.transaction(
         function(tx) {
@@ -273,16 +279,19 @@ dbTools.exchangeMailBlockDataInProcScriptExec = function(blockId, onSuccess, onE
                             var tblFlds = data.substring(j + 1);
                             sql = "INSERT INTO " + tblName + "(" + tblFlds + ") SELECT @1 WHERE @2 NOT IN (SELECT versionId FROM " + tblName + ")";
                         } else {
+                            var execSql = function(sql, isError) {
+                                tx.executeSql(sql, [],
+                                    function(tx, rs) {
+                                    }, 
+                                    function (tx, error) {dbTools.onSqlError(tx, error, sql);}
+                                );
+                            }
                             j = data.indexOf(",");
                             var id = data.substring(0, j);
-                            tx.executeSql(sql.replace("@1", data).replace("@2", id), [],
-                                function(tx, rs) {
-                                }, 
-                                dbTools.onSqlError
-                            );
+                            execSql(sql.replace("@1", data).replace("@2", id));
                         }
                     }
-                    tx.executeSql("SELECT versionId, sql FROM Script WHERE versionId > (SELECT dataVersionId FROM Parm)", [], 
+                    tx.executeSql("SELECT versionId, sql FROM Script WHERE versionId > (SELECT dataVersionId FROM Parm WHERE nodeId = ?)", [nodeId], 
                         function(tx, rs) {
                             var errCode = 0;
                             for (var i = 0; (i < rs.rows.length) && (errCode === 0); i++) {
