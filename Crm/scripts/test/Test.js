@@ -21,3 +21,15 @@ function getInfo() {
     dbTools.getTablesInfo();
     dbTools.getSQLiteInfo();
 }
+
+function getImage() {
+    dbTools.exchangeDataFileByIdDownload(0, 3,
+        function(blockId, fileId, fileEntry) {
+            log("File downloaded: " + fileEntry.fullPath);
+        }, 
+        function(errMsg) {
+            alert(errMsg);
+            log(errMsg);
+        }
+    );
+}

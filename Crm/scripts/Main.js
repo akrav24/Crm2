@@ -4,6 +4,8 @@ var port = 331;
 var port = 59278;
 */
 var nodeId = 0;
+var rootFolderName = "com.bizlg.crm";
+var planogamFilePrefix = "plan";
 
 (function () {
 
