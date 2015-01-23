@@ -1,4 +1,5 @@
 function testInit(e) {
+    $("#fileId").val(2);
 }
 
 function nodeIdSetOnClick() {
@@ -23,7 +24,8 @@ function getInfo() {
 }
 
 function getImage() {
-    dbTools.exchangeDataFileByIdDownload(0, 3,
+    var fileId = $("#fileId").val();
+    dbTools.exchangeDataFileByIdDownload(0, fileId,
         function(blockId, fileId, fileEntry) {
             log("File downloaded: " + fileEntry.fullPath);
         }, 
