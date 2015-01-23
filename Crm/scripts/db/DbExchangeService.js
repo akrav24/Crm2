@@ -116,7 +116,7 @@ log("5");
     }
     
     var url = dbTools.serverUrl(serverName, port) + "Api/Exchange/GetFileById/?blockId=" + blockId + "&fileId=" + fileId;
-    var folderName = rootFolderName + "\/files";
+    var folderName = rootFolderName/* + "\/files"*/;
 log("....folderName=" + folderName);
     var fileName = planogamFilePrefix + fileId.toString() + ".png";
     var filePath = "";
