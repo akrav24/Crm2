@@ -79,7 +79,7 @@ function getLocation() {
     }
     
     var timeout = $("#timeout").data("kendoNumericTextBox");
-    geolocationOptions = { maximumAge: 30000, timeout: timeout.value(), enableHighAccuracy: true };
+    geolocationOptions = { maximumAge: 30000, timeout: timeout.value() * 1000, enableHighAccuracy: true };
     
     navigator.geolocation.getCurrentPosition(onSuccess, onError, geolocationOptions);    
 }
