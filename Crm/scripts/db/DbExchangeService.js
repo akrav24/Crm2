@@ -100,32 +100,29 @@ dbTools.exchangeDataFileUpload = function(blockId, dstFileName, fileURI, mimeTyp
 dbTools.exchangeDataFileByIdDownload = function(blockId, fileId, onSuccess, onError) {
     log("exchangeDataFileByIdDownload(blockId=" + blockId  + ", fileId=" + fileId +  ")");
     
+    var url = dbTools.serverUrl(serverName, port) + "Api/Exchange/GetFileById/?blockId=" + blockId + "&fileId=" + fileId;
+    var folderName = fileHelper.planogramFolderName();
+    var fileName = fileHelper.planogramFileName(fileId);
+    var filePath = "";
+    
     var uploadOnSuccess = function(fileEntry) {
-log("4");
-        log("..exchangeDataFileByIdDownload file received: " + fileEntry.fullPath);
+        //log("..exchangeDataFileByIdDownload file received: " + fileEntry.fullPath);
+        fileHelper.getFileEntry(folderName, fileName, function(fileEntry) {log("..exchangeDataFileByIdDownload file received: " + fileEntry.toURL());}, onError);
         if (onSuccess != undefined) {
             onSuccess(blockId, fileId, fileEntry);
         }
     }
 
     var uploadOnError = function(error) {
-log("5");
         if (onError != undefined) {
             onError("FileTransfer Download Error: code=" + error.code + ", source=" + error.source + ", target=" + error.target);
         }
     }
     
-    var url = dbTools.serverUrl(serverName, port) + "Api/Exchange/GetFileById/?blockId=" + blockId + "&fileId=" + fileId;
-    var folderName = rootFolderName/* + "\/files"*/;
-log("....folderName=" + folderName);
-    var fileName = planogamFilePrefix + fileId.toString() + ".png";
-    var filePath = "";
-    
     fileHelper.getFilesystem(
         function(fileSystem) {
             fileHelper.getFolder(fileSystem, folderName,
                 function(folder) {
-log("1");
                     filePath = folder.toURL() + "/" + fileName;
                     
                     var options = new FileUploadOptions();
@@ -135,13 +132,11 @@ log("1");
                     ft.download(url, filePath, uploadOnSuccess, uploadOnError, false, options);
                 },
                 function() {
-log("2");
                     onError("FileTransfer Download Error: failed to get folder '" + folderName + "'");
                 }
             );
         },
         function() {
-log("3");
             onError("FileTransfer Download Error: failed to get filesystem");
         }
     );

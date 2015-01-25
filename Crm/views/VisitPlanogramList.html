@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <script src="scripts/VisitPlanogramList.js"></script>
+    <div data-role="view" id="visit-planogram-list-view" data-title="Планограмма" data-layout="main" data-init="visitPlanogramListInit" data-show="visitPlanogramListShow">
+        <header data-role="header">
+            <div data-role="navbar">
+                <a class="nav-button" data-align="left" data-role="backbutton" data-icon="back"></a>
+                <span data-role="view-title"></span>
+            </div>
+        </header>
+        <div id="scrollview-container">
+            <div id="scrollview"
+                data-role="scrollview" 
+                data-auto-bind="true"
+                data-template="scrollview-template">
+                <!--<div class="photo photo1" data-role="page" align="center"><img id="visit-planogram-img1" border="1"/></div>
+                <div class="photo photo2" data-role="page" align="center"><img id="visit-planogram-img2" border="1"/></div>
+                <div class="photo photo3" data-role="page" align="center"><img id="visit-planogram-img3" border="1"/></div>-->
+            </div>
+        </div>
+    </div>
+    
+    <script id="scrollview-template" type="text/x-kendo-template">
+        <div align="center">fileId=#=fileId#</div>
+        <!--<div style="width: 110px; height: 110px; background-image: @=setBackground(fileId)@;"></div>-->
+        <div align="center"><div style="width: 500px; height: 500px; background-image: url(#=filePath#); background-color: silver; background-position: center center; background-repeat: no-repeat; background-size: contain;"></div></div>
+        <!--<div align="center"><img id="@=setBackground(fileId)@" border="1"/></div>-->
+        <!--<div align="center"><img id="img-#=fileId#" src="#=filePath#" width="500px" border="1"/></div>-->
+    </script>
+</body>
+</html>
