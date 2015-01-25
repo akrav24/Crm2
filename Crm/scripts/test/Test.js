@@ -1,5 +1,6 @@
 function testInit(e) {
     $("#fileId").val(2);
+    $("#timeout").kendoNumericTextBox({format: "n0", decimals: 0});
 }
 
 function nodeIdSetOnClick() {
@@ -56,4 +57,29 @@ function getAllImages() {
         }, 
         function(error) {log("!!! SQLite error: " + dbTools.errorMsg(error));}
     );
+}
+
+function getLocation() {
+    log("getLocation()");
+    
+    var onSuccess = function(position) {
+        alert('Latitude: '          + position.coords.latitude          + '\n' +
+              'Longitude: '         + position.coords.longitude         + '\n' +
+              'Altitude: '          + position.coords.altitude          + '\n' +
+              'Accuracy: '          + position.coords.accuracy          + '\n' +
+              'Altitude Accuracy: ' + position.coords.altitudeAccuracy  + '\n' +
+              'Heading: '           + position.coords.heading           + '\n' +
+              'Speed: '             + position.coords.speed             + '\n' +
+              'Timestamp: '         + position.timestamp                + '\n');
+    };
+    
+    function onError(error) {
+        alert('code: '    + error.code    + '\n' +
+              'message: ' + error.message + '\n');
+    }
+    
+    var timeout = $("#timeout").data("kendoNumericTextBox");
+    geolocationOptions = { maximumAge: 30000, timeout: timeout.value(), enableHighAccuracy: true };
+    
+    navigator.geolocation.getCurrentPosition(onSuccess, onError, geolocationOptions);    
 }
