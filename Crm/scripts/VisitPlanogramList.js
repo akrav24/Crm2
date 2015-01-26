@@ -37,7 +37,7 @@ function dataAdd(data, folderName, rows, i) {
 }
 
 function setDataSource(data) {
-    //log("..setDataSource: " + JSON.stringify(data));
+    log("..setDataSource: " + JSON.stringify(data));
     var scrollview = $("#scrollview").data("kendoMobileScrollView");
     scrollview.setDataSource(data);
     scrollview.refresh();
