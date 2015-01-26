@@ -11,6 +11,7 @@
             <div data-role="navbar">
                 <a class="nav-button" data-align="left" data-role="backbutton" data-icon="back"></a>
                 <span data-role="view-title"></span>
+                <!--<a class="nav-button" data-role="button" data-align="right" data-click="getValue">Get Value</a>-->
             </div>
         </header>
         <div id="scrollview-container">
@@ -28,7 +29,7 @@
     <script id="scrollview-template" type="text/x-kendo-template">
         <div align="center">fileId=#=fileId#</div>
         <!--<div style="width: 110px; height: 110px; background-image: @=setBackground(fileId)@;"></div>-->
-        <div align="center"><div style="width: 500px; height: 500px; background-image: url(#=filePath#); background-color: silver; background-position: center center; background-repeat: no-repeat; background-size: contain;"></div></div>
+        <div align="center"><div style="width: 500px; height: 500px; background-image: url(#=filePath#); background-position: center center; background-repeat: no-repeat; background-size: contain;"></div></div>
         <!--<div align="center"><img id="@=setBackground(fileId)@" border="1"/></div>-->
         <!--<div align="center"><img id="img-#=fileId#" src="#=filePath#" width="500px" border="1"/></div>-->
     </script>

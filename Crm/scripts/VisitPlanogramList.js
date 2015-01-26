@@ -1,6 +1,7 @@
 var data = [];
 
 function visitPlanogramListShow() {
+    log("visitPlanogramListShow()");
     var folderName = fileHelper.planogramFolderName();
     dbTools.db.transaction(
         function(tx) {
@@ -19,11 +20,11 @@ function visitPlanogramListShow() {
 }
 
 function dataAdd(data, folderName, rows, i) {
+    //log("..dataAdd(" + JSON.stringify(data) + ", '" + folderName + "', " + JSON.stringify(rows) + ", " + i + ")");
     var fileId = rows.item(i)["fileId"];
     var fileName = fileHelper.planogramFileName(fileId);
     fileHelper.getFileEntry(folderName, fileName, 
         function(fileEntry) {
-            log("..img src: " + fileEntry.toURL());
             data.push({"fileId": fileId, "filePath": fileEntry.toURL()});
             if (i < rows.length - 1) {
                 dataAdd(data, folderName, rows, ++i);
@@ -36,8 +37,13 @@ function dataAdd(data, folderName, rows, i) {
 }
 
 function setDataSource(data) {
-log("..setDataSource: " + JSON.stringify(data));
+    //log("..setDataSource: " + JSON.stringify(data));
     var scrollview = $("#scrollview").data("kendoMobileScrollView");
     scrollview.setDataSource(data);
     scrollview.refresh();
+}
+
+function getValue() {
+    var scrollview = $("#scrollview").data("kendoMobileScrollView");
+    alert("value=" + JSON.stringify(scrollview.value()) + ", dataSource.total=" + scrollview.dataSource.total());
 }
