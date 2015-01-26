@@ -6,6 +6,7 @@ function visitPlanogramListShow() {
         function(tx) {
             tx.executeSql("SELECT fileId FROM Planogram", [], 
                 function(tx, rs) {
+                    data.length = 0;
                     if (rs.rows.length > 0) {
                         dataAdd(data, folderName, rs.rows, 0);
                     }
