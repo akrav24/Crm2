@@ -7,11 +7,13 @@ var nodeId = 0;
 var rootFolderName = "com.bizlg.crm";
 var planogamFilePrefix = "plan";
 
+var app;
+
 (function () {
 
     // store a reference to the application object that will be created
     // later on so that we can use it if need be
-    var app;
+    //var app;
 
     // create an object to store the models for each view
     /*window.APP = {

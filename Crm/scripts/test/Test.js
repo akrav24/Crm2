@@ -37,6 +37,7 @@ function getImage() {
 }
 
 function getAllImages() {
+    log("getAllImages()");
     dbTools.db.transaction(
         function(tx) {
             tx.executeSql("SELECT fileId FROM Planogram", [], 
