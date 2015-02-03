@@ -1,6 +1,12 @@
 function testInit(e) {
+    log("testInit(e)");
     $("#fileId").val(2);
     $("#timeout").kendoNumericTextBox({format: "n0", decimals: 0});
+    nodeIdGetOnClick();
+}
+
+function testShow(e) {
+    log("testShow(e)");
 }
 
 function nodeIdSetOnClick() {
@@ -20,8 +26,8 @@ function nodeIdGetOnClick() {
 }
 
 function getInfo() {
-    dbTools.getTablesInfo();
     dbTools.getSQLiteInfo();
+    dbTools.getTablesInfo();
 }
 
 function getImage() {

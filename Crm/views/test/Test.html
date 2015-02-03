@@ -6,11 +6,17 @@
 <body>
     <script src="scripts/test/Test.js"></script>
     
-    <div data-role="view" data-title="Test" data-layout="main" data-init="testInit" >
+    <div data-role="view" data-title="Test" data-layout="main" data-init="testInit" data-show="testShow" >
+        <header data-role="header">
+            <div data-role="navbar">
+                <a class="nav-button" data-align="left" data-role="backbutton" data-icon="back"></a>
+                <span data-role="view-title"></span>
+            </div>
+        </header>
         <div>
             <h5>Node Id</h5>
+            <a id="node-id-get-button" data-role="button" data-click="nodeIdGetOnClick" style="font-size:70%">Get nodeId</a>
             <input id="node-id-edit" style="width:60px" />
-            <!--<a id="node-id-get-button" data-role="button" data-click="nodeIdGetOnClick" style="font-size:70%">Get nodeId</a>-->
             <a id="node-id-set-button" data-role="button" data-click="nodeIdSetOnClick" style="font-size:70%">Set nodeId</a>
             <!--<a id="get-blockid-button" data-role="button" data-click="testGetBlockId">Get blockId</a>
             <a id="get-button" data-role="button" data-click="testGetData">Get data</a>

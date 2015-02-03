@@ -12,12 +12,13 @@ function dbInit() {
 }
 
 function onLoadSettings() {
-    $("#node-id-edit").val(nodeId);
+    log("onLoadSettings() nodeId=" + nodeId);
 }
 
 dbTools.openDB = function() {
+    log("openDB()");
     if (window.sqlitePlugin != undefined) {
-        dbTools.db = window.sqlitePlugin.openDatabase("Crm");
+        dbTools.db = window.sqlitePlugin.openDatabase("Crm", function() {log("====1");}, function() {log("====2");});
     } else {
         // For debugging in simulator fallback to native SQL Lite
         dbTools.db = window.openDatabase("Crm", "1.0", "Cordova Demo", 200000);
@@ -45,7 +46,6 @@ dbTools.loadSettings = function(onSuccess) {
             function(tx, rs) {
                 if (rs.rows.length > 0) {
                     nodeId = rs.rows.item(0)["nodeId"];
-                    //$("#node-id-edit").val(nodeId);
                     if (onSuccess != undefined) {onSuccess();}
                 }
             }, 
@@ -130,10 +130,6 @@ dbTools.errorMsg = function(error) {
         }
     }
     return errMsg;
-}
-
-dbTools.serverUrl = function(serverName, port) {
-    return "http://" + serverName + (port != undefined ? ":" + port : "") + "/"
 }
 
 dbTools.rsToJson = function (rs) {

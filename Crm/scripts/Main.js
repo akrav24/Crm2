@@ -58,7 +58,7 @@ var app;
 
         app = new kendo.mobile.Application(document.body, {
             // you can change the default transition (slide, zoom or fade)
-            transition: 'slide',
+            //transition: 'slide',
             
             // comment out the following line to get a UI which matches the look
             // and feel of the operating system
@@ -67,7 +67,8 @@ var app;
             // the application needs to know which view to load first
             //initial: 'views/VisitList.html'
             //initial: 'views/PointList.html'
-            initial: 'views/test/Test.html'
+            //initial: 'views/test/Test.html'
+            initial: 'views/Start.html'
         });
         
         kendo.culture("en-GB");
@@ -107,12 +108,12 @@ function logSqlResult(sql, onSuccess, onError) {
                     for (var i = 0; (i < rs.rows.length); i++) {
                         log(".." + JSON.stringify(rs.rows.item(i)));
                     }
+                    if (onSuccess != undefined) {onSuccess();}
                 },
                 dbTools.onSqlError
             );
         },
-        function(error) {if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error));}},
-        function() {if (onSuccess != undefined) {onSuccess(blockId);}}
+        function(error) {if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error));}}
     );
 }
 

@@ -28,3 +28,11 @@ function renderPointListView(tx, rs) {
     $("#point-list").data("kendoMobileListView").dataSource.data(data);
 }
 
+/*function filter2OnClick(e) {
+    var modalView = e.sender.element.closest("[data-role=modalview]").data("kendoMobileModalView");
+    modalView.close();
+}
+*/
+function applyFilterOnClick(e) {
+    $("#point-list-filter").data("kendoMobileDrawer").hide();
+}

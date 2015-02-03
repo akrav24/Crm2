@@ -1,3 +1,7 @@
+dbTools.serverUrl = function(serverName, port) {
+    return "http://" + serverName + (port != undefined ? ":" + port : "") + "/"
+}
+
 // Get blockId (exchange start)
 dbTools.exchangeBlockIdGet = function(onSuccess, onError) {
     var blockId = 0;

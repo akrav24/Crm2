@@ -67,7 +67,10 @@ dbTools.exchangeImport = function(blockId, onSuccess, onError) {
         function(blockId) {
             dbTools.exchangeMailBlockDataInProc(blockId, 
                 function(blockId) {
-                    dbTools.exchangeMailImport(blockId, onSuccess, onError);
+                    dbTools.exchangeMailImport(blockId, 
+                        function(blockId) {dbTools.getAllImages(blockId, onSuccess, onError)}, 
+                        onError
+                    );
                 }, 
                 onError
             );
@@ -305,6 +308,35 @@ dbTools.exchangeMailImport = function(blockId, onSuccess, onError) {
         function() {if (onSuccess != undefined) {onSuccess(blockId);}}
     );
 }
+
+dbTools.getAllImages = function(blockId, onSuccess, onError) {
+    log("getAllImages()");
+    dbTools.db.transaction(
+        function(tx) {
+            tx.executeSql("SELECT fileId FROM Planogram", [], 
+                function(tx, rs) {
+                    for (var i = 0; i < rs.rows.length; i++) {
+                        var fileDownload = function(blockId, fileId, isLastFile) {
+                            dbTools.exchangeDataFileByIdDownload(blockId, fileId,
+                                function(blockId, fileId, fileEntry) {
+                                    //log("File downloaded: " + fileEntry.fullPath);
+                                    if (isLastFile) {
+                                        if (onSuccess != undefined) {onSuccess()}
+                                    }
+                                }, 
+                                function(errMsg) {if (onError != undefined) {onError(errMsg)}}
+                            );
+                        }
+                        fileDownload(blockId, rs.rows.item(i)["fileId"], (i === rs.rows.length - 1));
+                    }
+                },
+                function(error) {if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error))}}
+            );
+        }, 
+        function(error) {if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error))}}
+    );
+}
+
 
 
 //-------------------------------------------------

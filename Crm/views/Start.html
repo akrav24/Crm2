@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <script src="scripts/Start.js"></script>
+    <div id="start-view"
+        data-role="view"
+        data-layout="main"
+        data-title="DSS Mobile"
+        data-init="startOnInit">
+        
+        <header data-role="header">
+            <div data-role="navbar">
+                <span data-role="view-title"></span>
+                <a class="nav-button" data-align="right" data-role="button" data-icon="settings" href="views/test/Test.html"></a>
+            </div>
+        </header>
+        
+        <div align="center">
+            <img class="logo" src="styles/images/_logo.png"/>
+        </div>
+        <div align="center">
+            <p>
+                <a class="start-menu-button" data-role="button" href="views/VisitList.html">Маршрут</a>
+            </p>
+            <p>
+                <a class="start-menu-button" data-role="button" href="views/PointList.html">Перечень торговых точек</a>
+            </p>
+            <p>
+                <a class="start-menu-button" data-role="button" data-click="exchangeOnClick">Обмен информацией</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>
