@@ -124,7 +124,7 @@ function logClear() {
 function logObjectKeys(o, keyFilter) {
     var isFound = false;
     for (var key in o) {
-        if (keyFilter != undefined && keyFilter != '') {
+        if (keyFilter != undefined && keyFilter != "") {
             if (key.indexOf(keyFilter) != -1) {
                 isFound = true;
                 log(key + "=" + o[key]);
