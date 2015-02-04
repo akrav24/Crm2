@@ -13,15 +13,24 @@
         
         <header data-role="header">
             <div data-role="navbar">
-                <a class="nav-button" data-align="left" data-role="backbutton" data-icon="back"></a>
+                <a class="nav-button" data-align="left" data-role="backbutton" data-icon="back" data-click="backOnClick"></a>
                 <span data-role="view-title"></span>
-                <!--<a class="nav-button" data-align="right" data-role="button" data-rel="modalview" href="#point-list-filter2">MV</a>-->
-                <!--<a class="nav-button" data-align="right" data-role="button" data-rel="popover" href="#point-list-filter3">PO</a>-->
-                <a class="nav-button" data-align="right" data-role="button" data-icon="filter" data-rel="drawer" href="#point-list-filter"></a>
+                <a class="nav-button" data-align="right" data-role="button" data-icon="filter" data-rel="drawer" href="#point-list-filter0">Drawer</a>
+                <a id="point-list-filter-button" class="nav-button" data-align="right" data-role="button" data-icon="filter"></a>
             </div>
         </header>
         
         <ul data-role="listview" id="point-list" class="list" data-template="point-tmpl"></ul>
+        
+        <div id="point-list-filter" class="slide-panel-right">
+            <ul data-role="listview">
+                <li>Сеть:</li>
+                <li>Город:</li>
+                <li>Канал:</li>
+                <li>Категория:</li>
+                <li>Тип точки:</li>
+            </ul>
+        </div>
         
         <script id="point-tmpl" type="text/x-kendo-template">
             <a class="list-item-header" href="views/PointList.html">
@@ -30,7 +39,7 @@
         </script>
     </div>
     
-    <div id="point-list-filter"
+    <div id="point-list-filter0"
         data-role="drawer" 
         data-position="right" 
         data-swipe-to-open="false"
@@ -52,43 +61,6 @@
             <li>Тип точки:</li>
         </ul>
     </div>
-    
-    <!--<div id="point-list-filter2" 
-        data-role="modalview" 
-        data-title="Фильтр"
-        data-modal="false"
-        style="width: 40%; height: 100%;">
-        
-        <div data-role="header">
-            <div data-role="navbar">
-                <span data-role="view-title"></span>
-                <a data-align="right" data-role="button" data-click="filter2OnClick">Отбор</a>
-            </div>
-        </div>
-        
-        <ul data-role="listview">
-            <li>Сеть:</li>
-            <li>Город:</li>
-            <li>Канал:</li>
-            <li>Категория:</li>
-            <li>Тип точки:</li>
-        </ul>
-    </div>-->
-    
-    <!--<div id="point-list-filter3"
-        data-role="popover"
-        data-popup='{"height": "16em", "width": "20em"}'>
-        
-        <div data-role="view">
-            <ul data-role="listview">
-                <li>Сеть:</li>
-                <li>Город:</li>
-                <li>Канал:</li>
-                <li>Категория:</li>
-                <li>Тип точки:</li>
-            </ul>
-        </div>
-    </div>-->
     
 </body>
 </html>
