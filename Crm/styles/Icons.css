@@ -1,5 +1,15 @@
+/*--font icons---------*/
+/*http://docs.telerik.com/kendo-ui/mobile/icons#additional-icons-in-kendo-ui-mobile-font*/
+
 .km-back:after,
 .km-back:before
 {
     content: "\e013";
 }
+
+.km-filter:after,
+.km-filter:before
+{
+    content: "\e06c";
+}
+

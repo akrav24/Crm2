@@ -2,7 +2,7 @@
 dbTools.exchange = function(onSuccess, onError) {
     log("----------------------------");
     log("exchange()");
-    if (nodeId > 0) {
+    if (settings.nodeId > 0) {
         var blockId = dbTools.exchangeBlockIdGet(
             function(blockId) {
                 dbTools.exchangeExport(blockId, 
@@ -86,7 +86,7 @@ dbTools.exchangeMailExport = function(blockId, onSuccess, onError) {
         function(tx) {
             var sql = "INSERT INTO MailBlockDataOut(blockId, irow, data) VALUES(?, ?, ?)";
             tx.executeSql(sql, [blockId, 1, "@ExchParm:nodeId, exchDate"]);
-            tx.executeSql(sql, [blockId, 2, nodeId + ", '" + dateToStr(new Date(), "YYYYMMDD HH:NN:SS:ZZZ") + "'"]);
+            tx.executeSql(sql, [blockId, 2, settings.nodeId + ", '" + dateToStr(new Date(), "YYYYMMDD HH:NN:SS:ZZZ") + "'"]);
             tx.executeSql(sql, [blockId, 3, "@ExtRef:refTypeId,refId,updateDate"]);
             var irow = 3;
             tx.executeSql("SELECT refTypeId, name FROM RefType WHERE dir < 0 AND parentId IS NULL AND IFNULL(sendAll, 0) = 0", [],
@@ -191,7 +191,7 @@ dbTools.exchangeMailBlockDataInProcScriptExec = function(blockId, onSuccess, onE
                             execSql(sql.replace("@1", data).replace("@2", id));
                         }
                     }
-                    tx.executeSql("SELECT versionId, sql FROM Script WHERE versionId > (SELECT dataVersionId FROM Parm WHERE nodeId = ?)", [nodeId], 
+                    tx.executeSql("SELECT versionId, sql FROM Script WHERE versionId > (SELECT dataVersionId FROM Parm WHERE nodeId = ?)", [settings.nodeId], 
                         function(tx, rs) {
                             var errCode = 0;
                             for (var i = 0; (i < rs.rows.length) && (errCode === 0); i++) {

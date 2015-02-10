@@ -3,7 +3,7 @@ var port = 331;
 /*var serverName = "127.0.0.1";
 var port = 59278;
 */
-var nodeId = 0;
+//var nodeId = 0;
 var rootFolderName = "com.bizlg.crm";
 var planogamFilePrefix = "plan";
 
@@ -72,6 +72,9 @@ var app;
         });
         
         kendo.culture("en-GB");
+        
+        settingsInit();
+        dbInit();
 
     }, false);
 
@@ -80,8 +83,8 @@ var app;
 
 function nodeIdSet(newNodeId) {
     log("nodeIdSet(newNodeId=" + newNodeId + ")");
-    //if (newNodeId != nodeId) {
-        nodeId = newNodeId;
+    //if (newNodeId != settings.nodeId) {
+        settings.nodeId = newNodeId;
         dbTools.dropAllTables();
         dbTools.createSystemTables();
         log("nodeIdSet done");

@@ -2,17 +2,15 @@ var dbTools = {};
 dbTools.db = null;             // SQLite database
 dbTools.objectList = []; // [{name: <name>, needReloadData: <true|false>, callback: <callback function>}, ...]
 
-document.addEventListener("deviceready", dbInit, false);
-
 function dbInit() {
-    log("init()");
+    log("dbInit()");
     dbTools.openDB();
     dbTools.createSystemTables();
     dbTools.loadSettings(onLoadSettings);
 }
 
 function onLoadSettings() {
-    log("onLoadSettings() nodeId=" + nodeId);
+    log("onLoadSettings() nodeId=" + settings.nodeId);
 }
 
 dbTools.openDB = function() {
@@ -33,8 +31,8 @@ dbTools.createSystemTables = function() {
         tx.executeSql("CREATE TABLE IF NOT EXISTS MailBlockDataIn(blockId int, irow int, data varchar(8000), constraint pkMailBlockDataIn primary key(blockId, irow))", [], undefined, dbTools.onSqlError);
         tx.executeSql("CREATE TABLE IF NOT EXISTS MailBlockDataOut(blockId int, irow int, data varchar(8000), constraint pkMailBlockDataOut primary key(blockId, irow))", [], undefined, dbTools.onSqlError);
         tx.executeSql("CREATE TABLE IF NOT EXISTS RefType(refTypeId int, name varchar(100), parentId int, test int, useNodeId int, dir int, updateDate datetime, sendAll int, lvl int, flds varchar(1000), constraint pkRefType primary key (refTypeId))", [], undefined, dbTools.onSqlError);
-        if (nodeId > 0) {
-            tx.executeSql("INSERT INTO Parm(nodeId, dataVersionId) SELECT ?, 0 WHERE NOT EXISTS(SELECT 1 FROM Parm WHERE nodeId = ?)", [nodeId, nodeId], undefined, dbTools.onSqlError);
+        if (settings.nodeId > 0) {
+            tx.executeSql("INSERT INTO Parm(nodeId, dataVersionId) SELECT ?, 0 WHERE NOT EXISTS(SELECT 1 FROM Parm WHERE nodeId = ?)", [settings.nodeId, settings.nodeId], undefined, dbTools.onSqlError);
         }
     }, dbTools.onTransError);
 }
@@ -45,7 +43,7 @@ dbTools.loadSettings = function(onSuccess) {
         tx.executeSql("SELECT nodeId, dataVersionId FROM Parm", [], 
             function(tx, rs) {
                 if (rs.rows.length > 0) {
-                    nodeId = rs.rows.item(0)["nodeId"];
+                    settings.nodeId = rs.rows.item(0)["nodeId"];
                     if (onSuccess != undefined) {onSuccess();}
                 }
             }, 
@@ -156,9 +154,9 @@ dbTools.objectListItemSet = function(name, needReloadData, callback) {
             if (dbTools.objectList[i].name = name) {
                 found = true;
                 dbTools.objectList[i].needReloadData = needReloadData;
-                if (callback !== undefined) {
+                //if (callback !== undefined) {
                     dbTools.objectList[i].callback = callback;
-                }
+                //}
                 break;
             }
         }

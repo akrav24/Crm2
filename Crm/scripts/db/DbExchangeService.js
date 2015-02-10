@@ -5,8 +5,8 @@ dbTools.serverUrl = function(serverName, port) {
 // Get blockId (exchange start)
 dbTools.exchangeBlockIdGet = function(onSuccess, onError) {
     var blockId = 0;
-    var url = dbTools.serverUrl(serverName, port) + "Api/ExchangeStart/?nodeId=" + nodeId;
-    log("exchangeBlockIdGet() nodeId=" + nodeId);
+    var url = dbTools.serverUrl(serverName, port) + "Api/ExchangeStart/?nodeId=" + settings.nodeId;
+    log("exchangeBlockIdGet() nodeId=" + settings.nodeId);
     $.ajax({
         async: false,
         type: "GET",

@@ -2,19 +2,19 @@ function startOnInit(e) {
     log("startOnInit(e)");
 }
 
-/*function visitsOnClick(e) {
+/*function startVisitsOnClick(e) {
     app.navigate("views/VisitList.html");
 }
 */
-/*function pointListOnClick(e) {
+/*function startPointListOnClick(e) {
     app.navigate("views/PointList.html");
 }
 */
-function exchangeOnClick(e) {
+function startExchangeOnClick(e) {
     dbTools.exchange(function() {log("----Exchange SUCCSESS");}, function(errMsg) {log("----Exchange ERROR: " + errMsg);});
 }
 
-/*function settingsOnClick(e) {
+/*function startSettingsOnClick(e) {
     app.navigate("views/test/Test.html");
 }
 */

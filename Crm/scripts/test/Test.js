@@ -21,8 +21,8 @@ function nodeIdSetOnClick() {
 }
 
 function nodeIdGetOnClick() {
-    log("nodeIdGetOnClick() nodeId=" + nodeId);
-    $("#node-id-edit").val(nodeId);
+    log("nodeIdGetOnClick() nodeId=" + settings.nodeId);
+    $("#node-id-edit").val(settings.nodeId);
 }
 
 function getInfo() {

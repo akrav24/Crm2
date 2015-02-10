@@ -1,9 +1,8 @@
-dbTools.objectListItemSet("point-list", true, renderPointList);
-
-var filterPanelVisible = true;
-
+/*var filterPanelVisible = true;
+*/
 function pointListInit(e) {
     log("..pointListInit");
+    dbTools.objectListItemSet("point-list", true/*, renderPointList*/);
     /*$("#point-list").data("kendoMobileListView"
     )
     .kendoTouch({
@@ -11,16 +10,49 @@ function pointListInit(e) {
         tap: function(e) {log("....ListView tap");}
     });*/
     
-    filterPanelInit();
+    /*filterPanelInit();
+    */
 }
 
-function filterPanelInit() {
-    /*var panel = $("#point-list-filter");
-    var view = panel.closest("[data-role=view]");
-    panel.css("margin-left", view.width());
-    */
-    var slide = kendo.fx($("#point-list-filter")).slideIn("right")
+function pointListShow(e) {
+    log("..pointListShow");
+    renderPointList();
+}
 
+function renderPointList() {
+    log("..renderPointList");
+    if (dbTools.objectListItemGet("point-list").needReloadData) {
+        log("....renderPointList ReloadData");
+        dbTools.pointListGet(renderPointListView);
+        dbTools.objectListItemSet("point-list", false);
+    }
+}
+
+function renderPointListView(tx, rs) {
+    log("..renderPointView");
+    var data = dbTools.rsToJson(rs);
+    $("#point-list").data("kendoMobileListView").dataSource.data(data);
+}
+
+function pointListOnApplyFilter(filterPoints) {
+    dbTools.objectListItemGet("point-list").needReloadData = true;
+    renderPointList()
+}
+
+function pointListFilterShow(e) {
+    log("..pointListFilterShow");
+    filterPointsOnApply = pointListOnApplyFilter;
+    app.navigate("views/global/FilterPoints.html");
+}
+
+/*function filterPanelInit() {
+    //var panel = $("#point-list-filter");
+    //var view = panel.closest("[data-role=view]");
+    //panel.css("margin-left", view.width());
+    
+    var panel = $("#point-list-filter");
+    var slide = kendo.fx(panel).slideIn("right");
+    
     $("#point-list-filter-button").click(function(e) {
         if (filterPanelVisible) {
             slide.reverse();
@@ -31,26 +63,8 @@ function filterPanelInit() {
         e.preventDefault();
     });
 }
-
-function pointListShow(e) {
-    log("..pointListShow");
-    renderPointList();
-}
-
-function renderPointList() {
-    if (dbTools.objectListItemGet("point-list").needReloadData) {
-        dbTools.pointListGet(renderPointListView);
-        dbTools.objectListItemSet("point-list", false);
-    }
-}
-
-function renderPointListView(tx, rs) {
-    log("..renderPointView");
-    data = dbTools.rsToJson(rs);
-    $("#point-list").data("kendoMobileListView").dataSource.data(data);
-}
-
-function applyFilterOnClick(e) {
+*/
+/*function applyFilterOnClick(e) {
     $("#point-list-filter").data("kendoMobileDrawer").hide();
 }
-
+*/

@@ -11,7 +11,7 @@ function visitNewPhotoOnClick(e) {
     image.attr("src", data);
     
     var dt = new Date();
-    var dstFileName = nodeId.toString() + "_" + dateToStr(dt, "YYYY_MM_DD_HH_NN_SS_ZZZ") + ".jpg";
+    var dstFileName = settings.nodeId.toString() + "_" + dateToStr(dt, "YYYY_MM_DD_HH_NN_SS_ZZZ") + ".jpg";
     var mimeType = "image/jpeg";
     dbTools.exchangeDataFileUpload(0, dstFileName, data, mimeType, function() {log("----" + dstFileName + " uploaded");}, function(errMsg) {log("----" + dstFileName +  " upload error: " + errMsg);});
   };

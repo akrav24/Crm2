@@ -1,15 +1,16 @@
 var prdBgn = new Date();
 prdBgn.setHours(0,0,0,0);
-dbTools.objectListItemSet("visit-list", true, renderVisitList);
 
 function visitListInit(e) {
     log("..visitListInit");
+    dbTools.objectListItemSet("visit-list", true/*, renderVisitList*/);
     $("#visit-prdbgn").data("kendoDatePicker").value(prdBgn);
     /*$(".checkbox").iCheck({
         checkboxClass: 'icheckbox_flat-green',
         radioClass: 'iradio_flat-green',
         increaseArea: '20%' // optional
     });*/
+    $("[data-role = datepicker]").prop("readonly", "true");
 }
 
 function visitListShow(e) {
@@ -18,11 +19,14 @@ function visitListShow(e) {
     /* // select item
     var listView = $("#visit-list").data("kendoMobileListView");
     listView.selectable = true;
-    listView.select(listView.element.children().first());*/
+    listView.select(listView.element.children().first());
+    */
 }
 
 function renderVisitList() {
+    log("..renderVisitList");
     if (dbTools.objectListItemGet("visit-list").needReloadData) {
+        log("..renderVisitList ReloadData");
         dbTools.visitListGet(prdBgn, renderVisitListView);
         dbTools.objectListItemSet("visit-list", false);
     }
