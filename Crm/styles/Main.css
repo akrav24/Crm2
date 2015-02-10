@@ -104,6 +104,7 @@ body {
 .nav-button {
     font-size: medium;
     height: 80%;
+    margin-right: 5px;
 }
 
 .menu-section {

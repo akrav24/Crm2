@@ -45,9 +45,24 @@ function visitListOnClick(e) {
     //kendo.mobile.application.navigate("views/VisitListEdit.html?visitPlanItemId=" + e.dataItem.visitPlanItemId);
 }
 
-function visitPrdBgnOnChange(e) {
+function visitListPrdBgnOnChange(e) {
     log("..visitPrdBgnOnChange");
     prdBgn = e.sender.value();
+    dbTools.visitListGet(prdBgn, renderVisitListView);
+}
+
+function visitListPrdPrev(e) {
+    prdBgn.setDate(prdBgn.getDate() - 1);
+    visitListPrdChangeDate(prdBgn);
+}
+
+function visitListPrdNext(e) {
+    prdBgn.setDate(prdBgn.getDate() + 1);
+    visitListPrdChangeDate(prdBgn);
+}
+
+function visitListPrdChangeDate(prdBgn) {
+    $("#visit-prdbgn").data("kendoDatePicker").value(prdBgn);
     dbTools.visitListGet(prdBgn, renderVisitListView);
 }
 

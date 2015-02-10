@@ -5,6 +5,7 @@
 </head>
 <body>
     <script src="scripts/VisitList.js"></script>
+    <script src="scripts/db/DbVisit.js"></script>
     
     <div data-role="view" 
         data-title="Маршрут" 
@@ -16,7 +17,9 @@
             <div data-role="navbar">
                 <a class="nav-button" data-align="left" data-role="backbutton" data-icon="back"></a>
                 <span data-role="view-title"></span>
-                <input data-role="datepicker" class="date nav-button" id="visit-prdbgn" data-align="right" data-change="visitPrdBgnOnChange">
+                <a class="nav-button" data-align="right" data-role="button" data-icon="prev-date" data-click="visitListPrdPrev"></a>
+                <input data-role="datepicker" class="date nav-button" id="visit-prdbgn" data-align="right" data-change="visitListPrdBgnOnChange">
+                <a class="nav-button" data-align="right" data-role="button" data-icon="next-date"  data-click="visitListPrdNext"></a>
             </div>
         </header>
         

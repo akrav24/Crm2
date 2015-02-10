@@ -13,3 +13,14 @@
     content: "\e06c";
 }
 
+.km-prev-date:after,
+.km-prev-date:before
+{
+    content: "\e003";
+}
+
+.km-next-date:after,
+.km-next-date:before
+{
+    content: "\e000";
+}
