@@ -101,6 +101,10 @@ body {
     width: 40%;
 }
 
+.navbar {
+    height: 60px;
+}
+
 .nav-button {
     font-size: medium;
     height: 80%;
