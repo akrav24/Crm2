@@ -9,6 +9,7 @@
     <div id="start-view"
         data-role="view"
         data-layout="main"
+        data-stretch="true"
         data-title="DSS Mobile"
         data-init="startOnInit">
         
@@ -18,16 +19,19 @@
                 <a class="nav-button" data-align="right" data-role="button" data-icon="settings" href="views/test/Test.html"></a>
             </div>
         </header>
-        <div align="center" >
-            <p>
-                <a class="start-menu-button" data-role="button" href="views/VisitList.html">Маршрут</a>
-            </p>
-            <p>
-                <a class="start-menu-button" data-role="button" href="views/PointList.html">Перечень торговых точек</a>
-            </p>
-            <p>
-                <a class="start-menu-button" data-role="button" data-click="startExchangeOnClick">Обмен информацией</a>
-            </p>
+        
+        <div class="start-menu-outer">
+            <div class="start-menu-inner">
+                <p>
+                    <a class="start-menu-button" data-role="button" href="views/VisitList.html">Маршрут</a>
+                </p>
+                <p>
+                    <a class="start-menu-button" data-role="button" href="views/PointList.html">Перечень торговых точек</a>
+                </p>
+                <p>
+                    <a class="start-menu-button" data-role="button" data-click="startExchangeOnClick">Обмен информацией</a>
+                </p>
+            </div>
         </div>
     </div>
 </body>

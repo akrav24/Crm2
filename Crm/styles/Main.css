@@ -132,9 +132,17 @@ body {
     background-color: White;
 }
 
+.start-menu-outer {
+    display: -webkit-box;
+    -webkit-box-pack: center;
+    -webkit-box-align: center;
+}
+.start-menu-inner {
+    width: 80%;
+}
 .start-menu-button {
     font-size: large;
-    width: 60%;
+    width: 100%;
 }
 
 
