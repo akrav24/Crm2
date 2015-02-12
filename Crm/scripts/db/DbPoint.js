@@ -16,3 +16,14 @@ dbTools.pointListGet = function(datasetGet) {
             settings.filterPoints.orgTypeId, settings.filterPoints.orgTypeId], datasetGet, dbTools.onSqlError);
     }, dbTools.onTransError);
 }
+
+dbTools.pointGet = function(custId, datasetGet) {
+    log("pointGet");
+    dbTools.db.transaction(function(tx) {
+        var sql = "SELECT c.name"
+            + " FROM Cust c"
+            + " WHERE c.custId = ?";
+        tx.executeSql(sql, [custId], datasetGet, dbTools.onSqlError);
+    }, dbTools.onTransError);
+}
+

@@ -8,7 +8,7 @@ function settingsInit() {
     settings.nodeId = 0;
     
     settings.filterPoints = {};
-    settings.filterPoints.chainId = 230;
+    settings.filterPoints.chainId = -1;
     settings.filterPoints.cityId = -1;
     settings.filterPoints.channelId = -1;
     settings.filterPoints.orgCatId = -1;
