@@ -43,7 +43,7 @@ function pointListOnApplyFilter(filterPoints) {
 function pointListFilterShow(e) {
     log("..pointListFilterShow");
     filterPointsOnApply = pointListOnApplyFilter;
-    app.navigate("views/FilterPoints.html");
+    app.navigate("views/PointFilter.html");
 }
 
 /*function filterPanelInit() {
