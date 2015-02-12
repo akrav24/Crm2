@@ -20,8 +20,11 @@ dbTools.pointListGet = function(datasetGet) {
 dbTools.pointGet = function(custId, datasetGet) {
     log("pointGet");
     dbTools.db.transaction(function(tx) {
-        var sql = "SELECT c.name"
+        var sql = "SELECT c.custId, c.name, c.addr, t.name as orgTypeName, ct.name as orgCatName, cn.name as channelName"
             + " FROM Cust c"
+            + " LEFT JOIN OrgType t ON t.orgTypeId=c.orgType"
+            + " LEFT JOIN OrgCat ct ON ct.orgCatId=c.orgCatId"
+            + " LEFT JOIN Channel cn ON cn.channelId=c.channelId"
             + " WHERE c.custId = ?";
         tx.executeSql(sql, [custId], datasetGet, dbTools.onSqlError);
     }, dbTools.onTransError);

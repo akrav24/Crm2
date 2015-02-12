@@ -30,6 +30,7 @@ function renderPointList() {
 
 function renderPointListView(tx, rs) {
     log("..renderPointView");
+    dbTools.pointLst = rs;
     var data = dbTools.rsToJson(rs);
     $("#point-list").data("kendoMobileListView").dataSource.data(data);
 }
