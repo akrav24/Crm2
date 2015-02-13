@@ -2,37 +2,34 @@
 
 <html>
 <head>
-  <title></title>
+    <title></title>
 </head>
 <body>
-  <script src="scripts/Visit.js"></script>
-  <div data-role="view" id="visit-view" data-title="Визит" data-layout="main" data-init="visitInit" data-show="visitShow">
-    <header data-role="header">
-      <div data-role="navbar">
-        <a class="nav-button" data-align="left" data-role="backbutton" data-icon="back"></a>
-        <span data-role="view-title"></span>
-          <a data-role="button" id="visit-start-button" data-align="right" data-click="visitStartOnClick">Начать</a>
-          <a data-role="button" id="visit-finish-button" class="hidden" data-align="right" data-click="visitFinishOnClick">Закончить</a>
-      </div>
-    </header>
-    <div class="menu-section" align="center">
-      <p>
-        <a data-role="button" id="visit-1-button" class="visit-menu-button" data-click="visit1OnClick">Задачи на визит</a>
-        <a data-role="button" id="visit-2-button" class="visit-menu-button" data-click="visit1OnClick">Конкуренты</a>
-      </p>
-      <p>
-        <a data-role="button" id="visit-3-button" class="visit-menu-button" data-click="visit1OnClick">Наличие продукции</a>
-        <a href="views/VisitPhoto.html" data-role="button" id="visit-photo-button" class="visit-menu-button" data-click="visitPhotoOnClick">Фото-отчет</a>
-      </p>
-      <p>
-        <a href="views/VisitPlanogramList.html" data-role="button" id="visit-planogram-list-button" class="visit-menu-button" data-click="visitPlanogramListOnClick">POS-материалы</a>
-        <a data-role="button" id="visit-6-button" class="visit-menu-button" data-click="visit1OnClick">Отчет по визиту</a>
-      </p>
-      <p>
-        <a data-role="button" id="visit-7-button" class="visit-menu-button" data-click="visit1OnClick">Прайс аудит</a>
-        <a data-role="button" id="visit-8-button" class="visit-menu-button" data-click="visit1OnClick">Задачи на следующий визит</a>
-      </p>
+    <script src="scripts/Visit.js"></script>
+    <div 
+        id="visit-view" 
+        data-role="view" 
+        data-title="Категория" 
+        data-layout="main" 
+        data-init="visitInit" 
+        data-show="visitShow">
+      
+        <header data-role="header">
+            <div data-role="navbar">
+                <a class="nav-button" data-align="left" data-role="backbutton" data-icon="back"></a>
+                <span data-role="view-title"></span>
+                <a id="visit-start-button" class="hidden" data-role="button" data-align="right" data-click="visitStartOnClick">Начать</a>
+                <a id="visit-finish-button" class="hidden" data-role="button" data-align="right" data-click="visitFinishOnClick">Закончить</a>
+            </div>
+        </header>
+        
+        <ul id="prod-cat-list" class="list" data-role="listview" data-template="prod-cat-list-tmpl"></ul>
+    
+        <script id="prod-cat-list-tmpl" type="text/x-kendo-template">
+            <a class="list-item-header" href="views/VisitProducts.html?visitPlanItemId=#:visitPlanItemId#&skuCatId=#:skuCatId#">
+                <p>#: name #</p>
+            </a>
+        </script>
     </div>
-  </div>
 </body>
 </html>
