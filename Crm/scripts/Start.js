@@ -1,5 +1,12 @@
 function startOnInit(e) {
-    log("startOnInit(e)");
+    log("..startOnInit(e)");
+}
+
+function startOnShow(e) {
+    log("..startOnShow(e)");
+    /*if (settings.nodeId <= 0) {
+        $("#error-button").removeClass("hidden");
+    }*/
 }
 
 /*function startVisitsOnClick(e) {
@@ -18,3 +25,7 @@ function startExchangeOnClick(e) {
     app.navigate("views/test/Test.html");
 }
 */
+
+function startErrorOnClick(e) {
+    alert("Установите идентификатор устройства (nodeId)");
+}
