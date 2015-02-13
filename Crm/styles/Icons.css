@@ -7,6 +7,12 @@
     content: "\e013";
 }
 
+.km-error:after,
+.km-error:before
+{
+    content: "\e0fa";
+}
+
 .km-filter:after,
 .km-filter:before
 {

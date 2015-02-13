@@ -36,6 +36,7 @@ function renderVisitListView(tx, rs) {
     log("..renderVisitView");
     var data = dbTools.rsToJson(rs);
     $("#visit-list").data("kendoMobileListView").dataSource.data(data);
+    $("#visit-list-view").data("kendoMobileView").stretch = (data.length === 0);
 }
 
 function visitListOnClick(e) {
@@ -49,6 +50,11 @@ function visitListPrdBgnOnChange(e) {
     log("..visitPrdBgnOnChange");
     prdBgn = e.sender.value();
     dbTools.visitListGet(prdBgn, renderVisitListView);
+}
+
+function visitListPrdBgnOnClick(e) {
+    log("..visitListPrdBgnOnClick");
+    $("#visit-prdbgn").data("kendoDatePicker").open();
 }
 
 function visitListPrdPrev(e) {
@@ -66,3 +72,12 @@ function visitListPrdChangeDate(prdBgn) {
     dbTools.visitListGet(prdBgn, renderVisitListView);
 }
 
+function visitListSwipe(e) {
+    log("..visitListSwipe=" + e.direction);
+    if (e.direction == "right") {
+        prdBgn.setDate(prdBgn.getDate() - 1);
+    } else {
+        prdBgn.setDate(prdBgn.getDate() + 1);
+    }
+    visitListPrdChangeDate(prdBgn);
+}

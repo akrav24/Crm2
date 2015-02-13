@@ -11,10 +11,12 @@
         data-layout="main"
         data-stretch="true"
         data-title="DSS Mobile"
-        data-init="startOnInit">
+        data-init="startOnInit"
+        data-show="startOnShow">
         
         <header data-role="header">
             <div data-role="navbar">
+                <a id="error-button" class="nav-button error hidden" data-align="left" data-role="button" data-icon="error" data-click="startErrorOnClick" style="color: Red;"></a>
                 <span data-role="view-title"></span>
                 <a class="nav-button" data-align="right" data-role="button" data-icon="settings" href="views/test/Test.html"></a>
             </div>

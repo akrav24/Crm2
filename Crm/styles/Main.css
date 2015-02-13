@@ -29,7 +29,7 @@ body {
 .k-datepicker .k-input {
     height: 100%;
 }
-/*TODO: DEL AK: hide datepicker button example*/
+/*AK: hide datepicker button example*/
 /*.k-datepicker .k-select {
     display: none;
 }
@@ -46,6 +46,10 @@ body {
 
 .date {
     width: 140px;
+}
+
+.error {
+    color: Red;
 }
 
 .gallery-title
@@ -139,6 +143,7 @@ body {
 }
 .start-menu-inner {
     width: 80%;
+    margin-top: -5%;
 }
 .start-menu-button {
     font-size: large;
