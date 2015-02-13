@@ -27,18 +27,27 @@ dbTools.visitGet = function(visitPlanItemId, datasetGet) {
     }, dbTools.onTransError);
 }
 
-dbTools.visitProductsGet = function(visitPlanItemId, datasetGet) {
+dbTools.visitProductCategoryGet = function(visitPlanItemId, datasetGet) {
+    log("visitProductCategoryGet");
+    dbTools.db.transaction(function(tx) {
+        var sql = "SELECT ? AS visitPlanItemId, skuCatId, name FROM SkuCat ORDER BY lvl, name";
+        tx.executeSql(sql, [visitPlanItemId], datasetGet, dbTools.onSqlError);
+    }, dbTools.onTransError);
+}
+dbTools.visitProductsGet = function(visitPlanItemId, skuCatId, datasetGet) {
     log("visitProductsGet");
     dbTools.db.transaction(function(tx) {
         //var sql = "SELECT NULL AS visitPlanId, NULL AS docId, S.skuId, S.name, S.brandGrpId, BG.name AS brandGrpName, BG.brandId, B.name AS brandName,"
         //    + " S.skuCatId, SC.name AS skuCatName, SC.parentId AS skuCatParentId, 1 AS qnt"
-        var sql = "SELECT S.skuId, S.name, S.brandGrpId, BG.name AS brandGrpName, 1 AS qnt"
+        var sql = "SELECT S.skuId, S.name, S.code, S.brandGrpId, BG.name AS brandGrpName, 1 AS qnt"
             + " FROM Sku S"
             + " LEFT JOIN BrandGrp BG ON S.brandGrpId = BG.brandGrpId"
             + " LEFT JOIN Brand B ON BG.brandId = B.brandId"
             + " LEFT JOIN SkuCat SC ON S.skuCatId = SC.skuCatId"
             + " WHERE S.active = 1"
-            + " ORDER BY BG.name, S.name";
-        tx.executeSql(sql, [/*visitPlanItemId*/], datasetGet, dbTools.onSqlError);
+            + "   AND B.ext = 0"
+            + "   AND S.skuCatId = ?"
+            + " ORDER BY S.name";
+        tx.executeSql(sql, [skuCatId], datasetGet, dbTools.onSqlError);
     }, dbTools.onTransError);
 }

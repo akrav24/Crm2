@@ -33,11 +33,11 @@
             data-swipe="visitListSwipe"
             data-enable-swipe="1">
             
-            <ul data-role="listview" id="visit-list" class="list" data-template="visit-list-tmpl" data-click="visitListOnClick"></ul>
+            <ul id="visit-list" class="list" data-role="listview" data-template="visit-list-tmpl" ></ul>
         </div>
         
         <script id="visit-list-tmpl" type="text/x-kendo-template">
-            <a class="list-item-header" href="views/VisitProducts.html?visitPlanItemId=@:visitPlanItemId@">
+            <a class="list-item-header" href="views/Visit.html?visitPlanItemId=#:visitPlanItemId#">
                 <p>#:name#, #:cityName#, #:addr#</p>
             </a>
         </script>
