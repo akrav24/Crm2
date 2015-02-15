@@ -29,8 +29,9 @@ body {
 .k-datepicker .k-input {
     height: 100%;
 }
-/*AK: hide datepicker button example*/
-/*.k-datepicker .k-select {
+
+/*hide datepicker button*/
+.k-datepicker .k-select {
     display: none;
 }
 .k-datepicker .k-picker-wrap {
@@ -38,14 +39,14 @@ body {
 }
 .k-datepicker .k-input {
     border-radius: 3px;
-}*/
+}
 
 .hidden {
     display: none;
 }
 
 .date {
-    width: 140px;
+    width: 100px;
 }
 
 .error {
