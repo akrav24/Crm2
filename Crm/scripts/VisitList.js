@@ -1,5 +1,6 @@
 var prdBgn = new Date();
 prdBgn.setHours(0,0,0,0);
+var prdBgnOpened = false;
 
 function visitListInit(e) {
     log("..visitListInit");
@@ -15,6 +16,7 @@ function visitListInit(e) {
 
 function visitListShow(e) {
     log("..visitListShow");
+    prdBgnOpened = false;
     renderVisitList();
     /* // select item
     var listView = $("#visit-list").data("kendoMobileListView");
@@ -54,7 +56,12 @@ function visitListPrdBgnOnChange(e) {
 
 function visitListPrdBgnOnClick(e) {
     log("..visitListPrdBgnOnClick");
-    $("#visit-prdbgn").data("kendoDatePicker").open();
+    if (prdBgnOpened) {
+        $("#visit-prdbgn").data("kendoDatePicker").close();
+    } else {
+        $("#visit-prdbgn").data("kendoDatePicker").open();
+    }
+    prdBgnOpened = !prdBgnOpened;
 }
 
 function visitListPrdPrev(e) {
