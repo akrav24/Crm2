@@ -29,8 +29,9 @@ body {
 .k-datepicker .k-input {
     height: 100%;
 }
-/*AK: hide datepicker button example*/
-/*.k-datepicker .k-select {
+
+/*hide datepicker button*/
+.k-datepicker .k-select {
     display: none;
 }
 .k-datepicker .k-picker-wrap {
@@ -38,18 +39,18 @@ body {
 }
 .k-datepicker .k-input {
     border-radius: 3px;
-}*/
+}
 
 .hidden {
     display: none;
 }
 
 .date {
-    width: 140px;
+    width: 100px;
 }
 
 .error {
-    color: Red;
+    color: DarkRed;
 }
 
 .gallery-title
@@ -120,6 +121,19 @@ body {
 }
 .menu-section p {
     margin: 0 0 5px;
+}
+
+.progress-panel {
+    width: 80%;
+    height: 180px;
+}
+.progress-panel-inner {
+    width: 90%;
+    margin-left: 5%;
+    margin-right: 5%;
+}
+.progress-panel-bar {
+    width: 100%;
 }
 
 .slide-panel-right {

@@ -6,6 +6,8 @@
 </head>
 <body>
     <script src="scripts/Start.js"></script>
+    <script src="scripts/Exchange.js"></script>
+    
     <div id="start-view"
         data-role="view"
         data-layout="main"
@@ -31,9 +33,33 @@
                     <a class="start-menu-button" data-role="button" href="views/PointList.html">Перечень торговых точек</a>
                 </p>
                 <p>
-                    <a class="start-menu-button" data-role="button" data-click="startExchangeOnClick">Обмен информацией</a>
+                    <!--<a class="start-menu-button" data-role="button" data-click="startExchangeOnClick">Обмен информацией</a>-->
+                    <a class="start-menu-button" data-role="button" data-rel="modalview" href="#exchange-view">Обмен информацией</a>
                 </p>
             </div>
+        </div>
+    </div>
+    
+    <div id="exchange-view"
+        style="width: 80%; height: 180px;"
+        data-layout="main"
+        data-role="modalview"
+        data-title="Обмен информацией"
+        data-init="exchangeOnInit"
+        data-open="exchangeOnShow">
+        
+        <header data-role="header">
+            <div data-role="navbar">
+                <a id="exchange-error-button" class="nav-button error hidden" data-role="button" data-align="left" data-icon="error" data-click="exchangeErrorShow"></a>
+                <span data-role="view-title"></span>
+                <a id="exchange-close-button" class="hidden" data-role="button" data-align="right" data-click="exchangeViewClose">Закрыть</a>
+            </div>
+        </header>
+        
+        <div class="progress-panel-inner">
+            <p id="exchange-caption">Подготовка</p>
+            <div id="exchange-progress" class="progress-panel-bar"></div>
+            <p id="exchange-error" class="error"></p>
         </div>
     </div>
 </body>

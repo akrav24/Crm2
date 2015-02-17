@@ -29,3 +29,4 @@ function startExchangeOnClick(e) {
 function startErrorOnClick(e) {
     alert("Установите идентификатор устройства (nodeId)");
 }
+

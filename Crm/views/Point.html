@@ -10,57 +10,56 @@
         <div id="point-view" 
              data-role="view" 
              data-title="Торговая точка" 
-            data-layout="main"
-            data-init="pointInit" 
-            data-show="pointShow">
+             data-layout="main"
+             data-show="pointShow">
             <header data-role="header">
                 <div data-role="navbar">
-                    <a class="nav-button" data-align="left" data-role="button" data-icon="reply" href="#:back"></a>
+                    <a class="nav-button" data-align="left" data-role="button" data-icon="back" href="#:back"></a>
                     <span data-role="view-title"></span>
-                    <a class="nav-button" data-icon="add" data-role="button" data-align="right" data-animated="true"></a>
-                    
                 </div>
             </header>
-            <!--div id="point-touch" 
+            <div id="point-touch" 
                  data-role="touch"
                  data-swipe="pointSwipe"
-                 data-enable-swipe="1"-->
-                <form>
-                    <ul data-role="listview">
+                 data-enable-swipe="1">
+                <form action="./index.html">
+                    <ul data-role="listview" data-style="inset">
                         <li>
                             <label>
                                 Название
-                                <input id="custName"  type="text" readonly="true"/>
+                                <input id="custName" type="text"/>
                             </label>
                         </li>
                         <li>
                             <label>
                                 Адрес
-                                <input id="custAddr" type="text" readonly="true"/>
+                                <input id="custAddr" type="text"/>
                             </label>
                         </li>
                         <li>
                             <label>
                                 Тип точки
-                                <input id="custOrgType" type="text" readonly="true"/>
+                                <input id="custOrgType" type="text"/>
                             </label>
                         </li>
                         <li>
                             <label>
                                 Категория
-                                <input id="custOrgCat" type="text" readonly="true"/>
+                                <input id="custOrgCat" type="text"/>
                             </label>
                         </li>
                         <li>
                             <label>
                                 Канал
-                                <input id="custChannel" type="text" readonly="true"/>
+                                <input id="custChannel" type="text"/>
                             </label>
                         </li>
                     </ul>
-                    
+                    <div align="center">
+                        <a data-role="button" data-animated="true" style="font-size: 1.2em">Новый визит</a>
+                    </div>
                 </form>
             </div>
-        <!--/div-->
+        </div>
     </body>
 </html>
