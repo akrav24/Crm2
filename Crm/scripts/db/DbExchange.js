@@ -1,13 +1,15 @@
 // Exchange data between app and web service
-dbTools.exchange = function(onSuccess, onError) {
+dbTools.exchange = function(onSuccess, onError, onProgress) {
     log("----------------------------");
     log("exchange()");
     if (settings.nodeId > 0) {
         var blockId = dbTools.exchangeBlockIdGet(
             function(blockId) {
+                if (onProgress != undefined) {onProgress();}
                 dbTools.exchangeExport(blockId, 
                     function(blockId) {
-                        dbTools.exchangeImport(blockId, onSuccess, onError);
+                        if (onProgress != undefined) {onProgress();}
+                        dbTools.exchangeImport(blockId, onSuccess, onError, onProgress);
                     },
                     onError
                 );
@@ -59,7 +61,7 @@ dbTools.exchangeExport = function(blockId, onSuccess, onError) {
 }
 
 // Exchange. Receive data from web service
-dbTools.exchangeImport = function(blockId, onSuccess, onError) {
+dbTools.exchangeImport = function(blockId, onSuccess, onError, onProgress) {
     log("----------------------------");
     log("exchangeImport(blockId=" + blockId + ")");
     
@@ -67,12 +69,16 @@ dbTools.exchangeImport = function(blockId, onSuccess, onError) {
         function(blockId) {
             dbTools.exchangeMailBlockDataInProc(blockId, 
                 function(blockId) {
+                    if (onProgress != undefined) {onProgress();}
                     dbTools.exchangeMailImportParm(blockId, 
                         function(blockId) {
                             dbTools.exchangeMailImportDelete(blockId, 
                                 function(blockId) {
                                     dbTools.exchangeMailImport(blockId, 
-                                        onSuccess,
+                                        function(blockId) {
+                                            if (onProgress != undefined) {onProgress();}
+                                            if (onProgress != undefined) {onSuccess(blockId);}
+                                        },
                                         onError
                                     );
                                     dbTools.getAllImages(blockId, function() {log("----Get images success");}, function(errMsg) {log("----Get images error: " + errMsg);});
