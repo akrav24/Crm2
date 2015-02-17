@@ -72,9 +72,10 @@ dbTools.exchangeImport = function(blockId, onSuccess, onError) {
                             dbTools.exchangeMailImportDelete(blockId, 
                                 function(blockId) {
                                     dbTools.exchangeMailImport(blockId, 
-                                        function(blockId) {dbTools.getAllImages(blockId, onSuccess, onError)}, 
+                                        onSuccess,
                                         onError
                                     );
+                                    dbTools.getAllImages(blockId, function() {log("----Get images success");}, function(errMsg) {log("----Get images error: " + errMsg);});
                                 }, 
                                 onError
                             );
@@ -208,7 +209,7 @@ dbTools.exchangeMailBlockDataInProcScriptExec = function(blockId, onSuccess, onE
                             for (var i = 0; (i < rs.rows.length) && (errCode === 0); i++) {
                                 var versionId = rs.rows.item(i)["versionId"];
                                 var sql = rs.rows.item(i)["sql"];
-                                log(".." + sqlPrepare(sql));
+                                //log(".." + sqlPrepare(sql));
                                 tx.executeSql(sqlPrepare(sql), [], 
                                     function(tx, rs) {
                                         tx.executeSql("UPDATE Parm SET dataVersionId = ?", [versionId],
@@ -342,22 +343,20 @@ dbTools.exchangeMailImport = function(blockId, onSuccess, onError) {
 
 dbTools.exchangeMailImportDelete = function(blockId, onSuccess, onError) {
     log("exchangeMailImportDelete(blockId=" + blockId + ")");
+    //logSqlResult("SELECT D.refTypeId, RT.name, COUNT(*) AS cnt FROM MailToDelete D LEFT JOIN RefType RT ON D.refTypeId = RT.refTypeId WHERE D.blockId=" + blockId + " GROUP BY D.refTypeId, RT.name");
     
     dbTools.db.transaction(
         function(tx) {
-            var sql = "SELECT RT.name, RT.flds, D.refId FROM MailToDelete D INNER JOIN RefType RT ON D.refTypeId = RT.refTypeId WHERE D.blockId=?";
+            var sql = "SELECT RT.name, group_concat(D.refId) AS refIdLst FROM MailToDelete D INNER JOIN RefType RT ON D.refTypeId = RT.refTypeId WHERE D.blockId=? GROUP BY RT.parentId, D.refTypeId, RT.name ORDER BY RT.parentId DESC, D.refTypeId";
             tx.executeSql(sql, [blockId], function(tx, rs) {
-                var sql = "DELETE FROM @tblName WHERE @fldName = ?";
+                var sql = "DELETE FROM @tblName WHERE @fldName IN (?)";
                 for (var i = 0; i < rs.rows.length; i++) {
                     var tblName = rs.rows.item(i).name;
-                    var fldName = rs.rows.item(i).flds;
-                    var refId = rs.rows.item(i).refId;
-                    j = fldName.indexOf(",");
-                    if (j >= 0) {
-                        fldName = fldName.substring(0, j);
-                    }
+                    var fldName = tblName + "Id";
+                    var refIdLst = rs.rows.item(i).refIdLst;
                     var sqlExec = sql.replace(new RegExp("@tblName", "g"), tblName).replace(new RegExp("@fldName", "g"), fldName);
-                    tx.executeSql(sqlExec, [refId]);
+                    log("..DEL: " + tblName + ", " + fldName + " in (" + refIdLst + ")");
+                    tx.executeSql(sqlExec, [refIdLst]);
                 }
             });
         },
