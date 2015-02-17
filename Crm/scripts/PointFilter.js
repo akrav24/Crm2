@@ -3,7 +3,6 @@ var filterPointsOnApply;
 function filterPointsInit(e) {
     log("..filterPointsInit");
     dbTools.objectListItemSet("filter-points", true);
-    
     $("#chain-list").kendoDropDownList({
         dataTextField: "name",
         dataValueField: "chainId",
@@ -29,10 +28,11 @@ function filterPointsInit(e) {
         dataValueField: "orgTypeId",
         height: 800
     });
+    
 }
 
 function filterPointsShow(e) {
-    renderFilterPoints();
+   renderFilterPoints();
 }
 
 function renderFilterPoints() {

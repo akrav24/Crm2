@@ -3,6 +3,11 @@ function pointShow(e) {
     renderPoint(e.view.params.custId);
 }
 
+function pointInit(e) {
+    log("..filterPointsInit");
+    dbTools.objectListItemSet("point", true);
+ }
+
 function pointSwipe(e) {
     log("..pointSwipe=" + e.direction);
     var found = 0;

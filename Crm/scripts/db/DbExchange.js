@@ -165,7 +165,7 @@ dbTools.exchangeMailBlockDataInProcScriptExec = function(blockId, onSuccess, onE
     dbTools.db.transaction(
         function(tx) {
             var sql = "SELECT A.data FROM MailBlockDataIn A"
-                + " CROSS JOIN (SELECT MIN(irow) AS irow FROM MailBlockDataIn WHERE blockId = ? AND data LIKE '@%' AND data NOT LIKE '@Script%') B"
+                + " CROSS JOIN (SELECT MIN(irow) AS irow FROM MailBlockDataIn WHERE blockId = ? AND data LIKE '@%' AND data NOT LIKE '@Script%' AND data NOT LIKE '@ExchParm%') B"
                 + " WHERE A.blockId = ? AND (B.irow IS NULL OR A.irow < B.irow) ORDER BY A.irow";
             tx.executeSql(sql, [blockId, blockId], 
                 function(tx, rs) {
@@ -230,7 +230,7 @@ dbTools.exchangeMailBlockDataInProcMailAdd = function(blockId, onSuccess, onErro
     dbTools.db.transaction(
         function(tx) {
            var sql = "SELECT A.data FROM MailBlockDataIn A"
-                + " CROSS JOIN (SELECT MIN(irow) AS irow FROM MailBlockDataIn WHERE blockId = ? AND data LIKE '@%' AND data NOT LIKE '@Script%') B"
+                + " CROSS JOIN (SELECT MIN(irow) AS irow FROM MailBlockDataIn WHERE blockId = ? AND data LIKE '@%' AND data NOT LIKE '@Script%' AND data NOT LIKE '@ExchParm%') B"
                 + " WHERE A.blockId = ? AND A.irow >= B.irow ORDER BY A.irow";
             tx.executeSql(sql, [blockId, blockId], function(tx, rs) {
                 var sql = "";
