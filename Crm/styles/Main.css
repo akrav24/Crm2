@@ -87,6 +87,9 @@ body {
 
 .list {
 }
+.list-item-group-header {
+    background-color: LightGray;
+}
 .list-item-header {
     font-size: large;
 }

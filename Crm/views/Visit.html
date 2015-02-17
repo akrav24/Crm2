@@ -5,11 +5,11 @@
     <title></title>
 </head>
 <body>
-    <script src="scripts/Visit.js"></script>
+    <script src="scripts/VisitCategory.js"></script>
     <div 
         id="visit-view" 
         data-role="view" 
-        data-title="Категория" 
+        data-title="Визит" 
         data-layout="main" 
         data-init="visitInit" 
         data-show="visitShow">
@@ -18,18 +18,48 @@
             <div data-role="navbar">
                 <a class="nav-button" data-align="left" data-role="button" data-icon="back" href="#:back"></a>
                 <span data-role="view-title"></span>
-                <a id="visit-start-button" class="hidden" data-role="button" data-align="right" data-click="visitStartOnClick">Начать</a>
+                <a id="visit-start-button" data-role="button" data-align="right" data-click="visitStartOnClick">Начать</a>
                 <a id="visit-finish-button" class="hidden" data-role="button" data-align="right" data-click="visitFinishOnClick">Закончить</a>
             </div>
         </header>
         
-        <ul id="prod-cat-list" class="list" data-role="listview" data-template="prod-cat-list-tmpl"></ul>
-    
-        <script id="prod-cat-list-tmpl" type="text/x-kendo-template">
-            <a class="list-item-header" href="views/VisitProducts.html?visitPlanItemId=#:visitPlanItemId#&skuCatId=#:skuCatId#">
-                <p>#: name #</p>
-            </a>
-        </script>
+        <ul class="list list-item-header" data-role="listview">
+            <li>
+                <p>Время</p>
+            </li>
+            <li>
+                <p>Точка</p>
+            </li>
+            <li class="list-item-group-header" style="background-color: LightGray;">
+                <p>Первичный анализ</p>
+            </li>
+            <li>
+                <a href="views/VisitProdCategory.html?visitPlanItemId=1">
+                    <p>Наличие продукции</p>
+                </a>
+            </li>
+            <li>
+                <p>Соблюдение планограммы</p>
+            </li>
+            <li>
+                <p>Фотоотчет</p>
+            </li>
+            <li class="list-item-group-header" style="background-color: LightGray;">
+                <p>Основной анализ</p>
+            </li>
+            <li>
+                <p>Наличие продукции</p>
+            </li>
+            <li>
+                <p>Соблюдение планограммы</p>
+            </li>
+            <li>
+                <p>Доля на полке</p>
+            </li>
+            <li>
+                <p>Промоактивность конкурентов</p>
+            </li>
+        </ul>
     </div>
 </body>
 </html>
