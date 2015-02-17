@@ -144,7 +144,7 @@ dbTools.rsToJson = function (rs) {
 
 dbTools.objectListItemGet = function(name) {
     for (var i = 0; i < dbTools.objectList.length; i++) {
-        if (dbTools.objectList[i].name = name) {
+        if (dbTools.objectList[i].name === name) {
             return dbTools.objectList[i];
         }
     }
@@ -155,12 +155,10 @@ dbTools.objectListItemSet = function(name, needReloadData, callback) {
     if (name != undefined) {
         var found = false;
         for (var i = 0; i < dbTools.objectList.length && !found; i++) {
-            if (dbTools.objectList[i].name = name) {
+            if (dbTools.objectList[i].name === name) {
                 found = true;
                 dbTools.objectList[i].needReloadData = needReloadData;
-                //if (callback !== undefined) {
-                    dbTools.objectList[i].callback = callback;
-                //}
+                dbTools.objectList[i].callback = callback;
                 break;
             }
         }

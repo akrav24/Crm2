@@ -87,6 +87,9 @@ body {
 
 .list {
 }
+.list-item-group-header {
+    background-color: LightGray;
+}
 .list-item-header {
     font-size: large;
 }
@@ -123,10 +126,6 @@ body {
     margin: 0 0 5px;
 }
 
-.progress-panel {
-    width: 80%;
-    height: 180px;
-}
 .progress-panel-inner {
     width: 90%;
     margin-left: 5%;

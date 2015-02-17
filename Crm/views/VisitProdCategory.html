@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <script src="scripts/VisitProdCategory.js"></script>
+    <div data-role="view" 
+        data-title="Категория" 
+        data-layout="main" 
+        data-init="visitProdCatInit" 
+        data-show="visitProdCatShow">
+      
+        <header data-role="header">
+            <div data-role="navbar">
+                <a class="nav-button" data-align="left" data-role="button" data-icon="back" href="#:back"></a>
+                <span data-role="view-title"></span>
+            </div>
+        </header>
+        
+        <ul id="prod-cat-list" class="list" data-role="listview" data-template="prod-cat-list-tmpl"></ul>
+    
+        <script id="prod-cat-list-tmpl" type="text/x-kendo-template">
+            <a class="list-item-header" href="views/VisitProducts.html?visitPlanItemId=#:visitPlanItemId#&skuCatId=#:skuCatId#">
+                <p>#: name #</p>
+            </a>
+        </script>
+    </div>
+</body>
+</html>
