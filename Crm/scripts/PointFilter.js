@@ -37,7 +37,6 @@ function filterPointsShow(e) {
 
 function renderFilterPoints() {
     log("..renderFilterPoints");
-log("....settings=" + JSON.stringify(settings));
     if (dbTools.objectListItemGet("filter-points").needReloadData) {
         log("....renderFilterPoints ReloadData");
         dbTools.filterPointsListGet(1, function(tx, rs) {

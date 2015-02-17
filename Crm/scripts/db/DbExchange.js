@@ -3,6 +3,12 @@ dbTools.exchange = function(onSuccess, onError, onProgress) {
     log("----------------------------");
     log("exchange()");
     if (settings.nodeId > 0) {
+        for (var i = 0; i < dbTools.objectList.length; i++) {
+            dbTools.objectList[i].needReloadData = true;
+            if (dbTools.objectList[i].callback != undefined) {
+                dbTools.objectList[i].callback();
+            }
+        }
         var blockId = dbTools.exchangeBlockIdGet(
             function(blockId) {
                 if (onProgress != undefined) {onProgress();}
@@ -16,12 +22,6 @@ dbTools.exchange = function(onSuccess, onError, onProgress) {
             },
             onError
         );
-        for (var i = 0; i < dbTools.objectList.length; i++) {
-            dbTools.objectList[i].needReloadData = true;
-            if (dbTools.objectList[i].callback != undefined) {
-                dbTools.objectList[i].callback();
-            }
-        }
     } else {
         var errMsg = "nodeId undefined";
         log(errMsg);
