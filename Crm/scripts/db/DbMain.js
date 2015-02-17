@@ -30,7 +30,7 @@ dbTools.createSystemTables = function() {
     dbTools.db.transaction(function(tx) {
         tx.executeSql("CREATE TABLE IF NOT EXISTS MailBlockDataIn(blockId int, irow int, data varchar(8000), constraint pkMailBlockDataIn primary key(blockId, irow))", [], undefined, dbTools.onSqlError);
         tx.executeSql("CREATE TABLE IF NOT EXISTS MailBlockDataOut(blockId int, irow int, data varchar(8000), constraint pkMailBlockDataOut primary key(blockId, irow))", [], undefined, dbTools.onSqlError);
-        tx.executeSql("CREATE TABLE IF NOT EXISTS MailExchParm(nodeId int, blockId int, exchDate datetime)", [], undefined, dbTools.onSqlError);
+        tx.executeSql("CREATE TABLE IF NOT EXISTS MailExchParm(blockId int, nodeId int, exchDate datetime)", [], undefined, dbTools.onSqlError);
         tx.executeSql("CREATE TABLE IF NOT EXISTS MailToDelete(blockId int, refTypeId int, refId int)", [], undefined, dbTools.onSqlError);
         tx.executeSql("CREATE TABLE IF NOT EXISTS Parm(nodeId int, dataVersionId int, exchDataFromOfficeSent datetime, constraint pkParm primary key(nodeId))", [], undefined, dbTools.onSqlError);
         tx.executeSql("CREATE TABLE IF NOT EXISTS RefType(refTypeId int, name varchar(100), parentId int, test int, useNodeId int, dir int, updateDate datetime, sendAll int, lvl int, flds varchar(1000), constraint pkRefType primary key (refTypeId))", [], undefined, dbTools.onSqlError);

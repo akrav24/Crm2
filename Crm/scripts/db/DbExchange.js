@@ -67,8 +67,18 @@ dbTools.exchangeImport = function(blockId, onSuccess, onError) {
         function(blockId) {
             dbTools.exchangeMailBlockDataInProc(blockId, 
                 function(blockId) {
-                    dbTools.exchangeMailImport(blockId, 
-                        function(blockId) {dbTools.getAllImages(blockId, onSuccess, onError)}, 
+                    dbTools.exchangeMailImportParm(blockId, 
+                        function(blockId) {
+                            dbTools.exchangeMailImportDelete(blockId, 
+                                function(blockId) {
+                                    dbTools.exchangeMailImport(blockId, 
+                                        function(blockId) {dbTools.getAllImages(blockId, onSuccess, onError)}, 
+                                        onError
+                                    );
+                                }, 
+                                onError
+                            );
+                        }, 
                         onError
                     );
                 }, 
@@ -165,9 +175,10 @@ dbTools.exchangeMailBlockDataInProcScriptExec = function(blockId, onSuccess, onE
     dbTools.db.transaction(
         function(tx) {
             var sql = "SELECT A.data FROM MailBlockDataIn A"
-                + " CROSS JOIN (SELECT MIN(irow) AS irow FROM MailBlockDataIn WHERE blockId = ? AND data LIKE '@%' AND data NOT LIKE '@Script%') B"
-                + " WHERE A.blockId = ? AND (B.irow IS NULL OR A.irow < B.irow) ORDER BY A.irow";
-            tx.executeSql(sql, [blockId, blockId], 
+                + " CROSS JOIN (SELECT MIN(irow) AS irow FROM MailBlockDataIn WHERE blockId = ? AND data LIKE '@Script%') SB"
+                + " CROSS JOIN (SELECT MIN(irow) AS irow FROM MailBlockDataIn WHERE blockId = ? AND data LIKE '@%' AND data NOT LIKE '@Script%' AND irow > (SELECT MIN(irow) AS irow FROM MailBlockDataIn WHERE blockId = ? AND data LIKE '@Script%')) SE"
+                + " WHERE A.blockId = ? AND A.irow >= SB.irow AND (SE.irow IS NULL OR A.irow < SE.irow) ORDER BY A.irow";
+            tx.executeSql(sql, [blockId, blockId, blockId, blockId], 
                 function(tx, rs) {
                     var sql = "";
                     for (var i = 0; i < rs.rows.length; i++) {
@@ -230,9 +241,10 @@ dbTools.exchangeMailBlockDataInProcMailAdd = function(blockId, onSuccess, onErro
     dbTools.db.transaction(
         function(tx) {
            var sql = "SELECT A.data FROM MailBlockDataIn A"
-                + " CROSS JOIN (SELECT MIN(irow) AS irow FROM MailBlockDataIn WHERE blockId = ? AND data LIKE '@%' AND data NOT LIKE '@Script%') B"
-                + " WHERE A.blockId = ? AND A.irow >= B.irow ORDER BY A.irow";
-            tx.executeSql(sql, [blockId, blockId], function(tx, rs) {
+                + " CROSS JOIN (SELECT MIN(irow) AS irow FROM MailBlockDataIn WHERE blockId = ? AND data LIKE '@Script%') SB"
+                + " CROSS JOIN (SELECT MIN(irow) AS irow FROM MailBlockDataIn WHERE blockId = ? AND data LIKE '@%' AND data NOT LIKE '@Script%' AND irow > (SELECT MIN(irow) AS irow FROM MailBlockDataIn WHERE blockId = ? AND data LIKE '@Script%')) SE"
+                + " WHERE A.blockId = ? AND (SB.irow IS NULL OR A.irow < SB.irow OR A.irow >= SE.irow) ORDER BY A.irow";
+            tx.executeSql(sql, [blockId, blockId, blockId, blockId], function(tx, rs) {
                 var sql = "";
                 for (var i = 0; i < rs.rows.length; i++) {
                     var data = rs.rows.item(i)["data"];
@@ -245,6 +257,25 @@ dbTools.exchangeMailBlockDataInProcMailAdd = function(blockId, onSuccess, onErro
                     } else {
                         tx.executeSql(sql.replace("@1", blockId).replace("@2", data), []);
                     }
+                }
+            });
+        },
+        function(error) {if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error));}},
+        function() {if (onSuccess != undefined) {onSuccess(blockId);}}
+    );
+}
+
+dbTools.exchangeMailImportParm = function(blockId, onSuccess, onError) {
+    log("exchangeMailImportParm(blockId=" + blockId + ")");
+    
+    dbTools.db.transaction(
+        function(tx) {
+            var sql = "SELECT exchDate FROM MailExchParm WHERE blockId=?";
+            tx.executeSql(sql, [blockId], function(tx, rs) {
+                if (rs.rows.length > 0) {
+                    var exchDate = rs.rows.item(0).exchDate;
+                    var sql = "UPDATE Parm SET exchDataFromOfficeSent = ?";
+                    tx.executeSql(sql, [exchDate]);
                 }
             });
         },
@@ -302,6 +333,32 @@ dbTools.exchangeMailImport = function(blockId, onSuccess, onError) {
                         });
                     });
                 });
+            });
+        },
+        function(error) {if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error));}},
+        function() {if (onSuccess != undefined) {onSuccess(blockId);}}
+    );
+}
+
+dbTools.exchangeMailImportDelete = function(blockId, onSuccess, onError) {
+    log("exchangeMailImportDelete(blockId=" + blockId + ")");
+    
+    dbTools.db.transaction(
+        function(tx) {
+            var sql = "SELECT RT.name, RT.flds, D.refId FROM MailToDelete D INNER JOIN RefType RT ON D.refTypeId = RT.refTypeId WHERE D.blockId=?";
+            tx.executeSql(sql, [blockId], function(tx, rs) {
+                var sql = "DELETE FROM @tblName WHERE @fldName = ?";
+                for (var i = 0; i < rs.rows.length; i++) {
+                    var tblName = rs.rows.item(i).name;
+                    var fldName = rs.rows.item(i).flds;
+                    var refId = rs.rows.item(i).refId;
+                    j = fldName.indexOf(",");
+                    if (j >= 0) {
+                        fldName = fldName.substring(0, j);
+                    }
+                    var sqlExec = sql.replace(new RegExp("@tblName", "g"), tblName).replace(new RegExp("@fldName", "g"), fldName);
+                    tx.executeSql(sqlExec, [refId]);
+                }
             });
         },
         function(error) {if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error));}},
