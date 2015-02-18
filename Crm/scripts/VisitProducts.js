@@ -21,3 +21,14 @@ function renderVisitProductsView(tx, rs) {
     log("..renderVisitProductsView render end");
 }
 
+function visitProductsBackToVisit() {
+    log("..visitProductsBackToVisit");
+    app.navigate("#:back");
+    app.navigate("#:back");
+}
+
+function visitProductsDrawerClose() {
+    log("..visitProductsDrawerClose");
+    $("#visit-products-drawer").data("kendoMobileDrawer").hide();
+}
+
