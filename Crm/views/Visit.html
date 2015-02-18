@@ -5,7 +5,7 @@
     <title></title>
 </head>
 <body>
-    <script src="scripts/VisitCategory.js"></script>
+    <script src="scripts/Visit.js"></script>
     <div 
         id="visit-view" 
         data-role="view" 
@@ -25,10 +25,24 @@
         
         <ul class="list list-item-header" data-role="listview">
             <li>
-                <p>Время</p>
+                <p>
+                    <table cellspacing="5">
+                        <tr>
+                            <td width="80px"><span>Время</span></td>
+                            <td><span id="visit-time"></span></td>
+                        </tr>
+                    </table>
+                </p>
             </li>
             <li>
-                <p>Точка</p>
+                <p>
+                    <table cellspacing="5">
+                        <tr>
+                            <td width="80px"><span>Точка</span></td>
+                            <td><span id="visit-point-name"></span></td>
+                        </tr>
+                    </table>
+                </p>
             </li>
             <li class="list-item-group-header" style="background-color: LightGray;">
                 <p>Первичный анализ</p>

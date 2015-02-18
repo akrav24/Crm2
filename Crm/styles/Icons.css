@@ -7,6 +7,12 @@
     content: "\e0ed";
 }
 
+.km-drawer:after,
+.km-drawer:before
+{
+    content: "\e0f1";
+}
+
 .km-error:after,
 .km-error:before
 {

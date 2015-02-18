@@ -4,9 +4,7 @@ function startOnInit(e) {
 
 function startOnShow(e) {
     log("..startOnShow(e)");
-    /*if (settings.nodeId <= 0) {
-        $("#error-button").removeClass("hidden");
-    }*/
+    //$("#start-exchange-button").data("kendoMobileButton").enable(settings.nodeId > 0);
 }
 
 /*function startVisitsOnClick(e) {
@@ -29,4 +27,3 @@ function startExchangeOnClick(e) {
 function startErrorOnClick(e) {
     alert("Установите идентификатор устройства (nodeId)");
 }
-
