@@ -15,10 +15,10 @@ function startOnShow(e) {
     app.navigate("views/PointList.html");
 }
 */
-function startExchangeOnClick(e) {
+/*function startExchangeOnClick(e) {
     dbTools.exchange(function() {log("----Exchange SUCCSESS");}, function(errMsg) {log("----Exchange ERROR: " + errMsg);});
 }
-
+*/
 /*function startSettingsOnClick(e) {
     app.navigate("views/test/Test.html");
 }

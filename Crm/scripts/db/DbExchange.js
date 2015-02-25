@@ -181,65 +181,71 @@ dbTools.exchangeMailBlockDataInProcScriptExec = function(blockId, onSuccess, onE
     
     dbTools.db.transaction(
         function(tx) {
-            var sql = "SELECT A.data FROM MailBlockDataIn A"
-                + " CROSS JOIN (SELECT MIN(irow) AS irow FROM MailBlockDataIn WHERE blockId = ? AND data LIKE '@Script%') SB"
-                + " CROSS JOIN (SELECT MIN(irow) AS irow FROM MailBlockDataIn WHERE blockId = ? AND data LIKE '@%' AND data NOT LIKE '@Script%' AND irow > (SELECT MIN(irow) AS irow FROM MailBlockDataIn WHERE blockId = ? AND data LIKE '@Script%')) SE"
-                + " WHERE A.blockId = ? AND A.irow >= SB.irow AND (SE.irow IS NULL OR A.irow < SE.irow) ORDER BY A.irow";
-            tx.executeSql(sql, [blockId, blockId, blockId, blockId], 
+            tx.executeSql("SELECT dataVersionId FROM Parm WHERE nodeId = ?", [settings.nodeId],
                 function(tx, rs) {
-                    var sql = "";
-                    for (var i = 0; i < rs.rows.length; i++) {
-                        var data = rs.rows.item(i)["data"];
-                        var j;
-                        if (data.charAt(0) === "@") {
-                            j = data.indexOf(":");
-                            var tblName = data.substring(1, j);
-                            var tblFlds = data.substring(j + 1);
-                            sql = "INSERT INTO " + tblName + "(" + tblFlds + ") SELECT @1 WHERE @2 NOT IN (SELECT versionId FROM " + tblName + ")";
-                        } else {
-                            var execSql = function(sql, isError) {
-                                tx.executeSql(sql, [],
-                                    function(tx, rs) {
-                                    }, 
-                                    function (tx, error) {dbTools.onSqlError(tx, error, sql);}
-                                );
-                            }
-                            j = data.indexOf(",");
-                            var id = data.substring(0, j);
-                            execSql(sql.replace("@1", data).replace("@2", id));
-                        }
+                    var dataVersionId = 0;
+                    if (rs.rows.length > 0) {
+                        dataVersionId = rs.rows.item(0).dataVersionId;
                     }
-                    tx.executeSql("SELECT versionId, sql FROM Script WHERE versionId > (SELECT dataVersionId FROM Parm WHERE nodeId = ?)", [settings.nodeId], 
+                    var sql = "SELECT A.data FROM MailBlockDataIn A"
+                        + " CROSS JOIN (SELECT MIN(irow) AS irow FROM MailBlockDataIn WHERE blockId = ? AND data LIKE '@Script%') SB"
+                        + " CROSS JOIN (SELECT MIN(irow) AS irow FROM MailBlockDataIn WHERE blockId = ? AND data LIKE '@%' AND data NOT LIKE '@Script%' AND irow > (SELECT MIN(irow) AS irow FROM MailBlockDataIn WHERE blockId = ? AND data LIKE '@Script%')) SE"
+                        + " WHERE A.blockId = ? AND A.irow >= SB.irow AND (SE.irow IS NULL OR A.irow < SE.irow) ORDER BY A.irow";
+                    tx.executeSql(sql, [blockId, blockId, blockId, blockId], 
                         function(tx, rs) {
-                            var errCode = 0;
-                            for (var i = 0; (i < rs.rows.length) && (errCode === 0); i++) {
-                                var versionId = rs.rows.item(i)["versionId"];
-                                var sql = rs.rows.item(i)["sql"];
-                                //log(".." + sqlPrepare(sql));
-                                tx.executeSql(sqlPrepare(sql), [], 
-                                    function(tx, rs) {
-                                        tx.executeSql("UPDATE Parm SET dataVersionId = ?", [versionId],
-                                            function(tx, rs) {
-                                            }, 
-                                            dbTools.onSqlError
-                                        );
-                                    }, 
-                                    function(tx, error) {
-                                        errCode = 1;
-                                        dbTools.onSqlError(tx, error);
+                            if (rs.rows.length > 1) {
+                                if (rs.rows.item(0).data.charAt(0) === "@") {
+                                    var data = rs.rows.item(0).data;
+                                    var j = data.indexOf(":");
+                                    var tblName = data.substring(1, j);
+                                    var tblFlds = data.substring(j + 1);
+                                    var scriptSql = "INSERT INTO " + tblName + "(" + tblFlds + ") SELECT @1 WHERE @2 NOT IN (SELECT versionId FROM " + tblName + ")";
+                                    
+                                    var execScriptSql = function(recSet, i, scriptSql, execScriptSql) {
+                                        var data = recSet.rows.item(i).data;
+                                        j = data.indexOf(",");
+                                        var id = data.substring(0, j);
+                                        var sql = data.substring(j + 1).substring(1);
+                                        sql = sql.substring(0, sql.length - 1);
+                                        if (id > dataVersionId) {
+                                            tx.executeSql(sqlPrepare(sql), [], 
+                                                function(tx, rs) {
+                                                    tx.executeSql("UPDATE Parm SET dataVersionId = ?", [id],
+                                                        function(tx, rs) {
+                                                            tx.executeSql(scriptSql.replace("@1", data).replace("@2", id), [],
+                                                                function(tx, rs) {
+                                                                    if (i < recSet.rows.length - 1) {
+                                                                        execScriptSql(recSet, ++i, scriptSql, execScriptSql);
+                                                                    } else {
+                                                                        if (onSuccess != undefined) {onSuccess(blockId);}
+                                                                    }
+                                                                }
+                                                            );
+                                                        }
+                                                    );
+                                                }
+                                            );
+                                        } else {
+                                            if (i < recSet.rows.length - 1) {
+                                                execScriptSql(recSet, ++i, scriptSql, execScriptSql);
+                                            } else {
+                                                if (onSuccess != undefined) {onSuccess(blockId);}
+                                            }
+                                        }
+                                        
                                     }
-                                );
+                                    
+                                    execScriptSql(rs, 1, scriptSql, execScriptSql);
+                                }
                             }
-                        },
-                        dbTools.onSqlError
+                        }
                     );
-                },
-                dbTools.onSqlError
+                }
             );
         },
-        function(error) {if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error));}},
-        function() {if (onSuccess != undefined) {onSuccess(blockId);}}
+        function(error) {if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error));}}
     );
+logSqlResult("select * from parm");
 }
 
 dbTools.exchangeMailBlockDataInProcMailAdd = function(blockId, onSuccess, onError) {
