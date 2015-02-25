@@ -3,7 +3,7 @@ dbTools.visitListGet = function(prdBgn, datasetGet) {
     // visitType: 1 - визита не было, 2 - был запланированный визит, 3 - был незапланированный визит
     dbTools.db.transaction(function(tx) {
         var sql = "SELECT VP.visitPlanId, VPI.visitPlanItemId, VP.empId, VP.dateBgn, VPI.custId, K.name, K.cityId, C.name AS cityName,"
-            + " K.addr, K.name + ', ' + C.name + ', ' + k.addr AS fullName, K.chainId, CN.name AS chainName, NULL AS docId, 1 AS visitType"
+            + " K.addr, K.chainId, CN.name AS chainName, NULL AS docId, 1 AS visitType"
             + " FROM VisitPlan VP"
             + " INNER JOIN VisitPlanItem VPI ON VP.visitPlanId = VPI.visitPlanId"
             + " LEFT JOIN Cust K ON VPI.custId = K.custId"
@@ -18,7 +18,7 @@ dbTools.visitListGet = function(prdBgn, datasetGet) {
 dbTools.visitGet = function(visitPlanItemId, datasetGet) {
     log("visitGet");
     dbTools.db.transaction(function(tx) {
-        var sql = "SELECT VPI.visitPlanId, VP.dateBgn, VPI.visitPlanItemId, VPI.custId, K.name AS custName, NULL AS docId"
+        var sql = "SELECT VPI.visitPlanId, VP.dateBgn, VPI.timeBgn, VPI.visitPlanItemId, VPI.custId, K.name, K.addr"
             + " FROM VisitPlanItem VPI"
             + " INNER JOIN VisitPlan VP ON VPI.visitPlanId = VP.visitPlanId"
             + " LEFT JOIN Cust K ON VPI.custId = K.custId"
@@ -27,11 +27,17 @@ dbTools.visitGet = function(visitPlanItemId, datasetGet) {
     }, dbTools.onTransError);
 }
 
-dbTools.visitProductCategoryGet = function(visitPlanItemId, datasetGet) {
+dbTools.visitProductCategoryGet = function(isItemAllShow, datasetGet) {
     log("visitProductCategoryGet");
     dbTools.db.transaction(function(tx) {
-        var sql = "SELECT ? AS visitPlanItemId, skuCatId, name FROM SkuCat ORDER BY lvl, name";
-        tx.executeSql(sql, [visitPlanItemId], datasetGet, dbTools.onSqlError);
+        var sql = "SELECT skuCatId, name"
+            + "  FROM"
+            + "    (SELECT -1 AS skuCatId, 'Все' AS name, 0 AS lvl, 0 AS blk WHERE ? <> '0'"
+            + "    UNION ALL"
+            + "    SELECT skuCatId, name, lvl, 1 AS blk FROM SkuCat"
+            + "    ) A"
+            + "  ORDER BY blk, lvl, name";
+        tx.executeSql(sql, [isItemAllShow], datasetGet, dbTools.onSqlError);
     }, dbTools.onTransError);
 }
 dbTools.visitProductsGet = function(visitPlanItemId, skuCatId, datasetGet) {
@@ -49,5 +55,22 @@ dbTools.visitProductsGet = function(visitPlanItemId, skuCatId, datasetGet) {
             + "   AND S.skuCatId = ?"
             + " ORDER BY S.name";
         tx.executeSql(sql, [skuCatId], datasetGet, dbTools.onSqlError);
+    }, dbTools.onTransError);
+}
+
+dbTools.visitActivityGet = function(visitPlanItemId, datasetGet) {
+    log("visitActivityGet(" + visitPlanItemId + ", )");
+    dbTools.db.transaction(function(tx) {
+        var sql = "SELECT VPI.visitPlanItemId AS visitPlanItemId, VSA.stageId AS stageId, VSA.activityId AS activityId, A.name AS name, 1 AS blk, A.lvl AS lvl"
+            + "  FROM VisitPlanItem VPI"
+            + "  INNER JOIN VisitSchemaActivity VSA ON VPI.visitSchemaId = VSA.visitSchemaId"
+            + "  INNER JOIN Activity A ON VSA.activityId = A.activityId"
+            + "  WHERE VPI.visitPlanItemId = ?"
+            + " UNION ALL"
+            + " SELECT ? AS visitPlanItemId, 1 AS stageId, 0 AS activityId, 'Первичный анализ' AS name, 0 AS blk, 0 AS lvl"
+            + " UNION ALL"
+            + " SELECT ? AS visitPlanItemId, 2 AS stageId, 0 AS activityId, 'Основной анализ' AS name, 0 AS blk, 0 AS lvl"
+            + " ORDER BY VSA.stageId, blk, A.lvl";
+        tx.executeSql(sql, [visitPlanItemId, visitPlanItemId, visitPlanItemId], datasetGet, dbTools.onSqlError);
     }, dbTools.onTransError);
 }

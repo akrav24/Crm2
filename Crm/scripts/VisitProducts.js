@@ -1,6 +1,12 @@
+var visitProductsNavigateBack = 1;
+
 function visitProductsShow(e) {
-    log("..visitProductsShow visitPlanItemId=" + e.view.params.visitPlanItemId + ", skuCatId=" + e.view.params.skuCatId);
-    renderVisitProducts(e.view.params.visitPlanItemId, e.view.params.skuCatId);
+    log("..visitProductsShow navigateBack=" + e.view.params.navigateBack);
+    visitProductsNavigateBack = e.view.params.navigateBack;
+    if (visitProductsNavigateBack < 1) {
+        visitProductsNavigateBack = 1;
+    }
+    renderVisitProducts(settings.visitPlanItemId, settings.skuCatId);
 }
 
 function renderVisitProducts(visitPlanItemId, skucatId) {
@@ -27,8 +33,7 @@ function visitProductsBackToVisit() {
     app.navigate("#:back");
 }
 
-function visitProductsDrawerClose() {
-    log("..visitProductsDrawerClose");
-    $("#visit-products-drawer").data("kendoMobileDrawer").hide();
+function visitProductsNavBackClick(e) {
+    log("..visitProductsNavBackClick");
+    navigateBack(visitProductsNavigateBack);
 }
-

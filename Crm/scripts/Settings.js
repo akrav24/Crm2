@@ -14,5 +14,8 @@ function settingsInit() {
     settings.filterPoints.orgCatId = "-1";
     settings.filterPoints.orgTypeId = "-1";
     
+    settings.skuCatId = -1;
+    settings.skuCatName = "Все";
+    
     log("....settings=" + JSON.stringify(settings));
 }

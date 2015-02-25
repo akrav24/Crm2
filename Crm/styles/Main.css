@@ -172,7 +172,17 @@ body {
     font-size: 200%;
 }
 
+.visit-item-table {
+     margin-left: 5px;
+}
 
+.visit-item-table-caption {
+    width: 120px;
+}
+
+.visit-item-action-group {
+    font-weight: bold;
+}
 
 
 /*--theming-------------*/
