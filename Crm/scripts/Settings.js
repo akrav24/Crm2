@@ -1,9 +1,11 @@
-var settings = {};
+var settings;
 
 //document.addEventListener("deviceready", settingsInit, false);
 
 function settingsInit() {
     log("..settingsInit()");
+    
+    settings = {};
     
     settings.nodeId = 0;
     
@@ -16,6 +18,4 @@ function settingsInit() {
     
     settings.skuCatId = -1;
     settings.skuCatName = "Все";
-    
-    log("....settings=" + JSON.stringify(settings));
 }

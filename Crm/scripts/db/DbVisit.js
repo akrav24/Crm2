@@ -6,7 +6,7 @@ dbTools.visitListGet = function(prdBgn, datasetGet) {
             + " K.addr, K.chainId, CN.name AS chainName, NULL AS docId, 1 AS visitType"
             + " FROM VisitPlan VP"
             + " INNER JOIN VisitPlanItem VPI ON VP.visitPlanId = VPI.visitPlanId"
-            + " LEFT JOIN Cust K ON VPI.custId = K.custId"
+            + " INNER JOIN Cust K ON VPI.custId = K.custId"
             + " LEFT JOIN City C ON K.cityId = C.cityId"
             + " LEFT JOIN Chain CN ON K.chainId = CN.chainId"
             + " WHERE VP.dateBgn >= ? AND VP.dateBgn <= ?"
@@ -18,10 +18,10 @@ dbTools.visitListGet = function(prdBgn, datasetGet) {
 dbTools.visitGet = function(visitPlanItemId, datasetGet) {
     log("visitGet");
     dbTools.db.transaction(function(tx) {
-        var sql = "SELECT VPI.visitPlanId, VP.dateBgn, VPI.timeBgn, VPI.visitPlanItemId, VPI.custId, K.name, K.addr"
+        var sql = "SELECT VPI.visitPlanId, VP.dateBgn, VPI.timeBgn, VPI.visitPlanItemId, VPI.custId, K.name, K.addr, K.fmtId"
             + " FROM VisitPlanItem VPI"
             + " INNER JOIN VisitPlan VP ON VPI.visitPlanId = VP.visitPlanId"
-            + " LEFT JOIN Cust K ON VPI.custId = K.custId"
+            + " INNER JOIN Cust K ON VPI.custId = K.custId"
             + " WHERE VPI.visitPlanItemId = ?";
         tx.executeSql(sql, [visitPlanItemId], datasetGet, dbTools.onSqlError);
     }, dbTools.onTransError);
@@ -40,12 +40,12 @@ dbTools.visitProductCategoryGet = function(isItemAllShow, datasetGet) {
         tx.executeSql(sql, [isItemAllShow], datasetGet, dbTools.onSqlError);
     }, dbTools.onTransError);
 }
-dbTools.visitProductsGet = function(visitPlanItemId, skuCatId, datasetGet) {
-    log("visitProductsGet");
+dbTools.visitProductsGet = function(visitPlanItemId, skuCatId, fmtFilterType, fmtId, datasetGet) {
+    log("visitProductsGet(" + visitPlanItemId + ", " + skuCatId + ", " + fmtFilterType + ", " + fmtId + ")");
     dbTools.db.transaction(function(tx) {
         //var sql = "SELECT NULL AS visitPlanId, NULL AS docId, S.skuId, S.name, S.brandGrpId, BG.name AS brandGrpName, BG.brandId, B.name AS brandName,"
         //    + " S.skuCatId, SC.name AS skuCatName, SC.parentId AS skuCatParentId, 1 AS qnt"
-        var sql = "SELECT S.skuId, S.name, S.code, S.brandGrpId, BG.name AS brandGrpName, 1 AS qnt"
+        var sql = "SELECT S.skuId, S.name, S.code, S.brandGrpId, BG.name AS brandGrpName, NULL AS sel, NULL AS qntRest, NULL AS qntOrder"
             + " FROM Sku S"
             + " LEFT JOIN BrandGrp BG ON S.brandGrpId = BG.brandGrpId"
             + " LEFT JOIN Brand B ON BG.brandId = B.brandId"
@@ -53,8 +53,9 @@ dbTools.visitProductsGet = function(visitPlanItemId, skuCatId, datasetGet) {
             + " WHERE S.active = 1"
             + "   AND B.ext = 0"
             + "   AND S.skuCatId = ?"
+            + "   AND (? = '1' OR EXISTS(SELECT 1 FROM FmtSku WHERE fmtId = ? AND skuId = S.skuId))"
             + " ORDER BY S.name";
-        tx.executeSql(sql, [skuCatId], datasetGet, dbTools.onSqlError);
+        tx.executeSql(sql, [skuCatId, fmtFilterType, fmtId], datasetGet, dbTools.onSqlError);
     }, dbTools.onTransError);
 }
 

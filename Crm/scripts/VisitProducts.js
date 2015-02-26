@@ -1,16 +1,21 @@
-var visitProductsNavigateBack = 1;
+var visitProducts;
+
+function visitProductsInit(e) {
+    visitProducts = {};
+    visitProducts.navigateBack = 1;
+}
 
 function visitProductsShow(e) {
     log("..visitProductsShow navigateBack=" + e.view.params.navigateBack);
-    visitProductsNavigateBack = e.view.params.navigateBack;
-    if (visitProductsNavigateBack < 1) {
-        visitProductsNavigateBack = 1;
+    visitProducts.navigateBack = e.view.params.navigateBack;
+    if (visitProducts.navigateBack < 1) {
+        visitProducts.navigateBack = 1;
     }
-    renderVisitProducts(settings.visitPlanItemId, settings.skuCatId);
+    renderVisitProducts(visit.visitPlanItemId, settings.skuCatId, visit.fmtFilterType, visit.fmtId);
 }
 
-function renderVisitProducts(visitPlanItemId, skucatId) {
-    dbTools.visitProductsGet(visitPlanItemId, skucatId, renderVisitProductsView);
+function renderVisitProducts(visitPlanItemId, skucatId, fmtFilterType, fmtId) {
+    dbTools.visitProductsGet(visitPlanItemId, skucatId, fmtFilterType, fmtId, renderVisitProductsView);
 }
 
 function renderVisitProductsView(tx, rs) {
@@ -19,6 +24,7 @@ function renderVisitProductsView(tx, rs) {
     var dataSource = new kendo.data.DataSource({data: data/*, group: "brandGrpName"*/});
     log("..renderVisitProductsView render beg");
     $("#visit-products-list").data("kendoMobileListView").setDataSource(dataSource);
+    app.scroller().reset();
     $(".checkbox").iCheck({
       checkboxClass: "icheckbox_flat-green",
       radioClass: "iradio_flat-green",
@@ -35,5 +41,10 @@ function visitProductsBackToVisit() {
 
 function visitProductsNavBackClick(e) {
     log("..visitProductsNavBackClick");
-    navigateBack(visitProductsNavigateBack);
+    navigateBack(visitProducts.navigateBack);
+}
+
+function visitProductsShowAll(e) {
+    visit.fmtFilterType = e.index;
+    renderVisitProducts(visit.visitPlanItemId, settings.skuCatId, visit.fmtFilterType, visit.fmtId);
 }

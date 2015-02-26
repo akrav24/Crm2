@@ -1,16 +1,19 @@
-var visit = {};
-visit.visitPlanItemId = 0;
-visit.timeBgn = "";
+var visit;
 
 function visitInit(e) {
-    log("..visitInit");
+    log("..visitInit()");
+    visit = {};
+    visit.visitPlanItemId = 0;
+    visit.fmtFilterType = 0;    // 0 - МА, 1 - Все
+    visit.fmtId = 0;
+    visit.timeBgn = "";
+    visit.timeEnd = "";
 }
 
 function visitShow(e) {
     log("..visitShow visitPlanItemId=" + e.view.params.visitPlanItemId);
     visit.visitPlanItemId = e.view.params.visitPlanItemId;
     renderVisit(visit.visitPlanItemId);
-//log("======formatViewParamValue=" + formatViewParamValue("[!]a[~]b[^]c[~]d [|]:back"));
 }
 
 function renderVisit(visitPlanItemId) {
@@ -24,6 +27,7 @@ function renderVisitView(tx, rs) {
     var data = dbTools.rsToJson(rs);
     if (data.length > 0) {
         visit.timeBgn = data[0].timeBgn;
+        visit.fmtId = data[0].fmtId;
         $("#visit-point-name").text(data[0].name + ', ' + data[0].addr);
         $("#visit-time").text(dateToStr(visit.timeBgn, "DD.MM.YYYY HH:NN"));
     }
@@ -66,7 +70,6 @@ function visitHrefGet(blk, activityId) {
             }
         }
     }
-//if (result !== "") {log("..visitHrefGet(" + blk + ", " + activityId + ") = '" + result + "'");}
     return result;
 }
 
