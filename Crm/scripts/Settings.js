@@ -1,9 +1,11 @@
-var settings = {};
+var settings;
 
 //document.addEventListener("deviceready", settingsInit, false);
 
 function settingsInit() {
     log("..settingsInit()");
+    
+    settings = {};
     
     settings.nodeId = 0;
     
@@ -14,5 +16,6 @@ function settingsInit() {
     settings.filterPoints.orgCatId = "-1";
     settings.filterPoints.orgTypeId = "-1";
     
-    log("....settings=" + JSON.stringify(settings));
+    settings.skuCatId = -1;
+    settings.skuCatName = "Все";
 }

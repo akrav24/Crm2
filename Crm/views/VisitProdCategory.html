@@ -6,6 +6,7 @@
 </head>
 <body>
     <script src="scripts/VisitProdCategory.js"></script>
+    <script src="scripts/Visit.js"></script>
     <div data-role="view" 
         data-title="Категория" 
         data-layout="main" 
@@ -19,10 +20,10 @@
             </div>
         </header>
         
-        <ul id="prod-cat-list" class="list" data-role="listview" data-template="prod-cat-list-tmpl"></ul>
+        <ul id="prod-cat-list" class="list" data-role="listview" data-template="prod-cat-list-tmpl" data-click="prodCatListClick"></ul>
     
         <script id="prod-cat-list-tmpl" type="text/x-kendo-template">
-            <a class="list-item-header" href="views/VisitProducts.html?visitPlanItemId=#:visitPlanItemId#&skuCatId=#:skuCatId#">
+            <a class="list-item-header" href="#if (skuCatId === -1) {#\\#:back#} else {##: visitCategory.navigateTo##}#">
                 <p>#: name #</p>
             </a>
         </script>

@@ -26,9 +26,9 @@
         <ul class="list list-item-header" data-role="listview">
             <li>
                 <p>
-                    <table cellspacing="5">
+                    <table class="visit-item-table" cellspacing="0">
                         <tr>
-                            <td width="80px"><span>Время</span></td>
+                            <td class="visit-item-table-caption"><span>Время</span></td>
                             <td><span id="visit-time"></span></td>
                         </tr>
                     </table>
@@ -36,44 +36,46 @@
             </li>
             <li>
                 <p>
-                    <table cellspacing="5">
+                    <table class="visit-item-table" cellspacing="0">
                         <tr>
-                            <td width="80px"><span>Точка</span></td>
+                            <td class="visit-item-table-caption"><span>Точка</span></td>
                             <td><span id="visit-point-name"></span></td>
                         </tr>
                     </table>
                 </p>
             </li>
+            <li>
+                <a href="views/VisitProdCategory.html?navigateTo=[|]:back&isItemAllShow=1">
+                    <p>
+                        <table class="visit-item-table" cellspacing="0">
+                            <tr>
+                                <td class="visit-item-table-caption"><span>Категория</span></td>
+                                <td><span id="visit-cat-name"></span></td>
+                            </tr>
+                        </table>
+                    </p>
+                </a>
+            </li>
+            <!--
             <li class="list-item-group-header" style="background-color: LightGray;">
                 <p>Первичный анализ</p>
             </li>
-            <li>
-                <a href="views/VisitProdCategory.html?visitPlanItemId=1">
-                    <p>Наличие продукции</p>
-                </a>
-            </li>
-            <li>
-                <p>Соблюдение планограммы</p>
-            </li>
-            <li>
-                <p>Фотоотчет</p>
-            </li>
-            <li class="list-item-group-header" style="background-color: LightGray;">
-                <p>Основной анализ</p>
-            </li>
-            <li>
-                <p>Наличие продукции</p>
-            </li>
-            <li>
-                <p>Соблюдение планограммы</p>
-            </li>
-            <li>
-                <p>Доля на полке</p>
-            </li>
-            <li>
-                <p>Промоактивность конкурентов</p>
-            </li>
+            -->
         </ul>
+        
+        <ul style="margin-top: 2px;" id="visit-activity-list" class="list list-item-header" data-role="listview" data-template="visit-activity-list-tmpl"></ul>
+        
+        <script id="visit-activity-list-tmpl" type="text/x-kendo-template">
+            #if (blk === 0) {#
+                <p class="visit-item-action-group">#: name #</p>
+            #} else if (visitHrefGet(blk, activityId) != "") {#
+                <a href="#: visitHrefGet(blk, activityId) #">
+                    <p>#: name #</p>
+                </a>
+            #} else {#
+                <p>#: name #</p>
+            #}#
+        </script>
     </div>
 </body>
 </html>

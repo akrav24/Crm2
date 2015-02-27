@@ -1,27 +1,35 @@
-var visitPlanItemId;
+var visitCategory = {};
+visitCategory.navigateTo = "#:back";
+visitCategory.isItemAllShow = 1;
 
 function visitProdCatInit(e) {
-    log("..visitInit");
+    log("..visitProdCatInit");
     dbTools.objectListItemSet("visit-prod-cat", true);
 }
 
 function visitProdCatShow(e) {
-    log("..visitShow visitPlanItemId=" + e.view.params.visitPlanItemId);
-    visitPlanItemId = e.view.params.visitPlanItemId;
-    renderVisitProdCat(visitPlanItemId);
+    log("..visitProdCatShow navigateTo=" + viewParamToHref(e.view.params.navigateTo) + ", isItemAllShow=" + e.view.params.isItemAllShow);
+    visitCategory.navigateTo = viewParamToHref(e.view.params.navigateTo);
+    if (e.view.params.isItemAllShow != undefined) {
+        visitCategory.isItemAllShow = e.view.params.isItemAllShow;
+    } else {
+        visitCategory.isItemAllShow = 1;
+    }
+    renderVisitProdCat(visitCategory.isItemAllShow);
 }
 
-function renderVisitProdCat(visitPlanItemId) {
-    log("..renderVisitProdCat");
-    if (dbTools.objectListItemGet("visit-prod-cat").needReloadData) {
-        log("..renderVisitProdCat ReloadData");
-        dbTools.visitProductCategoryGet(visitPlanItemId, renderVisitProdCatView);
-        dbTools.objectListItemSet("visit-prod-cat", false);
-    }
+function renderVisitProdCat(isItemAllShow) {
+    log("..renderVisitProdCat(" + isItemAllShow + ")");
+    dbTools.visitProductCategoryGet(isItemAllShow, renderVisitProdCatView);
 }
 
 function renderVisitProdCatView(tx, rs) {
     log("..renderVisitProdCatView");
     var data = dbTools.rsToJson(rs);
     $("#prod-cat-list").data("kendoMobileListView").dataSource.data(data);
+}
+
+function prodCatListClick(e) {
+    settings.skuCatId = e.dataItem.skuCatId;
+    settings.skuCatName = e.dataItem.name;
 }

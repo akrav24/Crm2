@@ -20,6 +20,8 @@ body {
 }
 */
 
+/*--kendo--------------------------------------*/
+
 .k-datepicker .k-select {
     height: 100%;
 }
@@ -41,9 +43,7 @@ body {
     border-radius: 3px;
 }
 
-.hidden {
-    display: none;
-}
+/*-user defined--------------------------------*/
 
 .date {
     width: 100px;
@@ -89,6 +89,10 @@ body {
     bottom: 0;
 }
 
+.hidden {
+    display: none;
+}
+
 .list {
 }
 .list-item-group-header {
@@ -121,6 +125,11 @@ body {
     font-size: medium;
     height: 80%;
     margin-right: 5px;
+}
+
+.menu-buttongroup {
+    height: 40px;
+    width: 100%;
 }
 
 .menu-section {
@@ -172,10 +181,21 @@ body {
     font-size: 200%;
 }
 
+.visit-item-table {
+     margin-left: 5px;
+}
+
+.visit-item-table-caption {
+    width: 120px;
+}
+
+.visit-item-action-group {
+    font-weight: bold;
+}
 
 
+/*--theming-----------------------------------*/
 
-/*--theming-------------*/
 /*http://docs.telerik.com/kendo-ui/mobile/styling*/
 /*
 .km-flat .km-switch-handle,
