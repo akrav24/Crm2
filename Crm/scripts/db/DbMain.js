@@ -1,11 +1,11 @@
 var dbTools = {};
-dbTools.db = null;             // SQLite database
-dbTools.pointLst = null;
-dbTools.pointId = null;
-dbTools.objectList = []; // [{name: <name>, needReloadData: <true|false>, callback: <callback function>}, ...]
 
 function dbInit() {
     log("dbInit()");
+    dbTools.db = null;             // SQLite database
+    dbTools.pointLst = null;
+    dbTools.pointId = null;
+    dbTools.objectList = []; // [{name: <name>, needReloadData: <true|false>, callback: <callback function>}, ...]
     dbTools.openDB();
     dbTools.createSystemTables();
     dbTools.loadSettings(onLoadSettings);
@@ -54,6 +54,33 @@ dbTools.loadSettings = function(onSuccess) {
             dbTools.onSqlError
         );
     }, dbTools.onTransError);
+}
+
+dbTools.tableNextIdGet = function(tx, tableName, onSuccess, onError) {
+    var errMsg = "tableNextIdGet function error: ";
+    if (tx != undefined) {
+        var sql = "SELECT RT.refTypeId, IFNULL(C.refId, 0) + 1 AS refId"
+            + "  FROM RefType RT"
+            + "  LEFT JOIN Counter C ON RT.refTypeId = C.refType"
+            + "  WHERE RT.name = ?";
+        tx.executeSql(sql, [tableName],
+            function(tx, rs) {
+                if (rs.rows.length > 0) {
+                    var refTypeId = rs.rows.item(0).refTypeId;
+                    var refId = rs.rows.item(0).refId;
+                    tx.executeSql("REPLACE INTO Counter VALUES(?, ?)", [refTypeId, refId],
+                        function(tx, rs) {if (onSuccess != undefined) {onSuccess(refId);}},
+                        function(tx, error) {if (onError != undefined) {onError(errMsg + dbTools.errorMsg(error));}}
+                    );
+                } else {
+                    if (onError != undefined) {onError(errMsg + "table '" + tableName + "' not found");}
+                }
+            },
+            function(tx, error) {if (onError != undefined) {onError(errMsg + dbTools.errorMsg(error));}}
+        );
+    } else {
+        if (onError != undefined) {onError(errMsg + "parameter 'tx' undefined");}
+    }
 }
 
 dbTools.onTransError = function(error) {

@@ -1,25 +1,27 @@
 var visit;
 
 function visitInit(e) {
-    log("..visitInit()");
+    log("..visitInit");
     visit = {};
-    visit.visitPlanItemId = 0;
+    visit.visitPlanItemId = null;
+    visit.visitId = null;
     visit.fmtFilterType = 0;    // 0 - МА, 1 - Все
-    visit.fmtId = 0;
+    visit.fmtId = null;
     visit.timeBgn = "";
     visit.timeEnd = "";
 }
 
 function visitShow(e) {
-    log("..visitShow visitPlanItemId=" + e.view.params.visitPlanItemId);
+    log("..visitShow visitPlanItemId=" + e.view.params.visitPlanItemId + ", visitId=" + e.view.params.visitId);
     visit.visitPlanItemId = e.view.params.visitPlanItemId;
-    renderVisit(visit.visitPlanItemId);
+    visit.visitId = e.view.params.visitId;
+    renderVisit(visit.visitPlanItemId, visit.visitId);
 }
 
-function renderVisit(visitPlanItemId) {
+function renderVisit(visitPlanItemId, visitId) {
     log("..renderVisit");
-    dbTools.visitGet(visitPlanItemId, renderVisitView);
-    dbTools.visitActivityGet(visitPlanItemId, renderVisitActivityList);
+    dbTools.visitGet(visitPlanItemId, visitId, renderVisitView);
+    dbTools.visitActivityGet(visitPlanItemId, visitId, renderVisitActivityList);
 }
 
 function renderVisitView(tx, rs) {
@@ -37,6 +39,7 @@ function renderVisitView(tx, rs) {
 function renderVisitActivityList(tx, rs) {
     log("..renderVisitActivityList");
     var data = dbTools.rsToJson(rs);
+log("....data=" + JSON.stringify(data));
     $("#visit-activity-list").data("kendoMobileListView").dataSource.data(data);
 }
 
@@ -66,7 +69,7 @@ function visitHrefGet(blk, activityId) {
                 result = href;
             } else {
                 href += "2";
-                result = "views/VisitProdCategory.html?visitPlanItemId=" + visit.visitPlanItemId + "&navigateTo=" + hrefToViewParam(href) + "&isItemAllShow=0";
+                result = "views/VisitProdCategory.html?navigateTo=" + hrefToViewParam(href) + "&isItemAllShow=0";
             }
         }
     }
@@ -78,6 +81,9 @@ function hrefByActivityIdGet(activityId, visitPlanItemId) {
     switch (activityId) {
         case 1:
             result = "views/VisitProducts.html";
+            break;
+        default:
+            result = "";
             break;
     }
     return result;

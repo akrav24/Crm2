@@ -18,8 +18,8 @@
             <div data-role="navbar">
                 <a class="nav-button" data-align="left" data-role="button" data-icon="back" href="#:back"></a>
                 <span data-role="view-title"></span>
-                <a id="visit-start-button" data-role="button" data-align="right" data-click="visitStartOnClick">Начать</a>
-                <a id="visit-finish-button" class="hidden" data-role="button" data-align="right" data-click="visitFinishOnClick">Закончить</a>
+                <a id="visit-start-button" class="nav-button" data-role="button" data-align="right" data-click="visitStartOnClick">Начать</a>
+                <a id="visit-finish-button" class="nav-button hidden" data-role="button" data-align="right" data-click="visitFinishOnClick">Закончить</a>
             </div>
         </header>
         
@@ -67,13 +67,17 @@
         
         <script id="visit-activity-list-tmpl" type="text/x-kendo-template">
             #if (blk === 0) {#
-                <p class="visit-item-action-group">#: name #</p>
+                <p class="visit-item-action-group" style="margin-left: 5px;">#:name#</p>
             #} else if (visitHrefGet(blk, activityId) != "") {#
-                <a href="#: visitHrefGet(blk, activityId) #">
-                    <p>#: name #</p>
+                <a href="#:visitHrefGet(blk, activityId)#" 
+                    style="background-image: url(styles/images/VisitActivity#:activityId#.png); background-repeat: no-repeat; background-position: 15px center">
+                    <p><span style="margin-left: 50px;">#:name#</span></p>
                 </a>
             #} else {#
-                <p>#: name #</p>
+                <a  
+                    style="background-image: url(styles/images/VisitActivity#:activityId#.png); background-repeat: no-repeat; background-position: 15px center">
+                    <p><span style="margin-left: 50px;">#:name#</span></p>
+                </a>
             #}#
         </script>
     </div>
