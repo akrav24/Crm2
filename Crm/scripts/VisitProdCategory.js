@@ -1,9 +1,10 @@
-var visitCategory = {};
-visitCategory.navigateTo = "#:back";
-visitCategory.isItemAllShow = 1;
+var visitCategory;
 
 function visitProdCatInit(e) {
     log("..visitProdCatInit");
+    visitCategory = {};
+    visitCategory.navigateTo = "#:back";
+    visitCategory.isItemAllShow = 1;
     dbTools.objectListItemSet("visit-prod-cat", true);
 }
 

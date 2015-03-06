@@ -1,21 +1,45 @@
+//-- Visit List ---------------------------------------------------
+
 dbTools.visitListGet = function(prdBgn, datasetGet) {
     log("visitListGet");
-    // visitType: 1 - визита не было, 2 - был запланированный визит, 3 - был незапланированный визит
+    // visitType: 1 - визита не было, 2 - был запланированный визит, 3 - был незапланированный визит, 4 - текущий запланированный визит, 5 - текущий незапланированный визит
     dbTools.db.transaction(function(tx) {
-        var sql = "SELECT VP.visitPlanId, VPI.visitPlanItemId, VP.empId, VP.dateBgn, VPI.custId, K.name, K.cityId, C.name AS cityName,"
-            + " K.addr, K.chainId, CN.name AS chainName, NULL AS docId, 1 AS visitType"
-            + " FROM VisitPlan VP"
-            + " INNER JOIN VisitPlanItem VPI ON VP.visitPlanId = VPI.visitPlanId"
-            + " INNER JOIN Cust K ON VPI.custId = K.custId"
-            + " LEFT JOIN City C ON K.cityId = C.cityId"
-            + " LEFT JOIN Chain CN ON K.chainId = CN.chainId"
-            + " WHERE VP.dateBgn >= ? AND VP.dateBgn <= ?"
-            + " ORDER BY VP.dateBgn, VPI.lvl";
-        tx.executeSql(sql, [dateToStr(prdBgn, "YYYYMMDD HH:NN:SS:ZZZ"), dateToStr(prdBgn, "YYYYMMDD HH:NN:SS:ZZZ")], datasetGet, dbTools.onSqlError);
+        var sql = "SELECT A.visitPlanId, A.visitPlanItemId, A.visitId, A.dateBgn, "
+            + "        A.custId, A.name, A.cityId, A.cityName,"
+            + "        A.addr, A.chainId, A.chainName, A.visitType"
+            + "  FROM"
+            + "    (SELECT VP.visitPlanId, VPI.visitPlanItemId, V.visitId, VP.dateBgn, "
+            + "        VPI.custId, K.name, K.cityId, C.name AS cityName,"
+            + "        K.addr, K.chainId, CN.name AS chainName, "
+            + "        CASE WHEN V.visitId IS NULL THEN 1 WHEN V.timeEnd IS NOT NULL THEN 2 ELSE 4 END AS visitType,"
+            + "        0 AS blk, VPI.lvl"
+            + "      FROM VisitPlan VP"
+            + "      INNER JOIN VisitPlanItem VPI ON VP.visitPlanId = VPI.visitPlanId"
+            + "      LEFT JOIN Visit V ON VPI.custId = V.custId AND VP.dateBgn = V.dateBgn"
+            + "      LEFT JOIN Cust K ON VPI.custId = K.custId"
+            + "      LEFT JOIN City C ON K.cityId = C.cityId"
+            + "      LEFT JOIN Chain CN ON K.chainId = CN.chainId"
+            + "      WHERE VP.dateBgn >= ? AND VP.dateBgn <= ?"
+            + "    UNION ALL"
+            + "    SELECT NULL AS visitPlanId, NULL AS visitPlanItemId, V.visitId, V.dateBgn, "
+            + "        V.custId, K.name, K.cityId, C.name AS cityName,"
+            + "        K.addr, K.chainId, CN.name AS chainName, "
+            + "        CASE WHEN V.timeEnd IS NOT NULL THEN 3 ELSE 5 END AS visitType,"
+            + "        1 AS blk, 0 AS lvl"
+            + "      FROM Visit V"
+            + "      LEFT JOIN Cust K ON V.custId = K.custId"
+            + "      LEFT JOIN City C ON K.cityId = C.cityId"
+            + "      LEFT JOIN Chain CN ON K.chainId = CN.chainId"
+            + "      WHERE V.dateBgn >= ? AND V.dateBgn <= ?"
+            + "        AND NOT EXISTS(SELECT 1 FROM VisitPlan VP INNER JOIN VisitPlanItem VPI ON VP.visitPlanId = VPI.visitPlanId WHERE VPI.custId = V.custId AND VP.dateBgn = V.dateBgn)"
+            + "  ) A"
+            + "  ORDER BY A.dateBgn, A.blk, A.lvl";
+        var dt = dateToStr(prdBgn, "YYYYMMDD HH:NN:SS:ZZZ");
+        tx.executeSql(sql, [dt, dt, dt, dt], datasetGet, dbTools.onSqlError);
     }, dbTools.onTransError);
 }
 
-dbTools.visitGet = function(visitPlanItemId, datasetGet) {
+dbTools.visitGet = function(visitPlanItemId, visitId, datasetGet) {
     log("visitGet");
     dbTools.db.transaction(function(tx) {
         var sql = "SELECT VPI.visitPlanId, VP.dateBgn, VPI.timeBgn, VPI.visitPlanItemId, VPI.custId, K.name, K.addr, K.fmtId"
@@ -53,14 +77,29 @@ dbTools.visitProductsGet = function(visitPlanItemId, skuCatId, fmtFilterType, fm
             + " WHERE S.active = 1"
             + "   AND B.ext = 0"
             + "   AND S.skuCatId = ?"
-            + "   AND (? = '1' OR EXISTS(SELECT 1 FROM FmtSku WHERE fmtId = ? AND skuId = S.skuId))"
+            + "   AND (? = 1 OR EXISTS(SELECT 1 FROM FmtSku WHERE fmtId = ? AND skuId = S.skuId))"
             + " ORDER BY S.name";
         tx.executeSql(sql, [skuCatId, fmtFilterType, fmtId], datasetGet, dbTools.onSqlError);
     }, dbTools.onTransError);
 }
 
-dbTools.visitActivityGet = function(visitPlanItemId, datasetGet) {
-    log("visitActivityGet(" + visitPlanItemId + ", )");
+dbTools.visitProductGet = function(visitPlanItemId, skuId, datasetGet) {
+    log("visitProductGet(" + visitPlanItemId + ", " + skuId + ")");
+    dbTools.db.transaction(function(tx) {
+        var sql = "SELECT V.visitId, V.timeBgn, V.timeEnd, VS.skuId, S.name, S.code, (IFNULL(S.code, '') || ' ' || S.name) AS fullName, VS.sel, VS.qntRest, VS.qntOrder, VS.reasonId, R.name AS reasonName"
+            + "  FROM VisitPlanItem VPI"
+            + "  INNER JOIN VisitPlan VP ON VPI.visitPlanId = VP.visitPlanId"
+            + "  LEFT JOIN Visit V ON VPI.custId = V.custId AND VP.dateBgn = V.dateBgn"
+            + "  LEFT JOIN VisitSku VS ON V.visitId = VS.visitId AND VS.skuId = ?"
+            + "  LEFT JOIN Sku S ON IFNULL(VS.skuId, ?) = S.skuId"
+            + "  LEFT JOIN Reason R ON VS.reasonId = R.reasonId"
+            + "  WHERE VPI.visitPlanItemId = ?";
+        tx.executeSql(sql, [skuId, skuId, visitPlanItemId], datasetGet, dbTools.onSqlError);
+    }, dbTools.onTransError);
+}
+
+dbTools.visitActivityGet = function(visitPlanItemId, visitId, datasetGet) {
+    log("visitActivityGet(" + visitPlanItemId + ")");
     dbTools.db.transaction(function(tx) {
         var sql = "SELECT VPI.visitPlanItemId AS visitPlanItemId, VSA.stageId AS stageId, VSA.activityId AS activityId, A.name AS name, 1 AS blk, A.lvl AS lvl"
             + "  FROM VisitPlanItem VPI"
@@ -75,3 +114,14 @@ dbTools.visitActivityGet = function(visitPlanItemId, datasetGet) {
         tx.executeSql(sql, [visitPlanItemId, visitPlanItemId, visitPlanItemId], datasetGet, dbTools.onSqlError);
     }, dbTools.onTransError);
 }
+
+dbTools.visitDocGet = function(visitPlanItemId, onSuccess, onError) {
+    log("visitDocGet(" + visitPlanItemId + ")");
+    dbTools.db.transaction(function(tx) {
+        var sql = ""
+            + ""
+            + "";
+        tx.executeSql(sql, [], datasetGet, dbTools.onSqlError);
+    }, function(error) {if (onError != undefined) {onError("!!! SQLite transaction error, " + dbTools.errorMsg(error));}});
+}
+
