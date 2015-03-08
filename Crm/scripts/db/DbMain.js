@@ -69,13 +69,59 @@ dbTools.tableNextIdGet = function(tx, tableName, onSuccess, onError) {
                     var refTypeId = rs.rows.item(0).refTypeId;
                     var refId = rs.rows.item(0).refId;
                     tx.executeSql("REPLACE INTO Counter VALUES(?, ?)", [refTypeId, refId],
-                        function(tx, rs) {if (onSuccess != undefined) {onSuccess(refId);}},
+                        function(tx, rs) {if (onSuccess != undefined) {onSuccess(tx, refId);}},
                         function(tx, error) {if (onError != undefined) {onError(errMsg + dbTools.errorMsg(error));}}
                     );
                 } else {
                     if (onError != undefined) {onError(errMsg + "table '" + tableName + "' not found");}
                 }
             },
+            function(tx, error) {if (onError != undefined) {onError(errMsg + dbTools.errorMsg(error));}}
+        );
+    } else {
+        if (onError != undefined) {onError(errMsg + "parameter 'tx' undefined");}
+    }
+}
+
+dbTools.sqlUpdate = function(tx, tableName, keyFieldName, fieldNameArray, keyFieldValue, fieldValueArray, onSuccess, onError) {
+    var errMsg = "updateTableField function error: ";
+    if (tx != undefined) {
+        var sql = "";
+        for (var i = 0; i < fieldNameArray.length; i++) {
+            sql += ", " + fieldNameArray[i] + " = ?";
+        }
+        sql = "UPDATE " + tableName
+            + "  SET updateDate = ?" + sql
+            + "  WHERE " + keyFieldName + " = ?";
+        var params = (new Array()).concat(dateToSqlDate(new Date()), fieldValueArray, keyFieldValue);
+        tx.executeSql(sql, params,
+            function(tx, rs) {if (onSuccess != undefined) {onSuccess(keyFieldValue);}},
+            function(tx, error) {if (onError != undefined) {onError(errMsg + dbTools.errorMsg(error));}}
+        );
+    } else {
+        if (onError != undefined) {onError(errMsg + "parameter 'tx' undefined");}
+    }
+}
+
+dbTools.sqlInsertUpdate = function(tx, tableName, fieldNameArray, fieldValueArray, onSuccess, onError) {
+    var errMsg = "updateTableField function error: ";
+    if (tx != undefined) {
+        var flds = "";
+        var vals = "";
+        var params = fieldValueArray;
+        if (tableName.toLowerCase() != "visitsku") {
+            flds = "updateDate";
+            vals = "?";
+            params = params.concat(dateToSqlDate(new Date()), params);
+        }
+        for (var i = 0; i < fieldNameArray.length; i++) {
+            flds += (flds.length == 0 ? "" : ", ") + fieldNameArray[i];
+            vals += (vals.length == 0 ? "?" : ", ?");
+        }
+        var sql = "REPLACE INTO " + tableName + "(" + flds + ")"
+            + "  VALUES(" + vals + ")";
+        tx.executeSql(sql, params,
+            function(tx, rs) {if (onSuccess != undefined) {onSuccess();}},
             function(tx, error) {if (onError != undefined) {onError(errMsg + dbTools.errorMsg(error));}}
         );
     } else {

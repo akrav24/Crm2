@@ -35,15 +35,17 @@
                 <p class="list-item-header">
                     <table>
                         <tr>
-                            <td><input type="checkbox" class="checkbox"/></td>
+                            <td><input type="checkbox" class="checkbox" data-sku-id="#:skuId#" #if (sel == 1) {# checked#}#/></td>
                             <td width="60px"><span style="margin-left: 10px">#:code#</span></td>
                             <td width="100%">
                                 <span style="margin-left: 0px; width: 100%">#:name#</span>
                                 <!--<a data-role="detailbutton" data-style="detaildisclose"></a>-->
                             </td>
+                            #if (visitProducts.stageId == 2) {#
                             <td width="100px">
                                 <a data-role="button" data-icon="details" href="\\#visit-product-edit-view?skuId=#:skuId#"></a>
                             </td>
+                            #}#
                         </tr>
                     </table>
                     <!--<input data-role="switch" data-on-label="Yes" data-off-label="No" data-bind="checked: qnt"/>-->
@@ -82,7 +84,7 @@
                     </li>
                     <li>
                         <label>Наличие
-                            <input id="visit-product-edit-sel" type="checkbox"/>
+                            <input id="visit-product-edit-sel" type="checkbox" onchange="onchangeTest()"/>
                         </label>
                     </li>
                     <li>

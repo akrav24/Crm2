@@ -5,16 +5,26 @@ function visitInit(e) {
     visit = {};
     visit.visitPlanItemId = null;
     visit.visitId = null;
+    visit.dateBgn = null;
+    visit.custId = null;
     visit.fmtFilterType = 0;    // 0 - МА, 1 - Все
     visit.fmtId = null;
-    visit.timeBgn = "";
-    visit.timeEnd = "";
+    visit.timeBgn = null;
+    visit.timeEnd = null;
 }
 
 function visitShow(e) {
     log("..visitShow visitPlanItemId=" + e.view.params.visitPlanItemId + ", visitId=" + e.view.params.visitId);
-    visit.visitPlanItemId = e.view.params.visitPlanItemId;
-    visit.visitId = e.view.params.visitId;
+    if (e.view.params.visitPlanItemId != "" && e.view.params.visitPlanItemId != "null") {
+        visit.visitPlanItemId = e.view.params.visitPlanItemId;
+    } else {
+        visit.visitPlanItemId = null;
+    }
+    if (e.view.params.visitId != "" && e.view.params.visitId != "null") {
+        visit.visitId = e.view.params.visitId;
+    } else {
+        visit.visitId = null;
+    }
     renderVisit(visit.visitPlanItemId, visit.visitId);
 }
 
@@ -28,36 +38,86 @@ function renderVisitView(tx, rs) {
     log("..renderVisitView");
     var data = dbTools.rsToJson(rs);
     if (data.length > 0) {
-        visit.timeBgn = data[0].timeBgn;
+        visit.dateBgn = sqlDateToDate(data[0].dateBgn);
+        visit.custId = data[0].custId;
+        visit.timeBgn = sqlDateToDate(data[0].timeBgn);
+        visit.timeEnd = sqlDateToDate(data[0].timeEnd);
         visit.fmtId = data[0].fmtId;
         $("#visit-point-name").text(data[0].name + ', ' + data[0].addr);
-        $("#visit-time").text(dateToStr(visit.timeBgn, "DD.MM.YYYY HH:NN"));
+        visitTimeCaptionSet(visit.timeBgn, visit.timeEnd);
     }
     $("#visit-cat-name").text(settings.skuCatName);
+    visitEnableButtons();
 }
 
 function renderVisitActivityList(tx, rs) {
     log("..renderVisitActivityList");
     var data = dbTools.rsToJson(rs);
-log("....data=" + JSON.stringify(data));
     $("#visit-activity-list").data("kendoMobileListView").dataSource.data(data);
 }
 
-function visitStartOnClick(e) {
-    $("#visit-start-button").addClass("hidden");
-    $("#visit-finish-button").removeClass("hidden");
-    visit.timeBgn = new Date();
-    $("#visit-time").text(dateToStr(visit.timeBgn, "DD.MM.YYYY HH:NN"));
-}
-;
-function visitFinishOnClick(e) {
-    
+function visitEnableButtons() {
+    var dt = new Date();
+    dt.setHours(0, 0, 0, 0);
+    if (visit.visitId != null) {
+        if (visit.timeEnd != null) {
+            $("#visit-start-button").addClass("hidden");
+            $("#visit-finish-button").addClass("hidden");
+        } else {
+            $("#visit-start-button").addClass("hidden");
+            $("#visit-finish-button").removeClass("hidden");
+        }
+    } else {
+        $("#visit-start-button").removeClass("hidden");
+        $("#visit-finish-button").addClass("hidden");
+    }
+    if (visit.dateBgn.toString() != dt.toString()) {
+        $("#visit-start-button").addClass("hidden");
+        $("#visit-finish-button").addClass("hidden");
+    }
 }
 
-function visitHrefGet(blk, activityId) {
+function visitTimeCaptionSet(timeBgn, timeEnd) {
+    log("..visitTimeCaptionSet(" + timeBgn + ", " + timeEnd + ")");
+    var timeStr = "";
+    if (timeBgn != undefined) {
+        timeStr = dateToStr(timeBgn, "DD.MM.YYYY HH:NN");
+        if (timeEnd != undefined) {
+            timeStr += " - " + dateToStr(timeEnd, "HH:NN");
+        }
+    }
+    $("#visit-time").text(timeStr);
+}
+
+function visitStartOnClick(e) {
+    dbTools.visitAdd(visit.dateBgn, visit.custId,
+        function(visitId, timeBgn) {
+            visit.visitId = visitId;
+            visit.timeBgn = timeBgn;
+            visitTimeCaptionSet(visit.timeBgn, visit.timeEnd);
+            visitEnableButtons();
+            dbTools.objectListItemSet("visit-list", true);
+        }, 
+        dbTools.onSqlError
+    );
+}
+
+function visitFinishOnClick(e) {
+    dbTools.visitEnd(visit.visitId,
+        function(timeEnd) {
+            visit.timeEnd = timeEnd;
+            visitTimeCaptionSet(visit.timeBgn, visit.timeEnd);
+            visitEnableButtons();
+            dbTools.objectListItemSet("visit-list", true);
+        }, 
+        dbTools.onSqlError
+    );
+}
+
+function visitHrefGet(stageId, blk, activityId) {
     var result = "";
     if (blk > 0) {
-        var href = hrefByActivityIdGet(activityId, visit.visitPlanItemId);
+        var href = hrefByActivityIdGet(stageId, activityId);
         if (href != "") {
             if (href.indexOf("?") >= 0) {
                 href += "&navigateBack=";
@@ -76,11 +136,11 @@ function visitHrefGet(blk, activityId) {
     return result;
 }
 
-function hrefByActivityIdGet(activityId, visitPlanItemId) {
+function hrefByActivityIdGet(stageId, activityId) {
     var result = "";
     switch (activityId) {
         case 1:
-            result = "views/VisitProducts.html";
+            result = "views/VisitProducts.html?stageId=" + stageId;
             break;
         default:
             result = "";

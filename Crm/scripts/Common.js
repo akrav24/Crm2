@@ -1,5 +1,5 @@
 function dateToStr(dt, format) {
-    var result = ""
+   var result = ""
     if (dt != undefined) {
         var y = dt.getFullYear();
         var m = dt.getMonth() + 1;
@@ -26,6 +26,9 @@ function dateToStr(dt, format) {
                 break;
             case "HH:NN:SS:ZZZ":
                 result = result.concat(h < 10 ? "0" + h : h, ":", n < 10 ? "0" + n : n, ":", s < 10 ? "0" + s : s, ":", z < 10 ? "00" + z : (z < 100 ? "0" + z : z));
+                break;
+            case "HH:NN":
+                result = result.concat(h < 10 ? "0" + h : h, ":", n < 10 ? "0" + n : n);
                 break;
             default:
                 break;
@@ -55,10 +58,26 @@ function navigateBack(backCount) {
 }
 
 function sqlDateToDate(sqlDate) {
-    var y = sqlDate.substring(0, 4);
-    var m = sqlDate.substring(4, 6);
-    var d = sqlDate.substring(6, 8);
-    return new Date(y, m - 1, d);
+    var dt = null;
+    if (sqlDate != undefined) {
+        var y = sqlDate.substring(0, 4);
+        var m = sqlDate.substring(4, 6);
+        var d = sqlDate.substring(6, 8);
+        var h = sqlDate.substring(9, 11);
+        var n = sqlDate.substring(12, 14);
+        var s = sqlDate.substring(15, 17);
+        var z = sqlDate.substring(18, 21);
+        dt = new Date(y, m - 1, d, h, n, s, z);
+    }
+    return dt;
+}
+
+function dateToSqlDate(dt) {
+    var sqlDate = null;
+    if (dt != undefined) {
+        sqlDate = dateToStr(dt, "YYYYMMDD HH:NN:SS:ZZZ");
+    }
+    return sqlDate;
 }
 
 function sqlPrepare(sql) {
