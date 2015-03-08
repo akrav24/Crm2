@@ -38,6 +38,9 @@ function renderVisitProductsView(tx, rs) {
         radioClass: "iradio_flat-green",
         increaseArea: "100%" // optional
     });
+    if (visit.readonly) {
+        $(".checkbox").iCheck("disable");
+    }
     //iCheck class="iradio icheckbox checked hover focus disabled"
     log("..renderVisitProductsView render end");
 }
@@ -82,6 +85,7 @@ function renderVisitProductEditView(tx, rs) {
     }
     $("#visit-product-edit-qnt-rest").val(visitProduct.qntRest);
     $("#visit-product-edit-qnt-order").val(visitProduct.qntOrder);
+    visitEnableControls();
 }
 
 function visitProductsNavBackClick(e) {
@@ -153,4 +157,10 @@ function visitProductSave() {
         sel = 1;
     }
     dbTools.visitProductUpdate(visit.visitId, visitProduct.skuId, sel, $("#visit-product-edit-qnt-rest").val(), $("#visit-product-edit-qnt-order").val(), undefined, dbTools.onSqlError);
+}
+function visitEnableControls() {
+    $("#visit-product-edit-full-name").prop("disabled", visit.readonly);
+    $("#visit-product-edit-sel").prop("disabled", visit.readonly);
+    $("#visit-product-edit-qnt-rest").prop("disabled", visit.readonly);
+    $("#visit-product-edit-qnt-order").prop("disabled", visit.readonly);
 }

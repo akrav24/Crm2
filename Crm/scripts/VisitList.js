@@ -37,7 +37,6 @@ function renderVisitList() {
 function renderVisitListView(tx, rs) {
     log("..renderVisitView");
     var data = dbTools.rsToJson(rs);
-log("..data=" + JSON.stringify(data));
     $("#visit-list").data("kendoMobileListView").dataSource.data(data);
     //$("#visit-list-view").data("kendoMobileView").stretch = (data.length === 0);
 }

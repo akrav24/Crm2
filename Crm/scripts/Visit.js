@@ -5,6 +5,7 @@ function visitInit(e) {
     visit = {};
     visit.visitPlanItemId = null;
     visit.visitId = null;
+    visit.readonly = false;
     visit.dateBgn = null;
     visit.custId = null;
     visit.fmtFilterType = 0;    // 0 - МА, 1 - Все
@@ -47,13 +48,20 @@ function renderVisitView(tx, rs) {
         visitTimeCaptionSet(visit.timeBgn, visit.timeEnd);
     }
     $("#visit-cat-name").text(settings.skuCatName);
+    visitCheckReadOnly();
     visitEnableButtons();
 }
-
+ 
 function renderVisitActivityList(tx, rs) {
     log("..renderVisitActivityList");
     var data = dbTools.rsToJson(rs);
     $("#visit-activity-list").data("kendoMobileListView").dataSource.data(data);
+}
+
+function visitCheckReadOnly() {
+    var dt = new Date();
+    dt.setHours(0, 0, 0, 0);
+    visit.readonly = !(visit.timeBgn != null && visit.timeEnd == null) || visit.dateBgn.toString() != dt.toString();
 }
 
 function visitEnableButtons() {
@@ -95,6 +103,7 @@ function visitStartOnClick(e) {
             visit.visitId = visitId;
             visit.timeBgn = timeBgn;
             visitTimeCaptionSet(visit.timeBgn, visit.timeEnd);
+            visitCheckReadOnly();
             visitEnableButtons();
             dbTools.objectListItemSet("visit-list", true);
         }, 
@@ -107,6 +116,7 @@ function visitFinishOnClick(e) {
         function(timeEnd) {
             visit.timeEnd = timeEnd;
             visitTimeCaptionSet(visit.timeBgn, visit.timeEnd);
+            visitCheckReadOnly();
             visitEnableButtons();
             dbTools.objectListItemSet("visit-list", true);
         }, 
