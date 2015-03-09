@@ -163,7 +163,7 @@ function visitProductSave() {
 }
 
 function visitProductEditEnableControls() {
-    $("#visit-product-edit-full-name").prop("disabled", visit.readonly);
+    $("#visit-product-edit-full-name").prop("disabled", true);
     $("#visit-product-edit-sel").prop("disabled", visit.readonly);
     $("#visit-product-edit-qnt-rest").prop("disabled", visit.readonly);
     $("#visit-product-edit-qnt-order").prop("disabled", visit.readonly);

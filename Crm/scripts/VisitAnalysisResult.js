@@ -182,12 +182,12 @@ function visitAnalysisResultSave() {
 }
 
 function visitAnalysisResultEditEnableControls() {
-    $("#visit-analysis-result-edit-full-name").prop("disabled", visit.readonly);
     var data = $("#visit-analysis-result-edit-reason").data("kendoDropDownList").dataItem();
-    log("....data=" + JSON.stringify(data));
-    $("#visit-analysis-result-edit-reason2").data("kendoDropDownList").enable(data.isParent == 1);
-    $("#visit-analysis-result-edit-reason-qnt").prop("disabled", visitAnalysisResult.useQnt != 1);
-    $("#visit-analysis-result-edit-reason-date").prop("disabled", visitAnalysisResult.useDate != 1);
+    $("#visit-analysis-result-edit-full-name").prop("disabled", true);
+    $("#visit-analysis-result-edit-reason").data("kendoDropDownList").enable(!visit.readonly);
+    $("#visit-analysis-result-edit-reason2").data("kendoDropDownList").enable((data.isParent == 1) && (!visit.readonly));
+    $("#visit-analysis-result-edit-reason-qnt").prop("disabled", (visitAnalysisResult.useQnt != 1) || visit.readonly);
+    $("#visit-analysis-result-edit-reason-date").prop("disabled", (visitAnalysisResult.useDate != 1) || visit.readonly);
 }
 
 function visitAnalysisResultEditReasonChange(e) {

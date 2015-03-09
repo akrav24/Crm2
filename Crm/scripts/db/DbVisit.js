@@ -110,7 +110,7 @@ dbTools.visitProductsGet = function(visitId, skuCatId, fmtFilterType, fmtId, dat
         //var sql = "SELECT NULL AS visitPlanId, NULL AS docId, S.skuId, S.name, S.brandGrpId, BG.name AS brandGrpName, BG.brandId, B.name AS brandName,"
         //    + " S.skuCatId, SC.name AS skuCatName, SC.parentId AS skuCatParentId, 1 AS qnt"
         var sql = "SELECT S.skuId, S.name, S.code, S.brandGrpId, BG.name AS brandGrpName, VS.sel, VS.sel0,"
-            + "    VS.qntRest, VS.qntOrder, VS.reasonId, R.name AS reasonName, VS.reasonQnt, VS.reasonDate"
+            + "    VS.qntRest, VS.qntOrder, VS.reasonId, IFNULL(R.name, '') AS reasonName, VS.reasonQnt, VS.reasonDate"
             + "  FROM Sku S"
             + "  LEFT JOIN BrandGrp BG ON S.brandGrpId = BG.brandGrpId"
             + "  LEFT JOIN Brand B ON BG.brandId = B.brandId"
@@ -187,7 +187,7 @@ dbTools.visitAnalysisResultsGet = function(visitId, datasetGet) {
     log("visitAnalysisResultsGet(" + visitId + ")");
     dbTools.db.transaction(function(tx) {
         var sql = "SELECT S.skuId, S.name, S.code, VS.sel, VS.sel0,"
-            + "    VS.qntRest, VS.qntOrder, VS.reasonId, R.name AS reasonName, VS.reasonQnt, VS.reasonDate"
+            + "    VS.qntRest, VS.qntOrder, VS.reasonId, IFNULL(R.name, '') AS reasonName, VS.reasonQnt, VS.reasonDate"
             + "  FROM VisitSku VS"
             + "  LEFT JOIN Sku S ON VS.skuId = S.skuId"
             + "  LEFT JOIN Reason R ON VS.reasonId = R.reasonId"
