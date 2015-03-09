@@ -31,8 +31,8 @@ function renderVisitProductsView(tx, rs) {
     log("..renderVisitProductsView render beg");
     $("#visit-products-list").data("kendoMobileListView").setDataSource(dataSource);
     app.scroller().reset();
-    $('input').on('ifChecked', visitProductOnCheck);
-    $('input').on('ifUnchecked', visitProductOnUncheck);
+    $('.checkbox').on('ifChecked', visitProductEditOnCheck);
+    $('.checkbox').on('ifUnchecked', visitProductEditOnUncheck);
     $(".checkbox").iCheck({
         checkboxClass: "icheckbox_flat-green",
         radioClass: "iradio_flat-green",
@@ -85,7 +85,7 @@ function renderVisitProductEditView(tx, rs) {
     }
     $("#visit-product-edit-qnt-rest").val(visitProduct.qntRest);
     $("#visit-product-edit-qnt-order").val(visitProduct.qntOrder);
-    visitEnableControls();
+    visitProductEditEnableControls();
 }
 
 function visitProductsNavBackClick(e) {
@@ -143,12 +143,14 @@ function visitProductEditTouchSwipe(e) {
     }
 }
 
-function visitProductOnCheck(e) {
+function visitProductEditOnCheck(e) {
     dbTools.visitProductSelUpdate(visit.visitId, $(this).attr("data-sku-id"), visitProducts.stageId, 1, undefined, dbTools.onSqlError);
+    dbTools.objectListItemSet("visit-list", true);
 }
 
-function visitProductOnUncheck(e) {
+function visitProductEditOnUncheck(e) {
     dbTools.visitProductSelUpdate(visit.visitId, $(this).attr("data-sku-id"), visitProducts.stageId, 0, undefined, dbTools.onSqlError);
+    dbTools.objectListItemSet("visit-list", true);
 }
 
 function visitProductSave() {
@@ -157,8 +159,10 @@ function visitProductSave() {
         sel = 1;
     }
     dbTools.visitProductUpdate(visit.visitId, visitProduct.skuId, sel, $("#visit-product-edit-qnt-rest").val(), $("#visit-product-edit-qnt-order").val(), undefined, dbTools.onSqlError);
+    dbTools.objectListItemSet("visit-list", true);
 }
-function visitEnableControls() {
+
+function visitProductEditEnableControls() {
     $("#visit-product-edit-full-name").prop("disabled", visit.readonly);
     $("#visit-product-edit-sel").prop("disabled", visit.readonly);
     $("#visit-product-edit-qnt-rest").prop("disabled", visit.readonly);

@@ -83,19 +83,32 @@ dbTools.tableNextIdGet = function(tx, tableName, onSuccess, onError) {
     }
 }
 
-dbTools.sqlUpdate = function(tx, tableName, keyFieldName, fieldNameArray, keyFieldValue, fieldValueArray, onSuccess, onError) {
-    var errMsg = "updateTableField function error: ";
+dbTools.tableUpdateDateFieldExists = function(tableName) {
+    result = true;
+    if (tableName.toLowerCase() == "visitsku") {
+        result = false;
+    }
+    return result;
+}
+
+dbTools.sqlInsert = function(tx, tableName, keyFieldNameArray, fieldNameArray, keyFieldValueArray, fieldValueArray, onSuccess, onError) {
+    var errMsg = "sqlInsert function error: ";
     if (tx != undefined) {
-        var sql = "";
-        for (var i = 0; i < fieldNameArray.length; i++) {
-            sql += ", " + fieldNameArray[i] + " = ?";
+        var fldArray = (new Array()).concat(keyFieldNameArray, fieldNameArray);
+        var valArray = (new Array()).concat(keyFieldValueArray, fieldValueArray);
+        if (dbTools.tableUpdateDateFieldExists(tableName)) {
+            fldArray = fldArray.concat(fldArray, "updateDate");
+            valArray = valArray.concat(valArray, dateToSqlDate(new Date()));
         }
-        sql = "UPDATE " + tableName
-            + "  SET updateDate = ?" + sql
-            + "  WHERE " + keyFieldName + " = ?";
-        var params = (new Array()).concat(dateToSqlDate(new Date()), fieldValueArray, keyFieldValue);
-        tx.executeSql(sql, params,
-            function(tx, rs) {if (onSuccess != undefined) {onSuccess(keyFieldValue);}},
+        var flds = fldArray.join(", ");
+        var vals = "";
+        for (var i = 0; i < valArray.length; i++) {
+            vals += (vals.length == 0 ? "" : ", ") + "?";
+        }
+        sql = "INSERT INTO " + tableName + "(" + flds + ")"
+            + "  VALUES(" + vals + ")";
+        tx.executeSql(sql, valArray,
+            function(tx, rs) {if (onSuccess != undefined) {onSuccess(keyFieldValueArray);}},
             function(tx, error) {if (onError != undefined) {onError(errMsg + dbTools.errorMsg(error));}}
         );
     } else {
@@ -103,25 +116,56 @@ dbTools.sqlUpdate = function(tx, tableName, keyFieldName, fieldNameArray, keyFie
     }
 }
 
-dbTools.sqlInsertUpdate = function(tx, tableName, fieldNameArray, fieldValueArray, onSuccess, onError) {
-    var errMsg = "updateTableField function error: ";
+dbTools.sqlUpdate = function(tx, tableName, keyFieldNameArray, fieldNameArray, keyFieldValueArray, fieldValueArray, onSuccess, onError) {
+    var errMsg = "sqlUpdate function error: ";
     if (tx != undefined) {
-        var flds = "";
-        var vals = "";
-        var params = fieldValueArray;
-        if (tableName.toLowerCase() != "visitsku") {
-            flds = "updateDate";
-            vals = "?";
-            params = params.concat(dateToSqlDate(new Date()), params);
+        var sql = "";
+        if (dbTools.tableUpdateDateFieldExists(tableName)) {
+            sql = "updateDate = ?";
         }
         for (var i = 0; i < fieldNameArray.length; i++) {
-            flds += (flds.length == 0 ? "" : ", ") + fieldNameArray[i];
-            vals += (vals.length == 0 ? "?" : ", ?");
+            sql += (sql.length == 0 ? "" : ", ") + fieldNameArray[i] + " = ?";
         }
-        var sql = "REPLACE INTO " + tableName + "(" + flds + ")"
-            + "  VALUES(" + vals + ")";
+        var sqlWhere = "";
+        for (i = 0; i < keyFieldNameArray.length; i++) {
+            sqlWhere += (sqlWhere.length == 0 ? "" : " AND ") + keyFieldNameArray[i] + " = ?";
+        }
+        sql = "UPDATE " + tableName
+            + "  SET " + sql
+            + "  WHERE " + sqlWhere;
+        var params;
+        if (dbTools.tableUpdateDateFieldExists(tableName)) {
+            params = (new Array()).concat(dateToSqlDate(new Date()), fieldValueArray, keyFieldValueArray);
+        } else {
+            params = (new Array()).concat(fieldValueArray, keyFieldValueArray);
+        }
         tx.executeSql(sql, params,
-            function(tx, rs) {if (onSuccess != undefined) {onSuccess();}},
+            function(tx, rs) {if (onSuccess != undefined) {onSuccess(keyFieldValueArray);}},
+            function(tx, error) {if (onError != undefined) {onError(errMsg + dbTools.errorMsg(error));}}
+        );
+    } else {
+        if (onError != undefined) {onError(errMsg + "parameter 'tx' undefined");}
+    }
+}
+
+
+dbTools.sqlInsertUpdate = function(tx, tableName, keyFieldNameArray, fieldNameArray, keyFieldValueArray, fieldValueArray, onSuccess, onError) {
+    var errMsg = "sqlInsertUpdate function error: ";
+    if (tx != undefined) {
+        var sqlWhere = "";
+        for (var i = 0; i < keyFieldNameArray.length; i++) {
+            sqlWhere += (sqlWhere.length == 0 ? "" : " AND ") + keyFieldNameArray[i] + " = ?";
+        }
+        var sql = "SELECT * FROM " + tableName
+            + "  WHERE " + sqlWhere;
+        tx.executeSql(sql, keyFieldValueArray,
+            function(tx, rs) {
+                if (rs.rows.length == 0) {
+                    dbTools.sqlInsert(tx, tableName, keyFieldNameArray, fieldNameArray, keyFieldValueArray, fieldValueArray, onSuccess, onError);
+                } else {
+                    dbTools.sqlUpdate(tx, tableName, keyFieldNameArray, fieldNameArray, keyFieldValueArray, fieldValueArray, onSuccess, onError);
+                }
+            },
             function(tx, error) {if (onError != undefined) {onError(errMsg + dbTools.errorMsg(error));}}
         );
     } else {

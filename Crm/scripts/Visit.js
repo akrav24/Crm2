@@ -5,6 +5,7 @@ function visitInit(e) {
     visit = {};
     visit.visitPlanItemId = null;
     visit.visitId = null;
+    visit.isVisitIdReset = 1;
     visit.readonly = false;
     visit.dateBgn = null;
     visit.custId = null;
@@ -21,11 +22,14 @@ function visitShow(e) {
     } else {
         visit.visitPlanItemId = null;
     }
-    if (e.view.params.visitId != "" && e.view.params.visitId != "null") {
-        visit.visitId = e.view.params.visitId;
-    } else {
-        visit.visitId = null;
+    if (visit.isVisitIdReset == 1) {
+        if (e.view.params.visitId != "" && e.view.params.visitId != "null") {
+            visit.visitId = e.view.params.visitId;
+        } else {
+            visit.visitId = null;
+        }
     }
+    visit.isVisitIdReset = 0;
     renderVisit(visit.visitPlanItemId, visit.visitId);
 }
 
@@ -134,7 +138,7 @@ function visitHrefGet(stageId, blk, activityId) {
             } else {
                 href += "?navigateBack=";
             }
-            if (settings.skuCatId > 0) {
+            if (settings.skuCatId > 0 || activityId == 14) {
                 href += "1";
                 result = href;
             } else {
@@ -151,6 +155,9 @@ function hrefByActivityIdGet(stageId, activityId) {
     switch (activityId) {
         case 1:
             result = "views/VisitProducts.html?stageId=" + stageId;
+            break;
+        case 14:
+            result = "views/VisitAnalysisResult.html";
             break;
         default:
             result = "";

@@ -35,10 +35,10 @@
                 <p class="list-item-header">
                     <table>
                         <tr>
-                            <td><input type="checkbox" class="checkbox" data-sku-id="#:skuId#" #if (sel == 1) {# checked#}#/></td>
+                            <td><input type="checkbox" class="checkbox" data-sku-id="#:skuId#" #if ((visitProducts.stageId == 1 && sel0 == 1) || (visitProducts.stageId == 2 && sel == 1)) {# checked#}#/></td>
                             <td width="60px"><span style="margin-left: 10px">#:code#</span></td>
                             <td width="100%">
-                                <span style="margin-left: 0px; width: 100%">#:name#</span>
+                                <span style="margin-left: 5px; width: 100%">#:name#</span>
                                 <!--<a data-role="detailbutton" data-style="detaildisclose"></a>-->
                             </td>
                             #if (visitProducts.stageId == 2) {#

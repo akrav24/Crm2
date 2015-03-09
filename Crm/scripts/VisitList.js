@@ -17,6 +17,9 @@ function visitListInit(e) {
 function visitListShow(e) {
     log("..visitListShow");
     prdBgnOpened = false;
+    if (visit != undefined) {
+        visit.isVisitIdReset = 1;
+    }
     renderVisitList();
     /* // select item
     var listView = $("#visit-list").data("kendoMobileListView");

@@ -126,6 +126,34 @@ dbTools.visitProductsGet = function(visitId, skuCatId, fmtFilterType, fmtId, dat
     }, dbTools.onTransError);
 }
 
+dbTools.visitProductSelUpdate = function(visitId, skuId, stageId, sel, onSuccess, onError) {
+    log("visitProductSelUpdate(" + visitId + ", " + skuId + ", " + stageId + ", " + sel + ")");
+    dbTools.db.transaction(function(tx) {
+        var flds = ["sel"];
+        var vals = [sel];
+        if (stageId == 1) {
+            flds.push("sel0");
+            vals.push(sel);
+        }
+        dbTools.sqlInsertUpdate(tx, "VisitSku", ["visitId", "skuId"], flds, [visitId, skuId], vals, 
+            function() {if (onSuccess != undefined) {onSuccess(visitId, skuId);}},
+            onError
+        );
+    }, function(error) {if (onError != undefined) {onError("!!! SQLite transaction error, " + dbTools.errorMsg(error));}});
+}
+
+dbTools.visitProductUpdate = function(visitId, skuId, sel, qntRest, qntOrder, onSuccess, onError) {
+    log("visitProductUpdate(" + visitId + ", " + skuId + ", " + sel + ", " + qntRest + ", " + qntOrder + ")");
+    dbTools.db.transaction(function(tx) {
+        var flds = ["sel", "qntRest", "qntOrder"];
+        var vals = [sel, qntRest, qntOrder];
+        dbTools.sqlInsertUpdate(tx, "VisitSku", ["visitId", "skuId"], flds, [visitId, skuId], vals, 
+            function() {if (onSuccess != undefined) {onSuccess(visitId, skuId);}},
+            onError
+        );
+    }, function(error) {if (onError != undefined) {onError("!!! SQLite transaction error, " + dbTools.errorMsg(error));}});
+}
+
 dbTools.visitProductGet = function(visitId, skuId, datasetGet) {
     log("visitProductGet(" + visitId + ", " + skuId + ")");
     dbTools.db.transaction(function(tx) {
@@ -139,7 +167,7 @@ dbTools.visitProductGet = function(visitId, skuId, datasetGet) {
 }
 
 dbTools.visitActivityGet = function(visitPlanItemId, visitId, datasetGet) {
-    log("visitActivityGet(" + visitPlanItemId + ")");
+    log("visitActivityGet(" + visitPlanItemId + ", " + visitId + ")");
     dbTools.db.transaction(function(tx) {
         var sql = "SELECT VPI.visitPlanItemId AS visitPlanItemId, VSA.stageId AS stageId, VSA.activityId AS activityId, A.name AS name, 1 AS blk, A.lvl AS lvl"
             + "  FROM VisitPlanItem VPI"
@@ -155,32 +183,70 @@ dbTools.visitActivityGet = function(visitPlanItemId, visitId, datasetGet) {
     }, dbTools.onTransError);
 }
 
-dbTools.visitProductSelUpdate = function(visitId, skuId, stageId, sel, onSuccess, onError) {
-    log("visitProductSelUpdate(" + visitId + ", " + skuId + ", " + stageId + ", " + sel + ")");
+dbTools.visitAnalysisResultsGet = function(visitId, datasetGet) {
+    log("visitAnalysisResultsGet(" + visitId + ")");
     dbTools.db.transaction(function(tx) {
-        var flds = ["visitId", "skuId", "sel"];
-        var vals = [visitId, skuId, sel];
-        if (stageId == 1) {
-            flds.push("sel0");
-            vals.push(sel);
-        }
-        dbTools.sqlInsertUpdate(tx, "VisitSku", flds, vals, 
+        var sql = "SELECT S.skuId, S.name, S.code, VS.sel, VS.sel0,"
+            + "    VS.qntRest, VS.qntOrder, VS.reasonId, R.name AS reasonName, VS.reasonQnt, VS.reasonDate"
+            + "  FROM VisitSku VS"
+            + "  LEFT JOIN Sku S ON VS.skuId = S.skuId"
+            + "  LEFT JOIN Reason R ON VS.reasonId = R.reasonId"
+            + "  WHERE VS.visitId = ?"
+            + "    AND VS.sel0 = 1"
+            + "  ORDER BY S.name";
+        tx.executeSql(sql, [visitId], datasetGet, dbTools.onSqlError);
+    }, dbTools.onTransError);
+}
+
+dbTools.visitAnalysisResultGet = function(visitId, skuId, datasetGet) {
+    log("visitAnalysisResultsGet(" + visitId + ", " + skuId + ")");
+    dbTools.db.transaction(function(tx) {
+        var sql = "SELECT S.skuId, S.name, S.code, IFNULL(S.code, '') || ' ' || S.name AS fullName, VS.sel, VS.sel0,"
+            + "    CASE WHEN R.parentId IS NOT NULL THEN R.parentId ELSE IFNULL(VS.reasonId, 0) END AS reasonId,"
+            + "    CASE WHEN R.parentId IS NOT NULL THEN R0.name ELSE R.name END AS reasonName,"
+            + "    CASE WHEN R.parentId IS NOT NULL THEN VS.reasonId ELSE NULL END AS reasonId2, "
+            + "    CASE WHEN R.parentId IS NOT NULL THEN R.name ELSE NULL END AS reasonName2, "
+            + "    R.useQnt, VS.reasonQnt, R.useDate, VS.reasonDate"
+            + "  FROM VisitSku VS"
+            + "  INNER JOIN Sku S ON VS.skuId = S.skuId"
+            + "  LEFT JOIN Reason R ON VS.reasonId = R.reasonId"
+            + "  LEFT JOIN Reason R0 ON R.parentId = R0.reasonId"
+            + "  WHERE VS.visitId = ?"
+            + "    AND VS.skuId = ?";
+        tx.executeSql(sql, [visitId, skuId], datasetGet, dbTools.onSqlError);
+    }, dbTools.onTransError);
+}
+
+dbTools.visitReasonListGet = function(parentId, datasetGet) {
+    log("visitReasonListGet(" + parentId + ")");
+    dbTools.db.transaction(function(tx) {
+        var sql = "SELECT R.reasonId, R.name, R.parentId, R.useQnt, R.useDate, R.isParent"
+            + "  FROM"
+            + "    (SELECT R.reasonId, R.name, R.parentId, R.useQnt, R.useDate, RC.isParent, 1 AS blk, R.lvl"
+            + "      FROM Reason R"
+            + "      LEFT JOIN"
+            + "        (SELECT parentId, MAX(1) AS isParent"
+            + "          FROM Reason"
+            + "          GROUP BY parentId"
+            + "        ) RC ON R.reasonId = RC.parentId"
+            + "      WHERE " + parentId + " = -1 AND R.parentId IS NULL OR R.parentId = ?"
+            + "    UNION ALL"
+            + "    SELECT 0 AS reasonId, 'Причина не выбрана' AS name, NULL AS parentId, NULL AS useQnt, NULL AS useDate, NULL AS isParent, 0 AS blk, 1 AS lvl"
+            + "    ) R"
+            + "  ORDER BY R.blk, R.lvl";
+        tx.executeSql(sql, [parentId], datasetGet, dbTools.onSqlError);
+    }, dbTools.onTransError);
+}
+
+dbTools.visitAnalysisResultUpdate = function(visitId, skuId, reasonId, reasonQnt, reasonDate, onSuccess, onError) {
+    log("visitProductUpdate(" + visitId + ", " + skuId + ", " + reasonId + ", " + reasonQnt + ", " + reasonDate + ")");
+    dbTools.db.transaction(function(tx) {
+        var flds = ["reasonId", "reasonQnt", "reasonDate"];
+        var vals = [reasonId, reasonQnt, reasonDate];
+        dbTools.sqlInsertUpdate(tx, "VisitSku", ["visitId", "skuId"], ["reasonId", "reasonQnt", "reasonDate"], [visitId, skuId], [reasonId, reasonQnt, reasonDate], 
             function() {if (onSuccess != undefined) {onSuccess(visitId, skuId);}},
             onError
         );
     }, function(error) {if (onError != undefined) {onError("!!! SQLite transaction error, " + dbTools.errorMsg(error));}});
 }
-
-dbTools.visitProductUpdate = function(visitId, skuId, sel, qntRest, qntOrder, onSuccess, onError) {
-    log("visitProductUpdate(" + visitId + ", " + skuId + ", " + sel + ", " + qntRest + ", " + qntOrder + ")");
-    dbTools.db.transaction(function(tx) {
-        var flds = ["visitId", "skuId", "sel", "qntRest", "qntOrder"];
-        var vals = [visitId, skuId, sel, qntRest, qntOrder];
-        dbTools.sqlInsertUpdate(tx, "VisitSku", flds, vals, 
-            function() {if (onSuccess != undefined) {onSuccess(visitId, skuId);}},
-            onError
-        );
-    }, function(error) {if (onError != undefined) {onError("!!! SQLite transaction error, " + dbTools.errorMsg(error));}});
-}
-
 
