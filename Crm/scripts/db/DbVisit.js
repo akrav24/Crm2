@@ -84,7 +84,7 @@ dbTools.visitEnd = function(visitId, onSuccess, onError) {
     log("visitEnd(" + visitId + ")");
     dbTools.db.transaction(function(tx) {
         var timeEnd = new Date();
-        dbTools.sqlUpdate(tx, "Visit", "visitId", ["timeEnd"], visitId, [dateToSqlDate(timeEnd)], 
+        dbTools.sqlUpdate(tx, "Visit", ["visitId"], ["timeEnd"], [visitId], [dateToSqlDate(timeEnd)], 
             function() {if (onSuccess != undefined) {onSuccess(timeEnd);}},
             onError
         );
@@ -104,6 +104,7 @@ dbTools.visitProductCategoryGet = function(isItemAllShow, datasetGet) {
         tx.executeSql(sql, [isItemAllShow], datasetGet, dbTools.onSqlError);
     }, dbTools.onTransError);
 }
+
 dbTools.visitProductsGet = function(visitId, skuCatId, fmtFilterType, fmtId, datasetGet) {
     log("visitProductsGet(" + visitId + ", " + skuCatId + ", " + fmtFilterType + ", " + fmtId + ")");
     dbTools.db.transaction(function(tx) {
@@ -250,3 +251,13 @@ dbTools.visitAnalysisResultUpdate = function(visitId, skuId, reasonId, reasonQnt
     }, function(error) {if (onError != undefined) {onError("!!! SQLite transaction error, " + dbTools.errorMsg(error));}});
 }
 
+dbTools.visitShelfShareGet = function(visitId, datasetGet) {
+    log("visitShelfShareGet");
+    dbTools.db.transaction(function(tx) {
+        var sql = "SELECT SC.skuCatId, SC.name, VSC.shelfWidthTotal, VSC.shelfWidthOur, IFNULL(VSC.shelfShare, '') AS shelfShare"
+            + "  FROM SkuCat SC"
+            + "  LEFT JOIN VisitSkuCat VSC ON VSC.visitId = ? AND SC.skuCatId = VSC.skuCatId"
+            + "  ORDER BY SC.lvl";
+        tx.executeSql(sql, [visitId], datasetGet, dbTools.onSqlError);
+    }, dbTools.onTransError);
+}

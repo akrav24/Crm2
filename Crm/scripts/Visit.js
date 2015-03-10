@@ -138,7 +138,7 @@ function visitHrefGet(stageId, blk, activityId) {
             } else {
                 href += "?navigateBack=";
             }
-            if (settings.skuCatId > 0 || activityId == 14) {
+            if (settings.skuCatId > 0 || activityId == 14 || activityId == 4) {
                 href += "1";
                 result = href;
             } else {
@@ -155,6 +155,9 @@ function hrefByActivityIdGet(stageId, activityId) {
     switch (activityId) {
         case 1:
             result = "views/VisitProducts.html?stageId=" + stageId;
+            break;
+        case 4:
+            result = "views/VisitShelfShare.html";
             break;
         case 14:
             result = "views/VisitAnalysisResult.html";
