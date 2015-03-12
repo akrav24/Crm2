@@ -84,8 +84,8 @@ dbTools.tableNextIdGet = function(tx, tableName, onSuccess, onError) {
 }
 
 dbTools.tableUpdateDateFieldExists = function(tableName) {
-    result = true;
-    if (tableName.toLowerCase() == "visitsku") {
+    var result = true;
+    if (["visitsku", "visitskucat"].indexOf(tableName.toLowerCase()) > 0) {
         result = false;
     }
     return result;

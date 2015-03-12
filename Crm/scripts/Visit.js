@@ -60,6 +60,7 @@ function renderVisitActivityList(tx, rs) {
     log("..renderVisitActivityList");
     var data = dbTools.rsToJson(rs);
     $("#visit-activity-list").data("kendoMobileListView").dataSource.data(data);
+    app.scroller().reset();
 }
 
 function visitCheckReadOnly() {

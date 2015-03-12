@@ -257,10 +257,28 @@ dbTools.visitAnalysisResultUpdate = function(visitId, skuId, reasonId, reasonQnt
 dbTools.visitShelfShareGet = function(visitId, datasetGet) {
     log("visitShelfShareGet");
     dbTools.db.transaction(function(tx) {
-        var sql = "SELECT SC.skuCatId, SC.name, VSC.shelfWidthTotal, VSC.shelfWidthOur, IFNULL(VSC.shelfShare, '') AS shelfShare"
+        var sql = "SELECT SC.skuCatId, SC.name, VSC.shelfWidthTotal, VSC.shelfWidthOur, VSC.shelfShare"
             + "  FROM SkuCat SC"
             + "  LEFT JOIN VisitSkuCat VSC ON VSC.visitId = ? AND SC.skuCatId = VSC.skuCatId"
             + "  ORDER BY SC.lvl";
         tx.executeSql(sql, [visitId], datasetGet, dbTools.onSqlError);
     }, dbTools.onTransError);
 }
+
+dbTools.visitShelfShareUpdate = function(visitId, skuCatId, shelfShare, shelfWidthTotal, shelfWidthOur, onSuccess, onError) {
+    log("visitProductUpdate(" + visitId + ", " + skuCatId + ", " + shelfShare + ", " + shelfWidthTotal + ", " + shelfWidthOur + ")");
+    dbTools.db.transaction(function(tx) {
+        if (shelfShare != null || shelfWidthTotal != null || shelfWidthOur != null) {
+            dbTools.sqlInsertUpdate(tx, "VisitSkuCat", ["visitId", "skuCatId"], ["shelfShare", "shelfWidthTotal", "shelfWidthOur"], [visitId, skuCatId], [shelfShare, shelfWidthTotal, shelfWidthOur], 
+                function() {if (onSuccess != undefined) {onSuccess(visitId, skuCatId);}},
+                onError
+            );
+        } else {
+            dbTools.sqlDelete(tx, "VisitSkuCat", ["visitId", "skuCatId"], [visitId, skuCatId],
+                function() {if (onSuccess != undefined) {onSuccess(visitId, skuCatId);}},
+                onError
+            );
+        }
+    }, function(error) {if (onError != undefined) {onError("!!! SQLite transaction error, " + dbTools.errorMsg(error));}});
+}
+
