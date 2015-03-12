@@ -134,9 +134,9 @@ function visitHrefGet(stageId, blk, activityId) {
         var href = hrefByActivityIdGet(stageId, activityId);
         if (href != "") {
             if (href.indexOf("?") >= 0) {
-                href += "&navigateBack=";
+                href += "&navBackCount=";
             } else {
-                href += "?navigateBack=";
+                href += "?navBackCount=";
             }
             if (settings.skuCatId > 0 || activityId == 14 || activityId == 4) {
                 href += "1";

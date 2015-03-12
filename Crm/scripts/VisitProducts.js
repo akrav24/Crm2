@@ -5,16 +5,16 @@ function visitProductsInit(e) {
     log("..visitProductsInit");
     visitProducts = {};
     visitProducts.stageId = 1;
-    visitProducts.navigateBack = 1;
+    visitProducts.navBackCount = 1;
     visitProducts.rs = null;
 }
 
 function visitProductsShow(e) {
-    log("..visitProductsShow stageId=" + e.view.params.stageId + ", navigateBack=" + e.view.params.navigateBack);
+    log("..visitProductsShow stageId=" + e.view.params.stageId + ", navBackCount=" + e.view.params.navBackCount);
     visitProducts.stageId = e.view.params.stageId;
-    visitProducts.navigateBack = e.view.params.navigateBack;
-    if (visitProducts.navigateBack < 1) {
-        visitProducts.navigateBack = 1;
+    visitProducts.navBackCount = e.view.params.navBackCount;
+    if (visitProducts.navBackCount < 1) {
+        visitProducts.navBackCount = 1;
     }
     renderVisitProducts(visit.visitId, settings.skuCatId, visit.fmtFilterType, visit.fmtId);
 }
@@ -90,7 +90,7 @@ function renderVisitProductEditView(tx, rs) {
 
 function visitProductsNavBackClick(e) {
     log("..visitProductsNavBackClick");
-    navigateBack(visitProducts.navigateBack);
+    navigateBack(visitProducts.navBackCount);
 }
 
 function visitProductsShowAll(e) {

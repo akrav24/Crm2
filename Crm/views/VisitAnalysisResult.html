@@ -27,22 +27,30 @@
             </ul>
             
             <script id="visit-analysis-results-tmpl" type="text/x-kendo-template">
-                <p class="list-item-header">
-                    <table width="100%" cellspacing="0">
-                        <tr>
-                            <td width="60px"><span style="margin-left: 5px">#:code#</span></td>
-                            <td width="60%">
-                                <span style="margin-left: 5px; width: 100%">#:name#</span>
-                            </td>
-                            <td width="40%">
-                                <span style="margin-left: 5px; width: 100%">#:reasonName#</span>
-                            </td>
-                            <td width="100px">
-                                <a data-role="button" data-icon="details" href="\\#visit-analysis-result-edit-view?skuId=#:skuId#"></a>
-                            </td>
-                        </tr>
-                    </table>
-                </p>
+                <a class="list-item-header" 
+                    #if (reasonId > 0) {#
+                        href="\\#visit-analysis-result-edit-view?skuId=#:skuId#"
+                    #} else {#
+                        href="\\#visit-analysis-results-wizard-reason-view?skuId=#:skuId#&parentReasonId=-1"
+                    #}#
+                >
+                    <p>
+                        <table class="list-item-table">
+                            <tr class="table-text-align">
+                                <td width="60px">
+                                    <div>#:code#</div>
+                                </td>
+                                <td width="100%">
+                                    <div>#:name#</div>
+                                    <div class="list-item-comment">#:reasonName#
+                                        #if (useQnt == 1) {#, количество: #:reasonQnt##}#
+                                        #if (useDate == 1) {#, дата: #:dateToStr(sqlDateToDate(reasonDate), "DD/MM/YYYY")##}#
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </p>
+                </a>
             </script>
         </form>
     </div>
@@ -58,14 +66,15 @@
             <div data-role="navbar">
                 <a class="nav-button" data-align="left" data-role="button" data-icon="back" data-click="visitAnalysisResultEditNavBackClick"></a>
                 <span data-role="view-title"></span>
+                <a class="nav-button" data-align="right" data-role="button" data-click="visitAnalysisResultEditSaveClick">Сохранить</a>
             </div>
         </header>
         
-        <div data-role="touch"
+        <!--<div data-role="touch"
             data-swipe="visitAnalysisResultEditTouchSwipe"
-            data-enable-swipe="1">
+            data-enable-swipe="1">-->
             <form>
-                <ul id="visit-analysis-result-edit-list" class="list" data-role="listview">
+                <ul id="visit-analysis-result-edit-list" class="list form-list" data-role="listview">
                     <li>
                         <label>Продукт
                             <input id="visit-analysis-result-edit-full-name" type="text" readonly="readonly"/>
@@ -88,13 +97,39 @@
                     </li>
                     <li>
                         <label>Дата
-                            <input id="visit-analysis-result-edit-reason-date" type="date" disabled/>
+                            <input id="visit-analysis-result-edit-reason-date" type="date" style="position: relative; width: 100%; right: 0; margin-top: 0; top: 0;" disabled/>
                         </label>
                     </li>
                 </ul>
             </form>
-        </div>
+        <!--</div>-->
         
+    </div>
+    
+    <div id="visit-analysis-results-wizard-reason-view"
+        data-role="view" 
+        data-title="Причина отсутствия" 
+        data-layout="main" 
+        data-init="visitAnalysisResultsWizardReasonInit" 
+        data-show="visitAnalysisResultsWizardReasonShow">
+        
+        <header data-role="header">
+            <div data-role="navbar">
+                <a class="nav-button" data-align="left" data-role="button" data-icon="back" data-click="visitAnalysisResultsWizardReasonNavBackClick"></a>
+                <span data-role="view-title"></span>
+            </div>
+        </header>
+        
+        <ul data-role="listview" id="visit-analysis-results-wizard-reason-list" class="list" data-template="visit-analysis-results-wizard-reason-tmpl"
+            data-click="visitAnalysisResultsWizardReasonListClick">
+        </ul>
+        
+        <script id="visit-analysis-results-wizard-reason-tmpl" type="text/x-kendo-template">
+            <a class="list-item-header"
+            >
+                <p>#:name#</p>
+            </a>
+        </script>
     </div>
     
 </body>

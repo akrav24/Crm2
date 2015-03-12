@@ -149,6 +149,24 @@ dbTools.sqlUpdate = function(tx, tableName, keyFieldNameArray, fieldNameArray, k
 }
 
 
+dbTools.sqlDelete = function(tx, tableName, keyFieldNameArray, keyFieldValueArray, onSuccess, onError) {
+    var errMsg = "sqlDelete function error: ";
+    if (tx != undefined) {
+        var sqlWhere = "";
+        for (i = 0; i < keyFieldNameArray.length; i++) {
+            sqlWhere += (sqlWhere.length == 0 ? "" : " AND ") + keyFieldNameArray[i] + " = ?";
+        }
+        var sql = "DELETE FROM " + tableName
+            + "  WHERE " + sqlWhere;
+        tx.executeSql(sql, keyFieldValueArray,
+            function(tx, rs) {if (onSuccess != undefined) {onSuccess(keyFieldValueArray);}},
+            function(tx, error) {if (onError != undefined) {onError(errMsg + dbTools.errorMsg(error));}}
+        );
+    } else {
+        if (onError != undefined) {onError(errMsg + "parameter 'tx' undefined");}
+    }
+}
+
 dbTools.sqlInsertUpdate = function(tx, tableName, keyFieldNameArray, fieldNameArray, keyFieldValueArray, fieldValueArray, onSuccess, onError) {
     var errMsg = "sqlInsertUpdate function error: ";
     if (tx != undefined) {

@@ -4,15 +4,15 @@ var visitShelfShareItem;
 function visitShelfShareInit(e) {
     log("..visitShelfShareInit");
     visitShelfShare = {};
-    visitShelfShare.navigateBack = 1;
+    visitShelfShare.navBackCount = 1;
     visitShelfShare.rs = null;
 }
 
 function visitShelfShareShow(e) {
-    log("..visitShelfShareShow navigateBack=" + e.view.params.navigateBack);
-    visitShelfShare.navigateBack = e.view.params.navigateBack;
-    if (visitShelfShare.navigateBack < 1) {
-        visitShelfShare.navigateBack = 1;
+    log("..visitShelfShareShow navBackCount=" + e.view.params.navBackCount);
+    visitShelfShare.navBackCount = e.view.params.navBackCount;
+    if (visitShelfShare.navBackCount < 1) {
+        visitShelfShare.navBackCount = 1;
     }
     renderVisitShelfShare(visit.visitId);
 }

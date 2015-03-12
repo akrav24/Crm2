@@ -58,6 +58,7 @@ function navigateBack(backCount) {
 }
 
 function sqlDateToDate(sqlDate) {
+    log("..sqlDateToDate(" + sqlDate + ")");
     var dt = null;
     if (sqlDate != undefined) {
         var y = sqlDate.substring(0, 4);
@@ -69,15 +70,42 @@ function sqlDateToDate(sqlDate) {
         var z = sqlDate.substring(18, 21);
         dt = new Date(y, m - 1, d, h, n, s, z);
     }
+    log("....dt=" + dt);
     return dt;
 }
 
 function dateToSqlDate(dt) {
+    log("..dateToSqlDate(" + dt + ")");
     var sqlDate = null;
     if (dt != undefined) {
         sqlDate = dateToStr(dt, "YYYYMMDD HH:NN:SS:ZZZ");
     }
+    log("....sqlDate=" + sqlDate);
     return sqlDate;
+}
+
+function inputDateToDate(inputDt) {
+    log("..inputDateToDate(" + inputDt + ")");
+    var dt = null;
+    if (inputDt != undefined) {
+        if (inputDt.length === 10 && inputDt.substring(4, 5) == "-" && inputDt.substring(7, 8) == "-") {
+            var y = inputDt.substring(0, 4);
+            var m = inputDt.substring(5, 7);
+            var d = inputDt.substring(8, 10);
+            dt = new Date(y, m - 1, d);
+        }
+    }
+    return dt;
+}
+
+function dateToInputDate(dt) {
+    log("..dateToInputDate(" + dt + ")");
+    var inputDate = null;
+    if (dt != undefined) {
+        inputDate = dateToStr(dt, "YYYY-MM-DD");
+    }
+    log("....inputDate=" + inputDate);
+    return inputDate;
 }
 
 function sqlPrepare(sql) {

@@ -188,7 +188,7 @@ dbTools.visitAnalysisResultsGet = function(visitId, datasetGet) {
     log("visitAnalysisResultsGet(" + visitId + ")");
     dbTools.db.transaction(function(tx) {
         var sql = "SELECT S.skuId, S.name, S.code, VS.sel, VS.sel0,"
-            + "    VS.qntRest, VS.qntOrder, VS.reasonId, IFNULL(R.name, '') AS reasonName, VS.reasonQnt, VS.reasonDate"
+            + "    VS.qntRest, VS.qntOrder, VS.reasonId, IFNULL(R.name, '') AS reasonName, R.useQnt, VS.reasonQnt, R.useDate, VS.reasonDate"
             + "  FROM VisitSku VS"
             + "  LEFT JOIN Sku S ON VS.skuId = S.skuId"
             + "  LEFT JOIN Reason R ON VS.reasonId = R.reasonId"
@@ -218,8 +218,8 @@ dbTools.visitAnalysisResultGet = function(visitId, skuId, datasetGet) {
     }, dbTools.onTransError);
 }
 
-dbTools.visitReasonListGet = function(parentId, datasetGet) {
-    log("visitReasonListGet(" + parentId + ")");
+dbTools.visitReasonListGet = function(parentId, isEmptyRowShow, datasetGet) {
+    log("visitReasonListGet(" + parentId + ", " + isEmptyRowShow + ")");
     dbTools.db.transaction(function(tx) {
         var sql = "SELECT R.reasonId, R.name, R.parentId, R.useQnt, R.useDate, R.isParent"
             + "  FROM"
@@ -233,6 +233,7 @@ dbTools.visitReasonListGet = function(parentId, datasetGet) {
             + "      WHERE " + parentId + " = -1 AND R.parentId IS NULL OR R.parentId = ?"
             + "    UNION ALL"
             + "    SELECT 0 AS reasonId, 'Причина не выбрана' AS name, NULL AS parentId, NULL AS useQnt, NULL AS useDate, NULL AS isParent, 0 AS blk, 1 AS lvl"
+            + "      WHERE " + isEmptyRowShow + " = 1"
             + "    ) R"
             + "  ORDER BY R.blk, R.lvl";
         tx.executeSql(sql, [parentId], datasetGet, dbTools.onSqlError);
@@ -242,9 +243,11 @@ dbTools.visitReasonListGet = function(parentId, datasetGet) {
 dbTools.visitAnalysisResultUpdate = function(visitId, skuId, reasonId, reasonQnt, reasonDate, onSuccess, onError) {
     log("visitProductUpdate(" + visitId + ", " + skuId + ", " + reasonId + ", " + reasonQnt + ", " + reasonDate + ")");
     dbTools.db.transaction(function(tx) {
-        var flds = ["reasonId", "reasonQnt", "reasonDate"];
-        var vals = [reasonId, reasonQnt, reasonDate];
-        dbTools.sqlInsertUpdate(tx, "VisitSku", ["visitId", "skuId"], ["reasonId", "reasonQnt", "reasonDate"], [visitId, skuId], [reasonId, reasonQnt, reasonDate], 
+        if (!(reasonId > 0)) {
+            reasonQnt = null;
+            reasonDate = null;
+        }
+        dbTools.sqlInsertUpdate(tx, "VisitSku", ["visitId", "skuId"], ["reasonId", "reasonQnt", "reasonDate"], [visitId, skuId], [reasonId, reasonQnt, dateToSqlDate(reasonDate)], 
             function() {if (onSuccess != undefined) {onSuccess(visitId, skuId);}},
             onError
         );

@@ -26,8 +26,8 @@
         <ul class="list list-item-header" data-role="listview">
             <li>
                 <p>
-                    <table class="visit-item-table" cellspacing="0">
-                        <tr>
+                    <table class="list-item-table visit-item-table" cellspacing="0">
+                        <tr class="table-text-align">
                             <td class="visit-item-table-caption"><span>Время</span></td>
                             <td><span id="visit-time"></span></td>
                         </tr>
@@ -36,8 +36,8 @@
             </li>
             <li>
                 <p>
-                    <table class="visit-item-table" cellspacing="0">
-                        <tr>
+                    <table class="list-item-table visit-item-table" cellspacing="0">
+                        <tr class="table-text-align">
                             <td class="visit-item-table-caption"><span>Точка</span></td>
                             <td><span id="visit-point-name"></span></td>
                         </tr>
@@ -47,8 +47,8 @@
             <li>
                 <a href="views/VisitProdCategory.html?navigateTo=[|]:back&isItemAllShow=1">
                     <p>
-                        <table class="visit-item-table" cellspacing="0">
-                            <tr>
+                        <table class="list-item-table visit-item-table" cellspacing="0">
+                            <tr class="table-text-align">
                                 <td class="visit-item-table-caption"><span>Категория</span></td>
                                 <td><span id="visit-cat-name"></span></td>
                             </tr>
@@ -71,11 +71,11 @@
             #} else if (visitHrefGet(stageId, blk, activityId) != "") {#
                 <a href="#:visitHrefGet(stageId, blk, activityId)#" 
                     style="background-image: url(styles/images/VisitActivity#:activityId#.png); background-repeat: no-repeat; background-position: 15px center">
-                    <p><span style="margin-left: 50px;">#:name#</span></p>
+                    <p><div style="margin-left: 55px;">#:name#</div></p>
                 </a>
             #} else {#
                 <a style="background-image: url(styles/images/VisitActivity#:activityId#.png); background-repeat: no-repeat; background-position: 15px center">
-                    <p><span style="margin-left: 50px;">#:name#</span></p>
+                    <p><div style="margin-left: 55px;">#:name#</div></p>
                 </a>
             #}#
         </script>

@@ -57,6 +57,18 @@ body {
     color: DarkRed;
 }
 
+.form-list label {
+    width: 100%;
+}
+.km-root .km-pane .km-view .form-list input,
+.km-root .km-pane .km-view .form-list .k-dropdown {
+    position: relative;
+    width: 100%;
+    right: 0;
+    margin-top: 0;
+    top: 0;
+}
+
 .gallery-title
 { 
     text-align: center;
@@ -105,10 +117,21 @@ body {
     margin: 10px;
 }
 .list-item-text {
-    font-size: large;
+    font-size: medium;
+}
+.list-item-comment {
+    font-size: medium;
+    color: DarkRed;
 }
 .list-item-selected {
     background-color:#01796F;
+}
+.list-item-table {
+    width: 100%;
+}
+.list-item-table tr td div {
+    margin-left: 5px;
+    width: 100%;
 }
 
 .logo {
@@ -176,22 +199,31 @@ body {
     width: 100%;
 }
 
+.table-text-align {
+    vertical-align: top;
+}
 
 .tabstrip-button {
     font-size: 200%;
 }
 
-.visit-item-table {
-     margin-left: 5px;
-}
-
-.visit-item-table-caption {
-    width: 120px;
-}
-
 .visit-item-action-group {
     font-weight: bold;
 }
+
+.visit-item-table {
+     margin-left: 5px;
+}
+.visit-item-table-caption {
+    width: 120px;
+}
+.visit-item-table-code {
+    width: 60px;
+}
+.visit-item-table-name {
+    width: 100%;
+}
+
 
 
 /*--theming-----------------------------------*/
