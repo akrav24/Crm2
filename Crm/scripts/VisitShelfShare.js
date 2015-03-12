@@ -1,55 +1,4 @@
-var visitShelfShare;
 var visitShelfShareItem;
-
-//----------------------------------------
-// visit-shelf-share-view
-//----------------------------------------
-
-function visitShelfShareInit(e) {
-    log("..visitShelfShareInit");
-    visitShelfShare = {};
-    visitShelfShare.navBackCount = 1;
-    visitShelfShare.rs = null;
-    visitShelfShareItem = {};
-    visitShelfShareItemClear();
-}
-
-function visitShelfShareShow(e) {
-    log("..visitShelfShareShow navBackCount=" + e.view.params.navBackCount);
-    visitShelfShare.navBackCount = e.view.params.navBackCount;
-    if (visitShelfShare.navBackCount < 1) {
-        visitShelfShare.navBackCount = 1;
-    }
-    renderVisitShelfShare(visit.visitId);
-}
-
-function renderVisitShelfShare(visitId) {
-    dbTools.visitShelfShareGet(visitId, renderVisitShelfShareView);
-}
-
-function renderVisitShelfShareView(tx, rs) {
-    log("..renderVisitShelfShareView");
-    visitShelfShare.rs = rs;
-    var data = dbTools.rsToJson(rs);
-    var dataSource = new kendo.data.DataSource({data: data});
-    $("#visit-shelf-share-list").data("kendoMobileListView").setDataSource(dataSource);
-    app.scroller().reset();
-}
-
-function visitShelfShareNavBackClick() {
-    app.navigate("#:back");
-}
-
-function visitShelfShareListClick(e) {
-    log("..visitShelfShareListClick");
-    visitShelfShareItem.skuCatId = e.dataItem.skuCatId;
-    visitShelfShareItem.name = e.dataItem.name;
-    visitShelfShareItem.shelfShare = e.dataItem.shelfShare;
-    visitShelfShareItem.shelfWidthTotal = e.dataItem.shelfWidthTotal;
-    visitShelfShareItem.shelfWidthOur = e.dataItem.shelfWidthOur;
-    visitShelfShareItem.isEdited = 0;
-    app.navigate("#visit-shelf-share-edit-view");
-}
 
 //----------------------------------------
 // visit-shelf-share-edit-view
@@ -57,20 +6,41 @@ function visitShelfShareListClick(e) {
 
 function visitShelfShareEditInit(e) {
     log("..visitShelfShareEditInit");
+    visitShelfShareItem = {};
+    visitShelfShareItemClear();
+    visitShelfShareItem.navBackCount = 1;
 }
 
 function visitShelfShareEditShow(e) {
-    log("..visitShelfShareEditShow");
-    renderVisitShelfEditShare(visit.visitId);
+    log("..visitShelfShareEditShow navBackCount=" + e.view.params.navBackCount);
+    visitShelfShareItem.navBackCount = e.view.params.navBackCount;
+    if (visitShelfShareItem.navBackCount < 1) {
+        visitShelfShareItem.navBackCount = 1;
+    }
+    renderVisitShelfEditShare(visit.visitId, settings.skuCatId);
 }
 
-function renderVisitShelfEditShare(visitId) {
+function renderVisitShelfEditShare(visitId, skuCatId) {
+    dbTools.visitShelfShareGet(visitId, skuCatId, renderVisitShelfShareEditView);
+}
+
+function renderVisitShelfShareEditView(tx, rs) {
+    log("..renderVisitShelfShareEditView");
+    if (rs.rows.length > 0) {
+        visitShelfShareItem.shelfShare = rs.rows.item(0).shelfShare;
+        visitShelfShareItem.shelfWidthTotal = rs.rows.item(0).shelfWidthTotal;
+        visitShelfShareItem.shelfWidthOur = rs.rows.item(0).shelfWidthOur;
+        visitShelfShareItem.isEdited = 0;
+    } else {
+        visitShelfShareItemClear();
+    }
     visitShelfShareEditFillControls();
     visitShelfShareEditEnableControls();
+    app.scroller().reset();
 }
 
 function visitShelfShareEditFillControls() {
-    $("#visit-shelf-share-edit-name").val(visitShelfShareItem.name);
+    $("#visit-shelf-share-edit-name").val(settings.skuCatName);
     if (visitShelfShareItem.shelfShare != null) {
         $("#visit-shelf-share-edit-shelf-share").val(Math.round(visitShelfShareItem.shelfShare * 100));
     } else {
@@ -81,8 +51,6 @@ function visitShelfShareEditFillControls() {
 }
 
 function visitShelfShareItemClear() {
-    visitShelfShareItem.skuCatId = null;
-    visitShelfShareItem.name = null;
     visitShelfShareItem.shelfShare = null;
     visitShelfShareItem.shelfWidthTotal = null;
     visitShelfShareItem.shelfWidthOur = null;
@@ -90,7 +58,7 @@ function visitShelfShareItemClear() {
 }
 
 function visitShelfShareEditNavBackClick() {
-    app.navigate("#:back");
+    navigateBack(visitShelfShareItem.navBackCount);
 }
 
 function visitShelfShareEditControlChange(id, value) {
@@ -122,16 +90,16 @@ function visitShelfShareEditCalcShelfShare() {
 }
 
 function visitShelfShareEditSaveClick() {
-    visitShelfShareEditSave(function() {navigateBack(1);});
+    visitShelfShareEditSave(function() {navigateBack(visitShelfShareItem.navBackCount);});
 }
 
 function visitShelfShareEditDelClick() {
-    visitShelfShareEditDel(function() {navigateBack(1);});
+    visitShelfShareEditDel(function() {navigateBack(visitShelfShareItem.navBackCount);});
 }
 
 function visitShelfShareEditSave(onSuccess) {
     dbTools.objectListItemSet("visit-list", true);
-    dbTools.visitShelfShareUpdate(visit.visitId, visitShelfShareItem.skuCatId, visitShelfShareItem.shelfShare, visitShelfShareItem.shelfWidthTotal, visitShelfShareItem.shelfWidthOur, 
+    dbTools.visitShelfShareUpdate(visit.visitId, settings.skuCatId, visitShelfShareItem.shelfShare, visitShelfShareItem.shelfWidthTotal, visitShelfShareItem.shelfWidthOur, 
         function(visitId, skuCatId) {if (onSuccess != undefined) {onSuccess(visitId, skuCatId);}}, 
         dbTools.onSqlError
     );
@@ -139,7 +107,7 @@ function visitShelfShareEditSave(onSuccess) {
 
 function visitShelfShareEditDel(onSuccess) {
     dbTools.objectListItemSet("visit-list", true);
-    dbTools.visitShelfShareUpdate(visit.visitId, visitShelfShareItem.skuCatId, null, null, null, 
+    dbTools.visitShelfShareUpdate(visit.visitId, settings.skuCatId, null, null, null, 
         function(visitId, skuCatId) {if (onSuccess != undefined) {onSuccess(visitId, skuCatId);}}, 
         dbTools.onSqlError
     );

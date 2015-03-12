@@ -139,7 +139,7 @@ function visitHrefGet(stageId, blk, activityId) {
             } else {
                 href += "?navBackCount=";
             }
-            if (settings.skuCatId > 0 || activityId == 14 || activityId == 4) {
+            if (settings.skuCatId > 0 || [14].indexOf(activityId) > 0) {
                 href += "1";
                 result = href;
             } else {

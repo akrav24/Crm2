@@ -7,38 +7,6 @@
 <body>
     <script src="scripts/VisitShelfShare.js"></script>
     
-    <div id="visit-shelf-share-view"
-        data-role="view" 
-        data-title="Доля на полке" 
-        data-layout="main" 
-        data-init="visitShelfShareInit" 
-        data-show="visitShelfShareShow">
-      
-        <header data-role="header">
-            <div data-role="navbar">
-                <a class="nav-button" data-align="left" data-role="button" data-icon="back" data-click="visitShelfShareNavBackClick"></a>
-                <span data-role="view-title"></span>
-            </div>
-        </header>
-        
-        <ul id="visit-shelf-share-list" class="list" data-role="listview" data-template="visit-shelf-share-list-tmpl" data-click="visitShelfShareListClick"></ul>
-    
-        <script id="visit-shelf-share-list-tmpl" type="text/x-kendo-template">
-            <a class="list-item-header">
-                <p>
-                    <table class="list-item-table">
-                        <tr class="table-text-align">
-                            <td width="100%">
-                                <div>#:name#</div>
-                                <div class="list-item-comment">#if (shelfShare > 0) {#Доля: #:Math.round(shelfShare*100)#%#}#</div>
-                            </td>
-                        </tr>
-                    </table>
-                </p>
-            </a>
-        </script>
-    </div>
-    
     <div id="visit-shelf-share-edit-view"
         data-role="view" 
         data-title="Доля на полке" 
