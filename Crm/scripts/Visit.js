@@ -36,7 +36,7 @@ function visitShow(e) {
 function renderVisit(visitPlanItemId, visitId) {
     log("..renderVisit");
     dbTools.visitGet(visitPlanItemId, visitId, renderVisitView);
-    dbTools.visitActivityGet(visitPlanItemId, visitId, renderVisitActivityList);
+    dbTools.visitActivityGet(visitPlanItemId, visitId, settings.skuCatId, -1, -1, renderVisitActivityList);
 }
 
 function renderVisitView(tx, rs) {
@@ -152,20 +152,34 @@ function visitHrefGet(stageId, blk, activityId) {
 }
 
 function hrefByActivityIdGet(stageId, activityId) {
+    //log("..hrefByActivityIdGet(" + stageId + ", " + activityId + ")");
     var result = "";
     switch (activityId) {
         case 1:
             result = "views/VisitProducts.html?stageId=" + stageId;
             break;
+        /*case 2:
+            result = "views/VisitPlanogramList.html";
+            break;*/
         case 4:
             result = "views/VisitShelfShare.html";
+            break;
+        case 6:
+            result = "views/VisitPromo.html";
             break;
         case 14:
             result = "views/VisitAnalysisResult.html";
             break;
+        /*case 12:
+            result = "views/VisitPhoto.html";
+            break;
+        case 13:
+            result = "views/VisitPlanogramList.html";
+            break;*/
         default:
             result = "";
             break;
     }
+    //log("....hrefByActivityIdGet='" + result + "'");
     return result;
 }

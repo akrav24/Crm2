@@ -17,16 +17,11 @@
         
         <header data-role="header">
             <div data-role="navbar">
-                <div data-role="touch"
-                    data-swipe="visitListSwipe"
-                    data-enable-swipe="1">
-                    
-                    <a class="nav-button" data-align="left" data-role="button" data-icon="back" href="#:back"></a>
-                    <span data-role="view-title"></span>
-                    <!--<a class="nav-button" data-align="right" data-role="button" data-icon="prev-date" data-click="visitListPrdPrev"></a>-->
-                    <input data-role="datepicker" class="date nav-button" id="visit-prdbgn" data-align="right" data-change="visitListPrdBgnOnChange" onclick="visitListPrdBgnOnClick()">
-                    <!--<a class="nav-button" data-align="right" data-role="button" data-icon="next-date"  data-click="visitListPrdNext"></a>-->
-                </div>
+                <a class="nav-button" data-align="left" data-role="button" data-icon="back" href="#:back"></a>
+                <span data-role="view-title"></span>
+                <!--<a class="nav-button" data-align="right" data-role="button" data-icon="prev-date" data-click="visitListPrdPrev"></a>-->
+                <input data-role="datepicker" class="date nav-button" id="visit-prdbgn" data-align="right" data-change="visitListPrdBgnOnChange" onclick="visitListPrdBgnOnClick()">
+                <!--<a class="nav-button" data-align="right" data-role="button" data-icon="next-date"  data-click="visitListPrdNext"></a>-->
             </div>
         </header>
         
@@ -35,6 +30,11 @@
             data-enable-swipe="1">
             
             <ul id="visit-list" class="list" data-role="listview" data-template="visit-list-tmpl" ></ul>
+            <ul id="visit-not-exists-list" class="list list-item-header" data-role="listview" >
+                <li>
+                    <p><div style="margin-left: 45px;">Визиты не запланированы</div></p>
+                </li>
+            </ul>
         </div>
         
         <script id="visit-list-tmpl" type="text/x-kendo-template">

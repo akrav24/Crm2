@@ -42,6 +42,11 @@ function renderVisitListView(tx, rs) {
     var data = dbTools.rsToJson(rs);
     $("#visit-list").data("kendoMobileListView").dataSource.data(data);
     //$("#visit-list-view").data("kendoMobileView").stretch = (data.length === 0);
+    if (data.length > 0) {
+        $("#visit-not-exists-list").addClass("hidden");
+    } else {
+        $("#visit-not-exists-list").removeClass("hidden");
+    }
 }
 
 function visitListOnClick(e) {

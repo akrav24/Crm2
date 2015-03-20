@@ -18,7 +18,7 @@ function visitPlanogramListInit() {
 function visitPlanogramListShow() {
     log("visitPlanogramListShow()");
     if (!isNotDataReload) {
-        var folderName = fileHelper.planogramFolderName();
+        var folderName = fileHelper.folderName();
         data = [];
         dbTools.db.transaction(
             function(tx) {
@@ -42,7 +42,7 @@ function visitPlanogramListShow() {
 function dataAdd(data, folderName, rows, i) {
     var name = rows.item(i)["name"];
     var fileId = rows.item(i)["fileId"];
-    var fileName = fileHelper.planogramFileName(fileId);
+    var fileName = fileHelper.fileName("visitPlanogram", fileId);
     fileHelper.getFileEntry(folderName, fileName, 
         function(fileEntry) {
             data.push({"name": name, "fileId": fileId, "filePath": fileEntry.toURL()});
@@ -82,8 +82,8 @@ function imageSourceSet(i) {
         imageTitle = "Планограмма";
     }
     var fileId = data[i].fileId;
-    var folderName = fileHelper.planogramFolderName();
-    var fileName = fileHelper.planogramFileName(fileId);
+    var folderName = fileHelper.folderName();
+    var fileName = fileHelper.fileName("visitPlanogram", fileId);
     fileHelper.getFileEntry(folderName, fileName, 
         function(fileEntry) {
             imageSrc = fileEntry.toURL();

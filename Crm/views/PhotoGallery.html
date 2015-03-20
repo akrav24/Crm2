@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <script src="scripts/PhotoGallery.js"></script>
+    <div data-role="view" 
+        id="photo-gallery-view" 
+        data-layout="main" 
+        data-stretch="true"
+        data-title="Фотогалерея" 
+        data-init="photoGalleryInit" 
+        data-show="photoGalleryShow">
+        
+        <header data-role="header">
+            <div data-role="navbar">
+                <a class="nav-button" data-align="left" data-role="button" data-icon="back" href="#:back"></a>
+                <span data-role="view-title"></span>
+                <a class="nav-button" data-align="right" data-role="button" data-icon="add" data-click="photoGalleryAddNewPhotoClick"></a>
+            </div>
+        </header>
+        
+        <div id="photo-gallery-scrollview"
+            data-role="scrollview" 
+            data-auto-bind="true"
+            data-content-height="100%"
+            data-enable-pager="true"
+            data-template="photo-gallery-scrollview-template"
+            page-size="1.00"
+            data-changing="photoGalleryScrollviewOnChanging">
+        </div>
+        
+        <script id="photo-gallery-scrollview-template" type="text/x-kendo-template">
+            <div class="gallery-image-content">
+                <p class="gallery-title">#=title#</p>
+                <div class="gallery-image" data-role="touch" data-tap="photoGalleryShowImage" style="background-image: url(#=filePath#);"></div>
+            </div>
+        </script>
+    </div>
+    
+    <div id="photo-gallery-image-view"
+        class="gallery-image-view"
+        data-role="view"
+        data-layout="main"
+        data-model="photoGalleryImageViewModel"
+        data-zoom="true"
+        data-show="photoGalleryImageViewShow">
+        
+        <header data-role="header">
+            <div data-role="navbar">
+                <a class="nav-button" data-align="left" data-role="button" data-icon="back" href="#:back"></a>
+                <span data-role="view-title"></span>
+            </div>
+        </header>
+        
+        <div data-role="content">
+            <img data-bind="attr: {src: imageSrc}">
+        </div>
+    </div>
+</body>
+</html>

@@ -33,7 +33,7 @@ function renderVisitAnalysisResultsView(tx, rs) {
     var data = dbTools.rsToJson(rs);
     var dataSource = new kendo.data.DataSource({data: data});
     $("#visit-analysis-results-list").data("kendoMobileListView").setDataSource(dataSource);
-   app.scroller().reset();
+    app.scroller().reset();
 }
 
 function visitAnalysisResultsNavBackClick(e) {

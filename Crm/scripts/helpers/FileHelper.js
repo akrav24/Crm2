@@ -32,11 +32,75 @@ fileHelper.getFileEntry = function(folderName, fileName, onSuccess, onError) {
     );
 }
 
-fileHelper.planogramFileName = function(fileId) {
-    return planogamFilePrefix + fileId.toString() + ".png";
+fileHelper.fileName = function(galleryType, fileId) {
+    var filePrefix = "";
+    switch (galleryType.toLowerCase()) {
+        case "visitpromophoto":
+            filePrefix = settings.promoPhotoFilePrefix;
+            break;
+        case "visitplanogram":
+            filePrefix = settings.planogamFilePrefix;
+            break;
+        default:
+            filePrefix = "";
+            break;
+    }
+    return filePrefix + fileId.toString() + ".png";
 }
 
-fileHelper.planogramFolderName = function() {
-    return rootFolderName/* + "\/files"*/;
+fileHelper.folderName = function(galleryType) {
+    var fName = "";
+    switch (galleryType.toLowerCase()) {
+        case "visitpromophoto":
+            fName = settings.rootFolderName;
+            break;
+        default:
+            fName = settings.rootFolderName;
+            break;
+    }
+    return fName;
 }
 
+fileHelper.fileCopy = function(srcFullName, dstFolderName, dstFileName, onSuccess, onError) {
+    var onResolveSuccess = function(fileEntry) {
+        var onErrors = function(errMsg) {if (onError != undefined) {onError(errMsg);}}
+        var onCopySuccess = function (fileEntry) {if (onSuccess != undefined) {onSuccess(fileEntry);}}
+        var onCopyError = function(error) {if (onError != undefined) {onError("error.code=" + error.code);}}
+        
+        fileHelper.getFilesystem(
+            function(fileSystem) {
+                fileHelper.getFolder(fileSystem, dstFolderName,
+                    function(folder) {
+                        fileEntry.copyTo(folder, dstFileName, onCopySuccess, onCopyError);
+                    },
+                    function() {
+                        onErrors("Error: failed to get folder '" + dstFolderName + "'");
+                    }
+                );
+            },
+            function() {
+                onErrors("Error: failed to get filesystem");
+            }
+        );
+    }
+    var onResolveError = function(error) {if (onError != undefined) {onError("error.code=" + error.code);}}
+    window.resolveLocalFileSystemURL(srcFullName, onResolveSuccess, onResolveError);
+}
+
+/*fileHelper.errMsg = function(fileError) {
+    switch (fileError.code) {
+        case FileError.NOT_FOUND_ERR:
+        case FileError.SECURITY_ERR:
+        case FileError.ABORT_ERR:
+        case FileError.NOT_READABLE_ERR:
+        case FileError.ENCODING_ERR:
+        case FileError.NO_MODIFICATION_ALLOWED_ERR:
+        case FileError.INVALID_STATE_ERR:
+        case FileError.SYNTAX_ERR:
+        case FileError.INVALID_MODIFICATION_ERR:
+        case FileError.QUOTA_EXCEEDED_ERR:
+        case FileError.TYPE_MISMATCH_ERR:
+        case FileError.PATH_EXISTS_ERR:
+    }
+}
+*/

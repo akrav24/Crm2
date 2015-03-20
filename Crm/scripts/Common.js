@@ -1,3 +1,15 @@
+inArray = Array.prototype.indexOf ?
+    function (arr, val) {
+        return arr.indexOf(val) != -1
+    } :
+    function (arr, val) {
+        var i = arr.length
+        while (i--) {
+            if (arr[i] === val) return true
+        }
+        return false
+    }
+
 function dateToStr(dt, format) {
    var result = ""
     if (dt != undefined) {
@@ -46,14 +58,54 @@ function hrefToViewParam(value) {
 }
 
 function navigateBack(backCount) {
+    log("..navigateBack(" + backCount + ")");
     var delayedBack = function(backCount, i) {
+        var delay;
+        if (window.sqlitePlugin != undefined) {
+            delay = 10;
+        } else {
+            delay = 100;
+        }
         if (i < backCount) {
-            setTimeout(function() {app.navigate("#:back");  delayedBack(backCount, ++i);}, 100);
+            setTimeout(function() {app.navigate("#:back");  delayedBack(backCount, ++i);}, delay);
         }
     }
     if (backCount > 0) {
         app.navigate("#:back");
         delayedBack(backCount, 1);
+    }
+}
+
+function navigateBackTo(viewId) {
+    log("..navigateBackTo(" + viewId + ")");
+    var maxStayCount = 10;
+    var initialViewId = "views/Start.html";
+    var srcViewId = app.view().id;
+    var delay;
+    if (window.sqlitePlugin != undefined) {
+        delay = 50;
+    } else {
+        delay = 50;
+    }
+    var delayedBack = function(viewId, curViewId, delay, stayCount) {
+        if (app.view().id != initialViewId && app.view().id != viewId) {
+            if (app.view().id != curViewId) {
+                curViewId = app.view().id;
+                stayCount = 0;
+                app.navigate("#:back");
+            } else {
+                stayCount++;
+            }
+            if (stayCount < maxStayCount) {
+                setTimeout(function() {delayedBack(viewId, curViewId, delay, stayCount);}, delay);
+            } else {
+                app.navigate(initialViewId);
+            }
+        }
+    }
+    if (srcViewId != initialViewId && srcViewId != viewId) {
+        app.navigate("#:back");
+        setTimeout(function() {delayedBack(viewId, srcViewId, delay, 0);}, delay)
     }
 }
 
@@ -123,3 +175,11 @@ function sqlPrepare(sql) {
     }
 }
 */
+
+function renderListView(rs, viewId) {
+    var data = dbTools.rsToJson(rs);
+    var dataSource = new kendo.data.DataSource({data: data});
+    $(viewId).data("kendoMobileListView").setDataSource(dataSource);
+    app.scroller().reset();
+}
+

@@ -9,6 +9,10 @@ function settingsInit() {
     
     settings.nodeId = 0;
     
+    settings.rootFolderName = "com.bizlg.crm";
+    settings.planogamFilePrefix = "plan";
+    settings.promoPhotoFilePrefix = "promo";
+    
     settings.filterPoints = {};
     settings.filterPoints.chainId = "-1";
     settings.filterPoints.cityId = "-1";

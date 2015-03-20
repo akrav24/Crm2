@@ -70,12 +70,12 @@
                 <p class="visit-item-action-group" style="margin-left: 5px;">#:name#</p>
             #} else if (visitHrefGet(stageId, blk, activityId) != "") {#
                 <a href="#:visitHrefGet(stageId, blk, activityId)#" 
-                    style="background-image: url(styles/images/VisitActivity#:activityId#.png); background-repeat: no-repeat; background-position: 15px center">
-                    <p><div style="margin-left: 55px;">#:name#</div></p>
+                    style="background-image: url(styles/images/visitActivity/set#if (skuCatCnt > 0) {#2#} else {#1#}#/VisitActivity#:activityId#.png); background-repeat: no-repeat; background-position: 15px center">
+                    <p><div style="margin-left: 60px;">#:name#</div></p>
                 </a>
             #} else {#
-                <a style="background-image: url(styles/images/VisitActivity#:activityId#.png); background-repeat: no-repeat; background-position: 15px center">
-                    <p><div style="margin-left: 55px;">#:name#</div></p>
+                <a style="background-image: url(styles/images/visitActivity/set#if (skuCatCnt > 0) {#2#} else {#1#}#/VisitActivity#:activityId#.png); background-repeat: no-repeat; background-position: 15px center">
+                    <p><div style="margin-left: 60px;">#:name#</div></p>
                 </a>
             #}#
         </script>

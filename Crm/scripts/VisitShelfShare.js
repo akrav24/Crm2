@@ -17,10 +17,10 @@ function visitShelfShareEditShow(e) {
     if (visitShelfShareItem.navBackCount < 1) {
         visitShelfShareItem.navBackCount = 1;
     }
-    renderVisitShelfEditShare(visit.visitId, settings.skuCatId);
+    renderVisitShelfShareEdit(visit.visitId, settings.skuCatId);
 }
 
-function renderVisitShelfEditShare(visitId, skuCatId) {
+function renderVisitShelfShareEdit(visitId, skuCatId) {
     dbTools.visitShelfShareGet(visitId, skuCatId, renderVisitShelfShareEditView);
 }
 
@@ -30,7 +30,7 @@ function renderVisitShelfShareEditView(tx, rs) {
         visitShelfShareItem.shelfShare = rs.rows.item(0).shelfShare;
         visitShelfShareItem.shelfWidthTotal = rs.rows.item(0).shelfWidthTotal;
         visitShelfShareItem.shelfWidthOur = rs.rows.item(0).shelfWidthOur;
-        visitShelfShareItem.isEdited = 0;
+        visitShelfShareItem.isEdited = false;
     } else {
         visitShelfShareItemClear();
     }
@@ -54,7 +54,7 @@ function visitShelfShareItemClear() {
     visitShelfShareItem.shelfShare = null;
     visitShelfShareItem.shelfWidthTotal = null;
     visitShelfShareItem.shelfWidthOur = null;
-    visitShelfShareItem.isEdited = 0;
+    visitShelfShareItem.isEdited = false;
 }
 
 function visitShelfShareEditNavBackClick() {
@@ -64,7 +64,7 @@ function visitShelfShareEditNavBackClick() {
 function visitShelfShareEditControlChange(id, value) {
     log("..visitShelfShareEditControlChange('" + id + "', '" + value + "')");
     var val = value != "" ? value : null;
-    visitShelfShareItem.isEdited = 1;
+    visitShelfShareItem.isEdited = true;
     switch (id) {
         case "visit-shelf-share-edit-shelf-share":
             visitShelfShareItem.shelfShare = val / 100;
@@ -116,7 +116,7 @@ function visitShelfShareEditDel(onSuccess) {
 function visitShelfShareEditEnableControls() {
     log("..visitShelfShareEditEnableControls");
     if (!visit.readonly) {
-        if (visitShelfShareItem.isEdited == 1) {
+        if (visitShelfShareItem.isEdited) {
             $("#visit-shelf-share-edit-save-button").removeClass("hidden");
             $("#visit-shelf-share-edit-del-button").addClass("hidden");
         } else {

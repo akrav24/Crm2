@@ -21,6 +21,7 @@ dbTools.openDB = function() {
         dbTools.db = window.sqlitePlugin.openDatabase("Crm", function() {log("====1");}, function() {log("====2");});
     } else {
         // For debugging in simulator fallback to native SQL Lite
+        log("==SIMULATOR");
         dbTools.db = window.openDatabase("Crm", "1.0", "Cordova Demo", 200000);
     }
 }
@@ -84,21 +85,17 @@ dbTools.tableNextIdGet = function(tx, tableName, onSuccess, onError) {
 }
 
 dbTools.tableUpdateDateFieldExists = function(tableName) {
-    var result = true;
-    if (["visitsku", "visitskucat"].indexOf(tableName.toLowerCase()) > 0) {
-        result = false;
-    }
-    return result;
+    return !inArray(["visitpromo", "visitsku", "visitskucat", "visitpromophoto"], tableName.toLowerCase());
 }
 
 dbTools.sqlInsert = function(tx, tableName, keyFieldNameArray, fieldNameArray, keyFieldValueArray, fieldValueArray, onSuccess, onError) {
     var errMsg = "sqlInsert function error: ";
     if (tx != undefined) {
-        var fldArray = (new Array()).concat(keyFieldNameArray, fieldNameArray);
-        var valArray = (new Array()).concat(keyFieldValueArray, fieldValueArray);
+        var fldArray = keyFieldNameArray.concat(fieldNameArray);
+        var valArray = keyFieldValueArray.concat(fieldValueArray);
         if (dbTools.tableUpdateDateFieldExists(tableName)) {
-            fldArray = fldArray.concat(fldArray, "updateDate");
-            valArray = valArray.concat(valArray, dateToSqlDate(new Date()));
+            fldArray = fldArray.concat("updateDate");
+            valArray = valArray.concat(dateToSqlDate(new Date()));
         }
         var flds = fldArray.join(", ");
         var vals = "";
