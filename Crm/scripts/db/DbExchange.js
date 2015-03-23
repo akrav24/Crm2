@@ -314,10 +314,31 @@ dbTools.exchangeMailImport = function(blockId, onSuccess, onError) {
                                 var refTypeId = rs.rows.item(i)["refTypeId"];
                                 var tblName = rs.rows.item(i)["name"];
                                 var flds = rs.rows.item(i)["flds"];
+                                
                                 var tableUpdate = function(tblName, refTypeId, flds) {
-                                    var sql = "DELETE FROM @tblName WHERE EXISTS(SELECT 1 FROM Mail@tblName B WHERE B.@tblNameId=@tblName.@tblNameId AND B.blockId=? AND B.updateDate>@tblName.updateDate)";
+                                    var sql = "SELECT group_concat(@tblNameId) AS idLst FROM @tblName WHERE EXISTS(SELECT 1 FROM Mail@tblName B WHERE B.@tblNameId=@tblName.@tblNameId AND B.blockId=? AND B.updateDate>@tblName.updateDate)";
                                     var sqlExec = sql.replace(new RegExp("@tblName","g"), tblName);
+                                    tx.executeSql(sqlExec, [blockId], function(tx, rs) {
+                                        if (rs.rows.length > 0) {
+                                            var idLst = rs.rows.item(0).idLst;
+                                            if (idLst != null) {
+                                                sqlExec = "SELECT name FROM refType WHERE parentId = ?";
+                                                tx.executeSql(sqlExec, [refTypeId], function(tx, rs) {
+                                                    for (var i = 0; i < rs.rows.length; i++) {
+                                                        var delTblName = rs.rows.item(i).name;
+                                                        sql = "DELETE FROM @delTblName WHERE @tblNameId IN (@idLst)";
+                                                        sqlExec = sql.replace(new RegExp("@delTblName","g"), delTblName).replace(new RegExp("@tblName","g"), tblName).replace(new RegExp("@idLst","g"), idLst);
+                                                        tx.executeSql(sqlExec, []);
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    });
+                                    
+                                    sql = "DELETE FROM @tblName WHERE EXISTS(SELECT 1 FROM Mail@tblName B WHERE B.@tblNameId=@tblName.@tblNameId AND B.blockId=? AND B.updateDate>@tblName.updateDate)";
+                                    sqlExec = sql.replace(new RegExp("@tblName","g"), tblName);
                                     tx.executeSql(sqlExec, [blockId]);
+                                    
                                     sql = "SELECT @tblNameId AS id FROM Mail@tblName WHERE blockId = ? AND @tblNameId NOT IN (SELECT @tblNameId FROM @tblName)";
                                     sqlExec = sql.replace(new RegExp("@tblName", "g"), tblName);
                                     tx.executeSql(sqlExec, [blockId], function(tx, rs) {
@@ -343,6 +364,7 @@ dbTools.exchangeMailImport = function(blockId, onSuccess, onError) {
                                         }
                                     });
                                 }
+                                
                                 tableUpdate(tblName, refTypeId, flds);
                             }
                         });

@@ -36,7 +36,9 @@ dbTools.exchangeDataPost = function(blockId, data, onSuccess, onError) {
         contentType: "application/json",
         data: JSON.stringify(data),
         success: function(data) {
+            log("..");
             log("..exchangeDataPost: " + dataLength + " rows sent");
+            log("..");
             if (onSuccess != undefined) {
                 onSuccess(blockId, data);
             }
@@ -56,7 +58,9 @@ dbTools.exchangeDataGet = function(blockId, onSuccess, onError) {
         url: url,
         dataType: "json",
         success: function(data) {
+            log("..");
             log("..exchangeDataGet: " + data.length + " rows received");
+            log("..");
             if (onSuccess != undefined) {
                 onSuccess(blockId, data);
             }
@@ -105,7 +109,7 @@ dbTools.exchangeDataFileByIdDownload = function(blockId, fileId, onSuccess, onEr
     log("exchangeDataFileByIdDownload(blockId=" + blockId  + ", fileId=" + fileId +  ")");
     
     var url = dbTools.serverUrl(serverName, port) + "Api/Exchange/GetFileById/?blockId=" + blockId + "&fileId=" + fileId;
-    var folderName = fileHelper.folderName();
+    var folderName = fileHelper.folderName("visitPlanogram");
     var fileName = fileHelper.fileName("visitPlanogram", fileId);
     var filePath = "";
     

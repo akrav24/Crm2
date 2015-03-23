@@ -462,10 +462,10 @@ dbTools.visitPromoPhotoListGet = function(visitPromoId, datasetGet) {
     }, dbTools.onTransError);
 }
 
-dbTools.visitPromoPhotoUpdate = function(visitPromoId, visitPromoPhotoId, fileName, onSuccess, onError) {
-    log("visitPromoPhotoUpdate(" + visitPromoId + ", " + visitPromoPhotoId + ", '" + fileName + "')");
+dbTools.visitPromoPhotoUpdate = function(visitId, visitPromoId, visitPromoPhotoId, fileName, onSuccess, onError) {
+    log("visitPromoPhotoUpdate(" + visitId + ", " + visitPromoId + ", " + visitPromoPhotoId + ", '" + fileName + "')");
     dbTools.db.transaction(function(tx) {
-        dbTools.sqlInsertUpdate(tx, "VisitPromoPhoto", ["visitPromoPhotoId"], ["visitPromoId", "fileName"], [visitPromoPhotoId], [visitPromoId, fileName], 
+        dbTools.sqlInsertUpdate(tx, "VisitPromoPhoto", ["visitPromoPhotoId"], ["visitId", "visitPromoId", "fileName"], [visitPromoPhotoId], [visitId, visitPromoId, fileName], 
             function() {if (onSuccess != undefined) {onSuccess(visitPromoPhotoId);}},
             onError
         );
