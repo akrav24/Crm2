@@ -190,11 +190,14 @@ dbTools.visitActivityGet = function(visitPlanItemId, visitId, skuCatId, stageId,
             + "      WHERE VS.visitId = @visitId AND VS.sel0 = 1"
             + "      GROUP BY S.skuCatId"
             + "    UNION ALL"
-            + "    SELECT 1 AS stageId, 14 AS activityId, S.skuCatId"
+            /*+ "    SELECT 1 AS stageId, 14 AS activityId, S.skuCatId"
             + "      FROM VisitSku VS"
             + "      INNER JOIN Sku S ON VS.skuId = S.skuId"
             + "      WHERE VS.visitId = @visitId AND VS.reasonId IS NOT NULL"
-            + "      GROUP BY S.skuCatId"
+            + "      GROUP BY S.skuCatId"*/
+            + "    SELECT 1 AS stageId, 14 AS activityId, SC.skuCatId"
+            + "      FROM SkuCat SC"
+            + "      WHERE EXISTS(SELECT 1 FROM VisitSku VS WHERE VS.visitId = @visitId AND VS.reasonId IS NOT NULL)"
             + "    UNION ALL"
             + "    SELECT 2 AS stageId, 1 AS activityId, S.skuCatId"
             + "      FROM VisitSku VS"
@@ -238,15 +241,11 @@ dbTools.visitAnalysisResultGet = function(visitId, skuId, datasetGet) {
     log("visitAnalysisResultsGet(" + visitId + ", " + skuId + ")");
     dbTools.db.transaction(function(tx) {
         var sql = "SELECT S.skuId, S.name, S.code, IFNULL(S.code, '') || ' ' || S.name AS fullName, VS.sel, VS.sel0,"
-            + "    CASE WHEN R.parentId IS NOT NULL THEN R.parentId ELSE IFNULL(VS.reasonId, 0) END AS reasonId,"
-            + "    CASE WHEN R.parentId IS NOT NULL THEN R0.name ELSE R.name END AS reasonName,"
-            + "    CASE WHEN R.parentId IS NOT NULL THEN VS.reasonId ELSE NULL END AS reasonId2, "
-            + "    CASE WHEN R.parentId IS NOT NULL THEN R.name ELSE NULL END AS reasonName2, "
+            + "    IFNULL(VS.reasonId, 0) AS reasonId, R.name AS reasonName,"
             + "    R.useQnt, VS.reasonQnt, R.useDate, VS.reasonDate"
             + "  FROM VisitSku VS"
             + "  INNER JOIN Sku S ON VS.skuId = S.skuId"
             + "  LEFT JOIN Reason R ON VS.reasonId = R.reasonId"
-            + "  LEFT JOIN Reason R0 ON R.parentId = R0.reasonId"
             + "  WHERE VS.visitId = ?"
             + "    AND VS.skuId = ?";
         tx.executeSql(sql, [visitId, skuId], datasetGet, dbTools.onSqlError);
@@ -272,6 +271,16 @@ dbTools.visitReasonListGet = function(parentId, isEmptyRowShow, datasetGet) {
             + "    ) R"
             + "  ORDER BY R.blk, R.lvl";
         tx.executeSql(sql, [parentId], datasetGet, dbTools.onSqlError);
+    }, dbTools.onTransError);
+}
+
+dbTools.visitReasonGet = function(reasonId, datasetGet) {
+    log("visitReasonGet(" + reasonId + ")");
+    dbTools.db.transaction(function(tx) {
+        var sql = "SELECT R.reasonId, R.name, R.parentId, R.useQnt, R.useDate"
+            + "  FROM Reason R"
+            + "  WHERE R.reasonId = ?";
+        tx.executeSql(sql, [reasonId], datasetGet, dbTools.onSqlError);
     }, dbTools.onTransError);
 }
 

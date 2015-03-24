@@ -66,43 +66,36 @@
             <div data-role="navbar">
                 <a class="nav-button" data-align="left" data-role="button" data-icon="back" data-click="visitAnalysisResultEditNavBackClick"></a>
                 <span data-role="view-title"></span>
-                <a class="nav-button" data-align="right" data-role="button" data-click="visitAnalysisResultEditSaveClick">Сохранить</a>
+                <a id="visit-analysis-result-edit-save-button" class="nav-button hidden" data-align="right" data-role="button" data-click="visitAnalysisResultEditSaveClick">Сохранить</a>
+                <a id="visit-analysis-result-edit-del-button" class="nav-button hidden" data-align="right" data-role="button" data-click="visitAnalysisResultEditDelClick">Удалить</a>
             </div>
         </header>
         
-        <!--<div data-role="touch"
-            data-swipe="visitAnalysisResultEditTouchSwipe"
-            data-enable-swipe="1">-->
-            <form>
-                <ul id="visit-analysis-result-edit-list" class="list form-list" data-role="listview">
-                    <li>
-                        <label>Продукт
-                            <input id="visit-analysis-result-edit-full-name" type="text" readonly="readonly"/>
-                        </label>
-                    </li>
-                    <li>
-                        <label>Причина отсутствия
-                            <input id="visit-analysis-result-edit-reason"/>
-                        </label>
-                    </li>
-                    <li>
-                        <label>- дополнительно
-                            <input id="visit-analysis-result-edit-reason2" disabled/>
-                        </label>
-                    </li>
-                    <li>
-                        <label>Количество
-                            <input id="visit-analysis-result-edit-reason-qnt" type="number" disabled/>
-                        </label>
-                    </li>
-                    <li>
-                        <label>Дата
-                            <input id="visit-analysis-result-edit-reason-date" type="date" style="position: relative; width: 100%; right: 0; margin-top: 0; top: 0;" disabled/>
-                        </label>
-                    </li>
-                </ul>
-            </form>
-        <!--</div>-->
+        <form>
+            <ul id="visit-analysis-result-edit-list" class="list form-list" data-role="listview">
+                <li>
+                    <label>Продукт
+                        <input id="visit-analysis-result-edit-full-name" type="text" readonly="readonly"/>
+                    </label>
+                </li>
+                <li>
+                    <label>Причина отсутствия
+                        <input id="visit-analysis-result-edit-reason"/>
+                    </label>
+                </li>
+                <li class="visit-analysis-result-edit-reason-qnt">
+                    <label>Количество
+                        <input id="visit-analysis-result-edit-reason-qnt" class="editable" type="number" onchange="visitAnalysisResultEditControlChange(this.id, this.value)"/>
+                    </label>
+                </li>
+                <li class="visit-analysis-result-edit-reason-date">
+                    <label>Дата
+                        <input id="visit-analysis-result-edit-reason-date" class="editable" type="date" style="position: relative; width: 100%; right: 0; margin-top: 0; top: 0;" 
+                            onchange="visitAnalysisResultEditControlChange(this.id, this.value)"/>
+                    </label>
+                </li>
+            </ul>
+        </form>
         
     </div>
     

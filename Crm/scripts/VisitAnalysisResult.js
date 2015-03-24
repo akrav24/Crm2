@@ -53,21 +53,16 @@ function visitAnalysisResultEditInit(e) {
         height: 800,
         change: visitAnalysisResultEditReasonChange
     });
-    $("#visit-analysis-result-edit-reason2").kendoDropDownList({
-        dataTextField: "name",
-        dataValueField: "reasonId",
-        height: 800,
-        change: visitAnalysisResultEditReason2Change
-    });
 }
 
 function visitAnalysisResultEditShow(e) {
     log("..visitAnalysisResultEditShow skuId=" + e.view.params.skuId + ", isNotReloadReason=" + e.view.params.isNotReloadReason
-        + ", reasonId=" + e.view.params.reasonId + ", reasonId2=" + e.view.params.reasonId2
+        + ", reasonId=" + e.view.params.reasonId
         + ", useQnt=" + e.view.params.useQnt + ", useDate=" + e.view.params.useDate+ ", navBackCount=" + e.view.params.navBackCount
     );
     visitAnalysisResult.isNotReloadReason = false;
     visitAnalysisResult.isNotReloadReason = e.view.params.isNotReloadReason > 0;
+    visitAnalysisResult.isEdited = visitAnalysisResult.isNotReloadReason;
     if (!visitAnalysisResult.isNotReloadReason) {
         visitAnalysisResultClear(true);
     }
@@ -80,9 +75,6 @@ function visitAnalysisResultEditShow(e) {
     }
     if (e.view.params.reasonId != undefined) {
         visitAnalysisResult.reasonId = e.view.params.reasonId;
-    }
-    if (e.view.params.reasonId2 != undefined) {
-        visitAnalysisResult.reasonId2 = e.view.params.reasonId2;
     }
     if (e.view.params.useQnt != undefined) {
         visitAnalysisResult.useQnt = e.view.params.useQnt;
@@ -106,7 +98,6 @@ function renderVisitAnalysisResultEditView(tx, rs) {
         visitAnalysisResult.fullName = rs.rows.item(0).fullName;
         if (!visitAnalysisResult.isNotReloadReason) {
             visitAnalysisResult.reasonId = rs.rows.item(0).reasonId;
-            visitAnalysisResult.reasonId2 = rs.rows.item(0).reasonId2;
             visitAnalysisResult.useQnt = rs.rows.item(0).useQnt;
             visitAnalysisResult.reasonQnt = rs.rows.item(0).reasonQnt;
             visitAnalysisResult.useDate = rs.rows.item(0).useDate;
@@ -115,35 +106,24 @@ function renderVisitAnalysisResultEditView(tx, rs) {
     } else {
         visitAnalysisResultClear(false);
     }
-//logObjectKeys(visitAnalysisResult);
     visitAnalysisResultEditFillControls();
 }
  
 function visitAnalysisResultEditFillControls() {
     $("#visit-analysis-result-edit-full-name").val(visitAnalysisResult.fullName);
-    dbTools.visitReasonListGet(-1, 1, function(tx, rs) {
+    dbTools.visitReasonGet(visitAnalysisResult.reasonId, function(tx, rs) {
         renderVisitAnalysisResultEditReason(tx, rs, visitAnalysisResult.reasonId);
-    });
-    dbTools.visitReasonListGet(visitAnalysisResult.reasonId, 1, function(tx, rs) {
-        renderVisitAnalysisResultEditReason2(tx, rs, visitAnalysisResult.reasonId2);
     });
     $("#visit-analysis-result-edit-reason-qnt").val(visitAnalysisResult.reasonQnt);
     $("#visit-analysis-result-edit-reason-date").val(dateToInputDate(visitAnalysisResult.reasonDate));
 }
 
 function renderVisitAnalysisResultEditReason(tx, rs, value) {
-    log("..renderVisitAnalysisResultEditReason()");
+    log("..renderVisitAnalysisResultEditReason(tx, rs, " + value + ")");
     var data = dbTools.rsToJson(rs);
     $("#visit-analysis-result-edit-reason").data("kendoDropDownList").dataSource.data(data);
     $("#visit-analysis-result-edit-reason").data("kendoDropDownList").value(value);
     visitAnalysisResultEditEnableControls();
-}
-
-function renderVisitAnalysisResultEditReason2(tx, rs, value) {
-    log("..renderVisitAnalysisResultEditReason2()");
-    var data = dbTools.rsToJson(rs);
-    $("#visit-analysis-result-edit-reason2").data("kendoDropDownList").dataSource.data(data);
-    $("#visit-analysis-result-edit-reason2").data("kendoDropDownList").value(value);
 }
 
 function visitAnalysisResultEditNavBackClick() {
@@ -151,73 +131,69 @@ function visitAnalysisResultEditNavBackClick() {
     app.navigate("#:back");
 }
 
+function visitAnalysisResultEditControlChange(id, value) {
+    log("..visitAnalysisResultEditControlChange('" + id + "', '" + value + "')");
+    var val = value != "" ? value : null;
+    visitAnalysisResult.isEdited = true;
+    switch (id) {
+        case "visit-analysis-result-edit-reason-qnt":
+            visitAnalysisResult.reasonQnt = val;
+            break;
+        case "visit-analysis-result-edit-reason-date":
+            visitAnalysisResult.reasonDate = inputDateToDate(val);
+            break;
+    }
+    visitAnalysisResultEditEnableControls();
+}
+
 function visitAnalysisResultEditSaveClick() {
     log("..visitAnalysisResultEditSaveClick");
-    if (visitAnalysisResult.useQnt > 0) {
-        visitAnalysisResult.reasonQnt = $("#visit-analysis-result-edit-reason-qnt").val();
-    } else {
-        visitAnalysisResult.reasonQnt = null;
-    }
-    if (visitAnalysisResult.useDate > 0) {
-        visitAnalysisResult.reasonDate = inputDateToDate($("#visit-analysis-result-edit-reason-date").val());
-    } else {
-        visitAnalysisResult.reasonDate = null;
-    }
     visitAnalysisResultSave(function() {navigateBack(visitAnalysisResult.navBackCount);});
 }
 
-/*function visitAnalysisResultEditTouchSwipe(e) {
-    log("..visitAnalysisResultEditTouchSwipe direction=" + e.direction);
-    var found = 0;
-    var index = 0;
-    while (found == 0 && index < visitAnalysisResults.rs.rows.length) {
-        if (visitAnalysisResults.rs.rows.item(index).skuId == visitAnalysisResult.skuId) {
-            found = 1;
-        } else {
-            index++;
-        }
-    }
-    if (found == 1) {
-        if (e.direction == "right") {
-            if (index > 0) {
-                visitAnalysisResultSave();
-                visitAnalysisResult.skuId = visitAnalysisResults.rs.rows.item(index - 1).skuId;
-                rendervisitAnalysisResultEdit(visit.visitId, visitAnalysisResult.skuId);
-            }
-        } else {
-            if (index < visitAnalysisResults.rs.rows.length - 1) {
-                visitAnalysisResultSave();
-                visitAnalysisResult.skuId = visitAnalysisResults.rs.rows.item(index + 1).skuId;
-                rendervisitAnalysisResultEdit(visit.visitId, visitAnalysisResult.skuId);
-            }
-        }
-    }
+function visitAnalysisResultEditDelClick() {
+    log("..visitAnalysisResultEditDelClick");
+    visitAnalysisResult.reasonId = null;
+    visitAnalysisResult.reasonQnt = null;
+    visitAnalysisResult.reasonDate = null;
+    visitAnalysisResultDelete(function() {navigateBack(visitAnalysisResult.navBackCount);});
 }
-*/
+
 function visitAnalysisResultEditEnableControls() {
-    var data = $("#visit-analysis-result-edit-reason").data("kendoDropDownList").dataItem();
-    $("#visit-analysis-result-edit-full-name").prop("disabled", true);
-    $("#visit-analysis-result-edit-reason").data("kendoDropDownList").enable(!visit.readonly);
-    $("#visit-analysis-result-edit-reason2").data("kendoDropDownList").enable((data.isParent == 1) && (!visit.readonly));
-    $("#visit-analysis-result-edit-reason-qnt").prop("disabled", (visitAnalysisResult.useQnt != 1) || visit.readonly);
-    $("#visit-analysis-result-edit-reason-date").prop("disabled", (visitAnalysisResult.useDate != 1) || visit.readonly);
+    log("..visitAnalysisResultEditEnableControls");
+    if (!visit.readonly) {
+        if (visitAnalysisResult.isEdited) {
+            $("#visit-analysis-result-edit-save-button").removeClass("hidden");
+            $("#visit-analysis-result-edit-del-button").addClass("hidden");
+        } else {
+            $("#visit-analysis-result-edit-save-button").addClass("hidden");
+            $("#visit-analysis-result-edit-del-button").removeClass("hidden");
+        }
+    } else {
+        $("#visit-analysis-result-edit-save-button").addClass("hidden");
+        $("#visit-analysis-result-edit-del-button").addClass("hidden");
+    }
+    
+    if (visitAnalysisResult.useQnt > 0) { 
+        $(".visit-analysis-result-edit-reason-qnt").removeAttr("style");
+    } else {
+        $(".visit-analysis-result-edit-reason-qnt").attr("style", "display: none;");
+    }
+    if (visitAnalysisResult.useDate > 0) { 
+        $(".visit-analysis-result-edit-reason-date").removeAttr("style");
+    } else {
+        $(".visit-analysis-result-edit-reason-date").attr("style", "display: none;");
+    }
+    
+    $("#visit-analysis-result-edit-full-name").prop("readonly", true);
+    $("#visit-analysis-result-edit-reason").data("kendoDropDownList").readonly(true);
+    $(".editable").prop("readonly", visit.readonly);
 }
 
 function visitAnalysisResultEditReasonChange(e) {
     var data = this.dataItem();
+    visitAnalysisResult.isEdited = true;
     visitAnalysisResult.reasonId = data.reasonId;
-    visitAnalysisResult.reasonId2 = 0;
-    visitAnalysisResult.useQnt = data.useQnt;
-    visitAnalysisResult.useDate = data.useDate;
-    dbTools.visitReasonListGet(visitAnalysisResult.reasonId, 1, function(tx, rs) {
-        renderVisitAnalysisResultEditReason2(tx, rs, visitAnalysisResult.reasonId2);
-    });
-    visitAnalysisResultEditEnableControls();
-}
-
-function visitAnalysisResultEditReason2Change(e) {
-    var data = this.dataItem();
-    visitAnalysisResult.reasonId2 = data.reasonId;
     visitAnalysisResult.useQnt = data.useQnt;
     visitAnalysisResult.useDate = data.useDate;
     visitAnalysisResultEditEnableControls();
@@ -255,7 +231,6 @@ function renderVisitAnalysisResultsWizardReasonView(tx, rs) {
     var dataSource = new kendo.data.DataSource({data: data});
     $("#visit-analysis-results-wizard-reason-list").data("kendoMobileListView").setDataSource(dataSource);
     app.scroller().reset();
-//logObjectKeys(visitAnalysisResult);
 }
 
 function visitAnalysisResultsWizardReasonNavBackClick() {
@@ -271,7 +246,7 @@ function visitAnalysisResultsWizardReasonListClick(e) {
     } else {
         if (e.dataItem.useQnt > 0 || e.dataItem.useDate > 0) {
             app.navigate("#visit-analysis-result-edit-view?skuId=" + visitAnalysisResult.skuId 
-                + "&isNotReloadReason=1&reasonId" + (e.dataItem.parentId > 0 ? "2" : "") + "=" + e.dataItem.reasonId 
+                + "&isNotReloadReason=1&reasonId=" + e.dataItem.reasonId 
                 + "&useQnt=" + e.dataItem.useQnt + "&useDate=" + e.dataItem.useDate + "&navBackCount=" + (e.dataItem.parentId > 0 ? "3" : "2"));
         } else {
             visitAnalysisResultsWizardReasonSave(e.dataItem.reasonId, (e.dataItem.parentId > 0 ? 2 : 1));
@@ -281,13 +256,8 @@ function visitAnalysisResultsWizardReasonListClick(e) {
 
 function visitAnalysisResultsWizardReasonSave(reasonId, navBackCount) {
     log("..visitAnalysisResultsWizardReasonSave(" + reasonId + ", " + navBackCount + ")");
-    if (navBackCount == 1) {
-        visitAnalysisResult.reasonId = reasonId;
-    } else {
-        visitAnalysisResult.reasonId2 = reasonId;
-    }
+    visitAnalysisResult.reasonId = reasonId;
     visitAnalysisResultSave(function() {navigateBack(navBackCount);});
-//logObjectKeys(visitAnalysisResult);
 }
 
 //----------------------------------------
@@ -305,7 +275,6 @@ function visitAnalysisResultClear(clearSku) {
     }
     visitAnalysisResult.isNotReloadReason = false;
     visitAnalysisResult.reasonId = 0;
-    visitAnalysisResult.reasonId2 = null;
     visitAnalysisResult.useQnt = null;
     visitAnalysisResult.reasonQnt = null;
     visitAnalysisResult.useDate = null;
@@ -314,15 +283,21 @@ function visitAnalysisResultClear(clearSku) {
 
 function visitAnalysisResultSave(onSuccess) {
     var reasonId;
-    if (visitAnalysisResult.reasonId2 > 0) {
-        reasonId = visitAnalysisResult.reasonId2;
-    } else if (visitAnalysisResult.reasonId > 0) {
+    if (visitAnalysisResult.reasonId > 0) {
         reasonId = visitAnalysisResult.reasonId;
     } else {
         reasonId = null;
     }
     dbTools.objectListItemSet("visit-list", true);
     dbTools.visitAnalysisResultUpdate(visit.visitId, visitAnalysisResult.skuId, reasonId, visitAnalysisResult.reasonQnt, visitAnalysisResult.reasonDate, 
+        function(visitId, skuId) {if (onSuccess != undefined) {onSuccess(visitId, skuId);}}, 
+        dbTools.onSqlError
+    );
+}
+
+function visitAnalysisResultDelete(onSuccess) {
+    dbTools.objectListItemSet("visit-list", true);
+    dbTools.visitAnalysisResultUpdate(visit.visitId, visitAnalysisResult.skuId, null, null, null, 
         function(visitId, skuId) {if (onSuccess != undefined) {onSuccess(visitId, skuId);}}, 
         dbTools.onSqlError
     );
