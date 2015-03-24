@@ -2,6 +2,7 @@
 dbTools.exchange = function(onSuccess, onError, onProgress) {
     log("----------------------------");
     log("exchange()");
+    if (onProgress != undefined) {onProgress(1);}
     if (settings.nodeId > 0) {
         for (var i = 0; i < dbTools.objectList.length; i++) {
             dbTools.objectList[i].needReloadData = true;
@@ -11,13 +12,25 @@ dbTools.exchange = function(onSuccess, onError, onProgress) {
         }
         var blockId = dbTools.exchangeBlockIdGet(
             function(blockId) {
-                if (onProgress != undefined) {onProgress();}
                 dbTools.exchangeExport(blockId, 
                     function(blockId) {
-                        if (onProgress != undefined) {onProgress();}
-                        dbTools.exchangeImport(blockId, onSuccess, onError, onProgress);
+                        dbTools.exchangeImport(blockId, 
+                            function(blockId) {
+                                dbTools.exchangeDelMailBlockData(blockId, 
+                                    function(blockId) {
+                                        if (onProgress != undefined) {onProgress();}
+                                        if (onSuccess != undefined) {onSuccess(blockId);}
+                                    }, 
+                                    onError/*, 
+                                    onProgress*/
+                                );
+                            },
+                            onError, 
+                            onProgress
+                        );
                     },
-                    onError
+                    onError,
+                    onProgress
                 );
             },
             onError
@@ -30,9 +43,10 @@ dbTools.exchange = function(onSuccess, onError, onProgress) {
 }
 
 // Exchange. Send data to web service
-dbTools.exchangeExport = function(blockId, onSuccess, onError) {
+dbTools.exchangeExport = function(blockId, onSuccess, onError, onProgress) {
     log("----------------------------");
     log("exchangeExport(blockId=" + blockId + ")");
+    if (onProgress != undefined) {onProgress();}
     dbTools.exchangeMailExport(blockId, 
         function(blockId) {
             var dataOut = [];
@@ -64,19 +78,18 @@ dbTools.exchangeExport = function(blockId, onSuccess, onError) {
 dbTools.exchangeImport = function(blockId, onSuccess, onError, onProgress) {
     log("----------------------------");
     log("exchangeImport(blockId=" + blockId + ")");
+    if (onProgress != undefined) {onProgress();}
     
     dbTools.exchangeMailBlockDataIn(blockId,
         function(blockId) {
             dbTools.exchangeMailBlockDataInProc(blockId, 
                 function(blockId) {
-                    if (onProgress != undefined) {onProgress();}
                     dbTools.exchangeMailImportParm(blockId, 
                         function(blockId) {
                             dbTools.exchangeMailImportDelete(blockId, 
                                 function(blockId) {
                                     dbTools.exchangeMailImport(blockId, 
                                         function(blockId) {
-                                            if (onProgress != undefined) {onProgress();}
                                             if (onProgress != undefined) {onSuccess(blockId);}
                                         },
                                         onError
@@ -89,10 +102,33 @@ dbTools.exchangeImport = function(blockId, onSuccess, onError, onProgress) {
                         onError
                     );
                 }, 
-                onError
+                onError,
+                onProgress
             );
         },
         onError
+    );
+}
+
+// Exchange. Delete MailBlockData
+dbTools.exchangeDelMailBlockData = function(blockId, onSuccess, onError, onProgress) {
+    log("----------------------------");
+    log("exchangeDelMailBlockData(blockId=" + blockId + ")");
+    if (onProgress != undefined) {onProgress();}
+    
+    dbTools.db.transaction(
+        function(tx) {
+            tx.executeSql("DELETE FROM MailBlockDataOut", [],
+                function(tx, rs) {
+                    tx.executeSql("DELETE FROM MailBlockDataIn", [], 
+                        function(tx, rs) {
+                            if (onSuccess != undefined) {onSuccess(blockId);}
+                        }
+                    );
+                }
+            );
+        }, 
+        function(error) {if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error));}}
     );
 }
 
@@ -165,8 +201,9 @@ dbTools.exchangeMailBlockDataIn = function(blockId, onSuccess, onError) {
     );
 }
 
-dbTools.exchangeMailBlockDataInProc = function(blockId, onSuccess, onError) {
+dbTools.exchangeMailBlockDataInProc = function(blockId, onSuccess, onError, onProgress) {
     log("exchangeMailBlockDataInProc(blockId=" + blockId + ")");
+    if (onProgress != undefined) {onProgress();}
     
     dbTools.exchangeMailBlockDataInProcScriptExec(blockId,
         function(blockId) {

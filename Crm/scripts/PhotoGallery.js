@@ -173,7 +173,7 @@ function photoGallerySaveNewPhoto(fileUri) {
         function(fileEntry) {
             switch (photoGallery.galleryType.toLowerCase()) {
                 case "visitpromophoto":
-                    dbTools.visitPromoPhotoUpdate(visitPromoItem.visitPromoId, photoGallery.newFileId, photoGallery.newFileName, 
+                    dbTools.visitPromoPhotoUpdate(visit.visitId, visitPromoItem.visitPromoId, photoGallery.newFileId, photoGallery.newFileName, 
                         function() {
                             dbTools.visitPromoPhotoListGet(visitPromoItem.visitPromoId, 
                                 function(tx, rs) {
