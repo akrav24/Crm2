@@ -6,6 +6,7 @@
 </head>
 <body>
     <script src="scripts/VisitPromo.js"></script>
+    <script src="scripts/PhotoGallery.js"></script>
     
     <div id="visit-promo-promos-view"
         data-role="view" 
@@ -26,32 +27,10 @@
     
         <script id="visit-promo-promos-list-tmpl" type="text/x-kendo-template">
             <a class="list-item-header">
-                <p><div>#:genderName#, #:brandName#, #:promoName#</div></p>
+                <p><div>#:brandName# (#:genderName#): #:promoName#</div></p>
             </a>
         </script>
         
-    </div>
-    
-    <div id="visit-promo-gender-view"
-        data-role="view" 
-        data-title="Вид продукта" 
-        data-layout="main" 
-        data-show="visitPromoGenderShow">
-        
-        <header data-role="header">
-            <div data-role="navbar">
-                <a class="nav-button" data-align="left" data-role="button" data-icon="back" data-click="visitPromoGenderNavBackClick"></a>
-                <span data-role="view-title"></span>
-            </div>
-        </header>
-        
-        <ul id="visit-promo-gender-list" class="list list-item-header" data-role="listview" data-template="visit-promo-gender-list-tmpl" data-click="visitPromoGenderListClick"></ul>
-    
-        <script id="visit-promo-gender-list-tmpl" type="text/x-kendo-template">
-            <a class="list-item-header">
-                <p><div>#:name#</div></p>
-            </a>
-        </script>
     </div>
     
     <div id="visit-promo-brand-view"
@@ -62,7 +41,7 @@
         
         <header data-role="header">
             <div data-role="navbar">
-                <a class="nav-button" data-align="left" data-role="button" data-icon="back" href="#:back"></a>
+                <a class="nav-button" data-align="left" data-role="button" data-icon="back" data-click="visitPromoBrandNavBackClick"></a>
                 <span data-role="view-title"></span>
             </div>
         </header>
@@ -70,6 +49,28 @@
         <ul id="visit-promo-brand-list" class="list list-item-header" data-role="listview" data-template="visit-promo-brand-list-tmpl" data-click="visitPromoBrandListClick"></ul>
     
         <script id="visit-promo-brand-list-tmpl" type="text/x-kendo-template">
+            <a class="list-item-header">
+                <p><div>#:name#</div></p>
+            </a>
+        </script>
+    </div>
+    
+    <div id="visit-promo-gender-view"
+        data-role="view" 
+        data-title="Вид продукта" 
+        data-layout="main" 
+        data-show="visitPromoGenderShow">
+        
+        <header data-role="header">
+            <div data-role="navbar">
+                <a class="nav-button" data-align="left" data-role="button" data-icon="back" href="#:back"></a>
+                <span data-role="view-title"></span>
+            </div>
+        </header>
+        
+        <ul id="visit-promo-gender-list" class="list list-item-header" data-role="listview" data-template="visit-promo-gender-list-tmpl" data-click="visitPromoGenderListClick"></ul>
+    
+        <script id="visit-promo-gender-list-tmpl" type="text/x-kendo-template">
             <a class="list-item-header">
                 <p><div>#:name#</div></p>
             </a>
@@ -138,7 +139,7 @@
         </header>
         
         <form>
-            <ul id="visit-promo-edit-list" class="list form-list" data-role="listview">
+            <ul id="visit-promo-edit-list" class="list form-list" data-role="listview" data-click="visitPromoEditListClick">
                 <li>
                     <label>Описание
                         <div><span id="visit-promo-edit-brand-name"></span> (<span id="visit-promo-edit-gender-name"></span>): <span id="visit-promo-edit-promo-name"></span></div>
@@ -169,46 +170,21 @@
                         <input id="visit-promo-edit-ext-volume" class="editable" type="number" onchange="visitPromoEditControlChange(this.id, this.value)"/>
                     </label>
                 </li>
-                <li>
-                    <a onclick="visitPromoEditPhotoGalleryClick()"
-                        style="background-image: url(styles/images/TakePhoto.png); background-repeat: no-repeat; background-position: 15px center">
+                <li id="visit-promo-edit-li-photo-gallery">
+                    <a id="visit-promo-edit-photo-gallery"
+                        style="background-image: url(styles/images/TakePhoto1.png); background-repeat: no-repeat; background-position: 15px center">
                         <p><div style="margin-left: 60px;">Фотоотчет</div></p>
                     </a>
                 </li>
             </ul>
         </form>
         
-                    <!--<a href="views/PhotoGallery.html?galleryType=VisitPromoPhoto"-->
-        <!--<div>
-            <h3>Фотоотчет</h3>
-        </div>
-        
-        <div>
-            <div id="visit-promo-edit-scrollview"
-                data-role="scrollview" 
-                data-auto-bind="true"
-                data-content-height="100px"      
-                data-enable-pager="true"
-                data-items-per-page="1"
-                data-template="visit-promo-edit-scrollview-tmpl"
-                page-size="1.00"
-                data-changing="scrollviewOnChanging"
-                data-change="scrollviewOnChange">
-            </div>
-        </div>
-        -->
         <script id="visit-promo-edit-scrollview-tmpl" type="text/x-kendo-template">
             <div class="batch-page">
-                <!--<div class="tile" style="background-image: url(#:filePath#) no-repeat center center;">#:filePath#</div>-->
-                <!--<div class="tile" >\\#= data[0].filePath \\#</div>-->
-                <!--<div class="tile" style="background-image: url(\\#= data[1].filePath \\#) no-repeat center center;"></div>-->
             <div class="gallery-image-content" style="height: 100px;">
                 <div class="gallery-image" data-role="touch" data-tap="visitPromoEditNewPhoto" style="background-image: url(#:filePath#); background-position: center center;"></div>
             </div>
             </div>
-            <!--<div class="gallery-image-content" style="height: 100px;">
-                <div class="gallery-image" data-role="touch" data-tap="showImage" style="background-image: url(#:filePath#); background-position: center center;"></div>
-            </div>-->
         </script>
     </div>
     

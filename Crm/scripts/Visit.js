@@ -66,12 +66,10 @@ function renderVisitActivityList(tx, rs) {
 function visitCheckReadOnly() {
     var dt = new Date();
     dt.setHours(0, 0, 0, 0);
-    visit.readonly = !(visit.timeBgn != null && visit.timeEnd == null) || visit.dateBgn.toString() != dt.toString();
+    visit.readonly = !(visit.timeBgn != null && visit.timeEnd == null);
 }
 
 function visitEnableButtons() {
-    var dt = new Date();
-    dt.setHours(0, 0, 0, 0);
     if (visit.visitId != null) {
         if (visit.timeEnd != null) {
             $("#visit-start-button").addClass("hidden");
@@ -82,10 +80,6 @@ function visitEnableButtons() {
         }
     } else {
         $("#visit-start-button").removeClass("hidden");
-        $("#visit-finish-button").addClass("hidden");
-    }
-    if (visit.dateBgn.toString() != dt.toString()) {
-        $("#visit-start-button").addClass("hidden");
         $("#visit-finish-button").addClass("hidden");
     }
 }
@@ -103,17 +97,43 @@ function visitTimeCaptionSet(timeBgn, timeEnd) {
 }
 
 function visitStartOnClick(e) {
-    dbTools.visitAdd(visit.dateBgn, visit.custId,
-        function(visitId, timeBgn) {
-            visit.visitId = visitId;
-            visit.timeBgn = timeBgn;
-            visitTimeCaptionSet(visit.timeBgn, visit.timeEnd);
-            visitCheckReadOnly();
-            visitEnableButtons();
-            dbTools.objectListItemSet("visit-list", true);
-        }, 
-        dbTools.onSqlError
-    );
+    dbTools.visitAddCheck(function(isAdd, dateBgn) {
+        if (isAdd) {
+            var dt = new Date();
+            dt.setHours(0, 0, 0, 0);
+            if (visit.dateBgn.toString() == dt.toString()) {
+                dbTools.visitAdd(visit.dateBgn, visit.custId,
+                    function(visitId, timeBgn) {
+                        visit.visitId = visitId;
+                        visit.timeBgn = timeBgn;
+                        visitTimeCaptionSet(visit.timeBgn, visit.timeEnd);
+                        visitCheckReadOnly();
+                        visitEnableButtons();
+                        dbTools.objectListItemSet("visit-list", true);
+                    }, 
+                    dbTools.onSqlError
+                );
+            } else {
+                dialogHelper.confirm("#visit-dialog", false, "Вы действительно намерены начать визит запланированный на другой день?",
+                    function() {
+                        dbTools.visitAdd(visit.dateBgn, visit.custId,
+                            function(visitId, timeBgn) {
+                                visit.visitId = visitId;
+                                visit.timeBgn = timeBgn;
+                                visitTimeCaptionSet(visit.timeBgn, visit.timeEnd);
+                                visitCheckReadOnly();
+                                visitEnableButtons();
+                                dbTools.objectListItemSet("visit-list", true);
+                            }, 
+                            dbTools.onSqlError
+                        );
+                    }
+                );
+            }
+        } else {
+            dialogHelper.warning("#visit-dialog", false, "Сначала закончите визит от " + dateToStr(dateBgn, "DD/MM/YYYY"));
+        }
+    });
 }
 
 function visitFinishOnClick(e) {
@@ -139,7 +159,7 @@ function visitHrefGet(stageId, blk, activityId) {
             } else {
                 href += "?navBackCount=";
             }
-            if (settings.skuCatId > 0 || inArray([14], activityId)) {
+            if (settings.skuCatId > 0 || inArray([11, 12, 14], activityId)) {
                 href += "1";
                 result = href;
             } else {
@@ -167,15 +187,18 @@ function hrefByActivityIdGet(stageId, activityId) {
         case 6:
             result = "views/VisitPromo.html";
             break;
+        case 11:
+            result = "views/VisitSurveyAnswer.html?surveyId=2";
+            break;
+        case 12:
+            result = "views/VisitSurveyAnswer.html?surveyId=1";
+            break;
+        /*case 13:
+            result = "views/VisitPlanogramList.html";
+            break;*/
         case 14:
             result = "views/VisitAnalysisResult.html";
             break;
-        /*case 12:
-            result = "views/VisitPhoto.html";
-            break;
-        case 13:
-            result = "views/VisitPlanogramList.html";
-            break;*/
         default:
             result = "";
             break;
@@ -183,3 +206,4 @@ function hrefByActivityIdGet(stageId, activityId) {
     //log("....hrefByActivityIdGet='" + result + "'");
     return result;
 }
+

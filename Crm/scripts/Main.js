@@ -114,7 +114,7 @@ function logSqlResult(sql, rowCount, onSuccess, onError) {
                     for (var i = 0; (i < rs.rows.length && i < rowCount); i++) {
                         log(".." + JSON.stringify(rs.rows.item(i)));
                     }
-                    if (onSuccess != undefined) {onSuccess();}
+                    if (onSuccess != undefined) {onSuccess(rs);}
                 },
                 dbTools.onSqlError
             );

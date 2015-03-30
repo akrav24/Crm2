@@ -58,6 +58,7 @@ dbTools.loadSettings = function(onSuccess) {
 }
 
 dbTools.tableNextIdGet = function(tx, tableName, onSuccess, onError) {
+    log("tableNextIdGet(tx, '" + tableName + "', onSuccess, onError)");
     var errMsg = "tableNextIdGet function error: ";
     if (tx != undefined) {
         var sql = "SELECT RT.refTypeId, IFNULL(C.refId, 0) + 1 AS refId"
@@ -69,8 +70,8 @@ dbTools.tableNextIdGet = function(tx, tableName, onSuccess, onError) {
                 if (rs.rows.length > 0) {
                     var refTypeId = rs.rows.item(0).refTypeId;
                     var refId = rs.rows.item(0).refId;
-                    tx.executeSql("REPLACE INTO Counter VALUES(?, ?)", [refTypeId, refId],
-                        function(tx, rs) {if (onSuccess != undefined) {onSuccess(tx, refId);}},
+                    tx.executeSql("REPLACE INTO Counter (refType, refId, updateDate) VALUES(?, ?, ?)", [refTypeId, refId, dateToSqlDate(new Date())],
+                        function(tx, rs) {log("tableNextIdGet tableName='" + tableName + "', refId=" + refId); if (onSuccess != undefined) {onSuccess(tx, refId);}},
                         function(tx, error) {if (onError != undefined) {onError(errMsg + dbTools.errorMsg(error));}}
                     );
                 } else {
@@ -85,7 +86,7 @@ dbTools.tableNextIdGet = function(tx, tableName, onSuccess, onError) {
 }
 
 dbTools.tableUpdateDateFieldExists = function(tableName) {
-    return !inArray(["visitpromo", "visitsku", "visitskucat", "visitpromophoto"], tableName.toLowerCase());
+    return !inArray(["visitpromo", "visitsku", "visitskucat", "visitpromophoto", "visitsurveyanswer"], tableName.toLowerCase());
 }
 
 dbTools.sqlInsert = function(tx, tableName, keyFieldNameArray, fieldNameArray, keyFieldValueArray, fieldValueArray, onSuccess, onError) {
@@ -192,6 +193,7 @@ dbTools.onTransError = function(error) {
     log("!!! SQLite transaction error, " + dbTools.errorMsg(error));
 }
 
+// TODO: проверить вызовы на соответствие параметров
 dbTools.onSqlError = function(tx, error, sql) {
     var errMsg = "!!! SQLite sql error, " + dbTools.errorMsg(error);
     if (sql != undefined) {

@@ -109,8 +109,8 @@ dbTools.exchangeDataFileByIdDownload = function(blockId, fileId, onSuccess, onEr
     log("exchangeDataFileByIdDownload(blockId=" + blockId  + ", fileId=" + fileId +  ")");
     
     var url = dbTools.serverUrl(serverName, port) + "Api/Exchange/GetFileById/?blockId=" + blockId + "&fileId=" + fileId;
-    var folderName = fileHelper.folderName("visitPlanogram");
-    var fileName = fileHelper.fileName("visitPlanogram", fileId);
+    var folderName = fileHelper.folderName();
+    var fileName = fileHelper.fileName("plan", fileId);
     var filePath = "";
     
     var uploadOnSuccess = function(fileEntry) {

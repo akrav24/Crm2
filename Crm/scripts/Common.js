@@ -176,10 +176,18 @@ function sqlPrepare(sql) {
 }
 */
 
-function renderListView(rs, viewId) {
+function renderListView(rs, viewSelector) {
     var data = dbTools.rsToJson(rs);
     var dataSource = new kendo.data.DataSource({data: data});
-    $(viewId).data("kendoMobileListView").setDataSource(dataSource);
+    $(viewSelector).data("kendoMobileListView").setDataSource(dataSource);
     app.scroller().reset();
+}
+
+function showControl(controlSelector, visible) {
+    if (visible) {
+        $(controlSelector).removeClass("hidden");
+    } else {
+        $(controlSelector).addClass("hidden");
+    }
 }
 

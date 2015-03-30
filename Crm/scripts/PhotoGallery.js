@@ -1,22 +1,18 @@
-var data;
+// photoGallery = {title, fileTableName, fileIdLst, addNewPhotoEnable, onAdd, onDelete, onExit}
 var photoGallery;
 
-
-var imageSrc = "";
-var imageTitle = "";
 var photoGalleryImageViewModel = kendo.observable({
-    imageSrc: imageSrc,
-    imageTitle: imageTitle
+    fileId: 0,
+    imageSrc: "",
+    imageTitle: ""
 });
 
 var isNotDataReload = false;
 
 function photoGalleryInit() {
     log("..photoGalleryInit()");
-    data = [];
-    photoGalleryObjInit();
     var scrollview = $("#photo-gallery-scrollview").data("kendoMobileScrollView");
-    scrollview.setDataSource(data);
+    scrollview.setDataSource(photoGallery.data);
     
     // TODO: AK DEL
     /*dbTools.db.transaction(function(tx) {
@@ -31,52 +27,48 @@ function photoGalleryInit() {
 
 function photoGalleryShow(e) {
     log("..photoGalleryShow()");
-    photoGallery.galleryType = e.view.params.galleryType;
+    
+    app.view().header.find(".km-navbar").data("kendoMobileNavBar")
+        .title(photoGallery.title);
+    
     if (!isNotDataReload) {
-        renderPhotoGalleryScrollView(0);
+        renderPhotoGallery(0);
     } else {
         isNotDataReload = false;
     }
-    
+    photoGalleryEnableControls();
 }
 
-function renderPhotoGalleryScrollView(scrollToPageNumber) {
-    var folderName = fileHelper.folderName(photoGallery.galleryType);
-    data = [];
-    var srcData = photoGalleryDataGet(photoGallery.galleryType);
-    log("====srcData=" + JSON.stringify(srcData));
-    if (srcData.length > 0) {
-        photoGalleryDataAdd(data, folderName, srcData, 0, scrollToPageNumber);
-    } else {
-        //data = {fileId: 0, filePath: "", title: ""};
-        photoGallerySetDataSource(data, scrollToPageNumber);
-    }
-    photoGallery.count = srcData.length;
-    if (photoGallery.count === 0) {
-        if (photoGallery.goToNextViewIfEmpty) {
-            //app.navigate("views/PhotoNew.html");
-            visitPhotoNewClick();
-        }
-    }
-    photoGallery.goToNextViewIfEmpty = true;
+function renderPhotoGallery(scrollToPageNumber) {
+    log("..renderPhotoGallery(" + scrollToPageNumber + ")");
+    dbTools.fileListGet(photoGallery.fileTableName, photoGallery.fileIdLst, 
+        function(tx, rs) {renderPhotoGalleryScrollView(tx, rs, scrollToPageNumber);}
+    );
 }
 
-function photoGalleryDataAdd(data, folderName, srcData, i, scrollToPageNumber) {
-    var title = srcData[i].title;
-    var fileId = srcData[i].fileId;
-    var fileName = "";
-    if (srcData[i].filePath != "") {
-        fileName = srcData[i].filePath;
+function renderPhotoGalleryScrollView(tx, rs, scrollToPageNumber) {
+    log("..renderPhotoGalleryScrollView(tx, rs, " + scrollToPageNumber + ")");
+    photoGallery.data = [];
+    var folderName = fileHelper.folderName();
+    if (rs.rows.length > 0) {
+        photoGalleryDataAdd(folderName, rs, photoGallery.data, 0, scrollToPageNumber);
     } else {
-        fileName = fileHelper.fileName(photoGallery.galleryType, fileId);
+        photoGallerySetDataSource(photoGallery.data, 0);
     }
+}
+
+function photoGalleryDataAdd(folderName, srcRs, dstData, index, scrollToPageNumber) {
+    log("..photoGalleryDataAdd('" + folderName + "', srcRs, dstData, " + index + ", " + scrollToPageNumber + ")");
+    var title = srcRs.rows.item(index).title || " ";
+    var fileId = srcRs.rows.item(index).fileId;
+    var fileName = srcRs.rows.item(index).fileName;
     fileHelper.getFileEntry(folderName, fileName, 
         function(fileEntry) {
-            data.push({fileId: fileId, filePath: fileEntry.toURL(), title: title});
-            if (i < srcData.length - 1) {
-                photoGalleryDataAdd(data, folderName, srcData, ++i, scrollToPageNumber);
+            dstData.push({fileId: fileId, fileName: fileEntry.name, fileLocalPath: fileEntry.toURL(), title: title});
+            if (index < srcRs.rows.length - 1) {
+                photoGalleryDataAdd(folderName, srcRs, dstData, ++index, scrollToPageNumber);
             } else {
-                photoGallerySetDataSource(data, scrollToPageNumber);
+                photoGallerySetDataSource(dstData, scrollToPageNumber);
             }
         }, 
         function(errMsg) {log(errMsg);}
@@ -84,7 +76,7 @@ function photoGalleryDataAdd(data, folderName, srcData, i, scrollToPageNumber) {
 }
 
 function photoGallerySetDataSource(data, scrollToPageNumber) {
-    log("..photoGallerySetDataSource: " + JSON.stringify(data));
+    log("..photoGallerySetDataSource(" + JSON.stringify(data) + ", " + scrollToPageNumber + ")");
     var scrollview = $("#photo-gallery-scrollview").data("kendoMobileScrollView");
     scrollview.setDataSource(data);
     //scrollview.refresh();
@@ -92,10 +84,21 @@ function photoGallerySetDataSource(data, scrollToPageNumber) {
         scrollview.scrollTo(scrollToPageNumber, true);
         photoGalleryImageSourceSet(scrollToPageNumber);
     }
+    
+    if (data.length === 0) {
+        if (photoGallery.makeNewPhotoIfEmpty) {
+            photoGalleryAddNewPhotoClick();
+        }
+    }
+    photoGallery.makeNewPhotoIfEmpty = true;
 }
 
 function photoGalleryScrollviewOnChanging(e) {
     photoGalleryImageSourceSet(e.nextPage);
+}
+
+function photoGalleryEnableControls() {
+    showControl("#photo-gallery-add-new-photo-button", photoGallery.addNewPhotoEnable);
 }
 
 function photoGalleryImageViewShow(e) {
@@ -103,24 +106,35 @@ function photoGalleryImageViewShow(e) {
     navbar.title(imageTitle);
 }
 
-function photoGalleryImageSourceSet(i) {
-    if (data[i].title != "") {
-        imageTitle = data[i].title;
-    } else {
-        imageTitle = "";
-    }
-    var fileId = data[i].fileId;
-    var folderName = fileHelper.folderName(photoGallery.galleryType);
-    var fileName = fileHelper.fileName(photoGallery.galleryType, fileId);
-    fileHelper.getFileEntry(folderName, fileName, 
-        function(fileEntry) {
-            imageSrc = fileEntry.toURL();
-            log("....imageSrc=" + imageSrc);
-            photoGalleryImageViewModel.set("imageSrc", imageSrc);
-            photoGalleryImageViewModel.set("imageTitle", imageTitle);
-        }, 
-        function(errMsg) {log(errMsg);}
-    );
+function photoGalleryObjInit() {
+    photoGallery = {};
+    // заголовок
+    photoGallery.title = "Фотогалерея";
+    // имя таблицы файлов (FileIn, FileOut)
+    photoGallery.fileTableName = "FileOut";
+    // перечень ID файлов, отображаемых в галерее
+    photoGallery.fileIdLst = "";
+    // можно ли делать фото
+    photoGallery.addNewPhotoEnable = false;
+    
+    // событие возникающее после добавления нового фото - photoGallery.onAdd(fileTableName, fileId)
+    photoGallery.onAdd = undefined;
+    // событие возникающее после удаления фото - photoGallery.onDelete(fileTableName, fileId)
+    photoGallery.onDelete = undefined;
+    // событие возникающее при выходе из галереи - photoGallery.onExit(fileTableName, fileIdLst)
+    photoGallery.onExit = undefined;
+    
+    // local var's
+    photoGallery.makeNewPhotoIfEmpty = true;
+    // photoGallery.data = [{fileId, fileName, fileLocalPath, title}, ...]
+    photoGallery.data = [];
+    
+}
+
+function photoGalleryImageSourceSet(index) {
+    photoGalleryImageViewModel.set("fileId", photoGallery.data[index].fileId);
+    photoGalleryImageViewModel.set("imageSrc", photoGallery.data[index].fileLocalPath);
+    photoGalleryImageViewModel.set("imageTitle", photoGallery.data[index].title);
 }
 
 function photoGalleryShowImage() {
@@ -129,116 +143,93 @@ function photoGalleryShowImage() {
     */
 }
 
-function photoGalleryDataGet(galleryType) {
-    var data = [];
-    switch (galleryType.toLowerCase()) {
-        case "visitpromophoto":
-            data = visitPromoPhotoData;
-            break;
+function photoGalleryNavBackClick() {
+    navigateBack(1);
+    if (photoGallery.onExit != undefined) {
+        photoGallery.onExit(photoGallery.fileTableName, photoGallery.fileIdLst);
     }
-    return data;
 }
 
 function photoGalleryAddNewPhotoClick() {
-    if (photoGallery.galleryType != "") {
-        dbTools.db.transaction(function(tx) {
-            dbTools.tableNextIdGet(tx, photoGallery.galleryType, 
-                function(tx, fileId) {
-                    photoGallery.newFileId = fileId;
-                    photoGallery.newFileName = fileHelper.fileName(photoGallery.galleryType, photoGallery.newFileId);
-                    //app.navigate("views/PhotoNew.html");
-                    visitPhotoNewClick();
-                }, 
-                dbTools.onSqlError
-            );
-        }, dbTools.onTransError);
-    } else {
-        //app.navigate("views/PhotoNew.html");
-        visitPhotoNewClick();
+    dbTools.db.transaction(function(tx) {
+        dbTools.tableNextIdGet(tx, photoGallery.fileTableName, 
+            function(tx, fileId) {
+                visitPhotoNew(fileId, fileHelper.fileName(photoGalleryFilePrefix(photoGallery.fileTableName), fileId));
+            }, 
+            dbTools.onSqlError
+        );
+    }, dbTools.onTransError);
+}
+
+function visitPhotoNew(fileId, fileName) {
+    log("..visitPhotoNew(" + fileId + ", " + fileName + ")");
+    var onSuccess = function(data) {
+        //var image = $("#visit-photo-new-img");
+        //image.attr("src", data);
+        photoGallerySaveNewPhoto(data, fileId, fileName);
+    };
+  
+    var onError = function() {
+        photoGallery.makeNewPhotoIfEmpty = false;
+    };
+    
+    if (photoGallery.addNewPhotoEnable) {
+        var config = {
+            sourceType : Camera.PictureSourceType.CAMERA,
+            //destinationType: Camera.DestinationType.DATA_URL,  
+            destinationType: Camera.DestinationType.FILE_URI,
+            //saveToPhotoAlbum: true,
+            encodingType: Camera.EncodingType.JPEG,
+            //allowEdit: true,
+            quality: settings.newPhoto.quality,
+            targetHeight: settings.newPhoto.height,
+            targetWidth: settings.newPhoto.width
+            };
+        
+        navigator.camera.getPicture(onSuccess, onError, config);
     }
 }
 
-function photoGalleryObjInit() {
-    photoGallery = {};
-    photoGallery.galleryType = "";
-    photoGallery.count = 0;
-    photoGallery.goToNextViewIfEmpty = true;
-    photoGallery.newFileId = null;
-    photoGallery.newFileName = "";
-}
-
-function photoGallerySaveNewPhoto(fileUri) {
-    log("..photoGallerySaveNewPhoto(" + fileUri + ")");
-    fileHelper.fileCopy(fileUri, fileHelper.folderName(photoGallery.galleryType), photoGallery.newFileName, 
+function photoGallerySaveNewPhoto(fileUri, fileId, fileName) {
+    log("..photoGallerySaveNewPhoto(" + fileUri + ", " + fileId + ", " + fileName + ")");
+    var title = null;
+    fileHelper.fileCopy(fileUri, fileHelper.folderName(), fileName, 
         function(fileEntry) {
-            switch (photoGallery.galleryType.toLowerCase()) {
-                case "visitpromophoto":
-                    dbTools.visitPromoPhotoUpdate(visit.visitId, visitPromoItem.visitPromoId, photoGallery.newFileId, photoGallery.newFileName, 
-                        function() {
-                            dbTools.visitPromoPhotoListGet(visitPromoItem.visitPromoId, 
-                                function(tx, rs) {
-                                    photoGallery.count = rs.rows.length;
-                                    visitPromoPhotoObjInit();
-                                    for (var i = 0; i < rs.rows.length; i++) {
-                                        visitPromoPhotoData.push({fileId: rs.rows.item(i).visitPromoPhotoId, filePath: rs.rows.item(i).fileName, title: ""});
-                                    }
-                                    renderPhotoGalleryScrollView(photoGallery.count - 1);
-                                }
-                            );
-                        }, 
-                        dbTools.onSqlError
-                    );
-                    break;
-            }
+            dbTools.fileUpdate(photoGallery.fileTableName, fileId, fileName, title, 
+                function() {
+                    photoGallery.data.push({fileId: fileId, fileName: fileName, fileLocalPath: fileEntry.toURL(), title: title || " "});
+                    photoGallery.fileIdLst = photoGalleryFileIdLstGet(photoGallery.data);
+                    photoGallerySetDataSource(photoGallery.data, photoGallery.data.length - 1);
+                    if (photoGallery.onAdd != undefined) {photoGallery.onAdd(photoGallery.fileTableName, fileId);}
+                }, 
+                function(errMsg) {log(errMsg);}
+            );
+            
         },
         function(errMsg) {log("photoGallerySaveNewPhoto fileHelper.fileCopy ERROR: " + errMsg);}
     );
     
 }
 
-
-/*---------------------------------------------*/
-
-var imgQuality = 85;
-var imgSize = 600;
-
-function visitPhotoNewInit() {
-    log("..visitPhotoNewInit()");
+function photoGalleryFilePrefix(fileTableName) {
+    var filePrefix = "";
+    switch (fileTableName.toLowerCase()) {
+        case "fileout":
+            filePrefix = "out";
+            break;
+        case "filein":
+            filePrefix = "in";
+            break;
+    }
+    return filePrefix;
 }
 
-function visitPhotoNewShow(e) {
-    log("..visitPhotoNewShow()");
-    visitPhotoNewClick();
+function photoGalleryFileIdLstGet(data) {
+    var res = "";
+    for (var i; i < data.length; i++) {
+        if (res.length > 0) {
+            res = res.concat(",");
+        }
+        res = res.concat(data[i].fileId);
+    }
 }
-
-function visitPhotoNewClick(e) {
-    var onSuccess = function(data) {
-        var image = $("#visit-photo-new-img");
-        
-        image.attr("src", data);
-        
-        photoGallerySaveNewPhoto(data);
-        //navigateBack(1);
-    };
-  
-    var onError = function() {
-        //navigator.notification.alert("Unfortunately we could not add the image");
-        photoGallery.goToNextViewIfEmpty = false;
-        //navigateBack(1);
-    };
-  
-  var config = {
-    sourceType : Camera.PictureSourceType.CAMERA,
-    //destinationType: Camera.DestinationType.DATA_URL,  
-    destinationType: Camera.DestinationType.FILE_URI,
-    //saveToPhotoAlbum: true,
-    encodingType: Camera.EncodingType.JPEG,
-    //allowEdit: true,
-    quality: imgQuality,
-    targetHeight: imgSize,
-    targetWidth: imgSize
-  };
-  
-  navigator.camera.getPicture(onSuccess, onError, config);
-}
-

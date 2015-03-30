@@ -62,6 +62,29 @@ dbTools.visitGet = function(visitPlanItemId, visitId, datasetGet) {
     }, dbTools.onTransError);
 }
 
+dbTools.visitAddCheck = function(onSuccess, onError) {
+    log("visitAddCheck");
+    dbTools.db.transaction(function(tx) {
+        var sql = "SELECT MAX(V.dateBgn) AS dateBgn"
+            + "  FROM Visit V"
+            + "  WHERE V.timeBgn IS NOT NULL AND V.timeEnd IS NULL";
+        tx.executeSql(sql, [], 
+            function(tx, rs) {
+                var isAdd = true;
+                var dateBgn = null;
+                if (rs.rows.length > 0) {
+                    if (rs.rows.item(0).dateBgn != null) {
+                        isAdd = false;
+                        dateBgn = sqlDateToDate(rs.rows.item(0).dateBgn);
+                    }
+                }
+                if (onSuccess != undefined) {onSuccess(isAdd, dateBgn);}
+            }, 
+            onError
+        );
+    }, dbTools.onTransError);
+}
+
 dbTools.visitAdd = function(dateBgn, custId, onSuccess, onError) {
     log("visitAdd(" + custId + ")");
     dbTools.db.transaction(function(tx) {
@@ -213,6 +236,14 @@ dbTools.visitActivityGet = function(visitPlanItemId, visitId, skuCatId, stageId,
             + "      FROM VisitPromo VP"
             + "      WHERE VP.visitId = @visitId"
             + "      GROUP BY VP.skuCatId"
+            + "    UNION ALL"
+            + "    SELECT 2 AS stageId, 11 AS activityId, SC.skuCatId"
+            + "      FROM SkuCat SC"
+            + "      WHERE EXISTS(SELECT 1 FROM VisitSurveyAnswer VSA INNER JOIN SurveyQuestion SQ ON VSA.questionId = SQ.questionId WHERE VSA.visitId = @visitId AND SQ.surveyId = 2)"
+            + "    UNION ALL"
+            + "    SELECT 2 AS stageId, 12 AS activityId, SC.skuCatId"
+            + "      FROM SkuCat SC"
+            + "      WHERE EXISTS(SELECT 1 FROM VisitSurveyAnswer VSA INNER JOIN SurveyQuestion SQ ON VSA.questionId = SQ.questionId WHERE VSA.visitId = @visitId AND SQ.surveyId = 1)"
             + "    ) AC ON A.stageId = AC.stageId AND A.activityId = AC.activityId AND (@skuCatId = -1 OR AC.skuCatId = @skuCatId)"
             + "  WHERE (@stageId = -1 OR A.stageId = @stageId) AND (@activityId = -1 OR A.activityId = @activityId)"
             + "  GROUP BY A.visitPlanItemId, A.stageId, A.activityId, A.name, A.blk, A.lvl"
@@ -390,25 +421,27 @@ dbTools.visitPromoGet = function(visitPromoId, visitId, skuCatId, genderId, bran
         if (visitPromoId > 0) {
             sql = "SELECT VP.visitId, VP.visitPromoId, VP.skuCatId, SC.name AS skuCatName, VP.genderId, G.name AS genderName,"
                 + "    VP.brandId, B.name AS brandName, P.promoGrpId, PG.name AS promoGrpName, VP.promoId, P.name AS promoName,"
-                + "    P.extInfoKind, VP.extInfoVal, VP.extInfoVal2, VP.extInfoName"
+                + "    P.extInfoKind, VP.extInfoVal, VP.extInfoVal2, VP.extInfoName, VPP.visitPromoPhotoCnt"
                 + "  FROM VisitPromo VP"
                 + "  LEFT JOIN SkuCat SC ON VP.skuCatId = SC.skuCatId"
                 + "  LEFT JOIN Gender G ON VP.genderId = G.genderId"
                 + "  LEFT JOIN Brand B ON VP.brandId = B.brandId"
                 + "  LEFT JOIN Promo P ON VP.promoId = P.promoId"
                 + "  LEFT JOIN PromoGrp PG ON P.promoGrpId = PG.promoGrpId"
+                + "  LEFT JOIN (SELECT visitPromoId, COUNT(*) AS visitPromoPhotoCnt FROM VisitPromoPhoto WHERE fileId IS NOT NULL GROUP BY visitPromoId) VPP ON VP.visitPromoId = VPP.visitPromoId"
                 + "  WHERE VP.visitPromoId = ?";
             params = [visitPromoId];
         } else {
             sql = "SELECT VP.visitId, VP.visitPromoId, VP.skuCatId, SC.name AS skuCatName, VP.genderId, G.name AS genderName,"
                 + "    VP.brandId, B.name AS brandName, P.promoGrpId, PG.name AS promoGrpName, VP.promoId, P.name AS promoName,"
-                + "    P.extInfoKind, VP.extInfoVal, VP.extInfoVal2, VP.extInfoName"
+                + "    P.extInfoKind, VP.extInfoVal, VP.extInfoVal2, VP.extInfoName, VPP.visitPromoPhotoCnt"
                 + "  FROM VisitPromo VP"
                 + "  LEFT JOIN SkuCat SC ON VP.skuCatId = SC.skuCatId"
                 + "  LEFT JOIN Gender G ON VP.genderId = G.genderId"
                 + "  LEFT JOIN Brand B ON VP.brandId = B.brandId"
                 + "  LEFT JOIN Promo P ON VP.promoId = P.promoId"
                 + "  LEFT JOIN PromoGrp PG ON P.promoGrpId = PG.promoGrpId"
+                + "  LEFT JOIN (SELECT visitPromoId, COUNT(*) AS visitPromoPhotoCnt FROM VisitPromoPhoto WHERE fileId IS NOT NULL GROUP BY visitPromoId) VPP ON VP.visitPromoId = VPP.visitPromoId"
                 + "  WHERE VP.visitId = ? AND VP.skuCatId = ? AND VP.genderId = ? AND VP.brandId = ? AND VP.promoId = ?";
             params = [visitId, skuCatId, genderId, brandId, promoId];
         }
@@ -464,18 +497,66 @@ dbTools.visitPromoUpdate = function(visitId, visitPromoId, skuCatId, genderId, b
 dbTools.visitPromoPhotoListGet = function(visitPromoId, datasetGet) {
     log("visitPromoPhotoListGet(" + visitPromoId + ")");
     dbTools.db.transaction(function(tx) {
-        var sql = "SELECT VPP.visitPromoId, VPP.visitPromoPhotoId, VPP.fileName"
+        var sql = "SELECT VPP.visitPromoId, VPP.visitPromoPhotoId, VPP.fileId"
             + "  FROM VisitPromoPhoto VPP"
             + "  WHERE VPP.visitPromoId = ?";
         tx.executeSql(sql, [visitPromoId], datasetGet, dbTools.onSqlError);
     }, dbTools.onTransError);
 }
 
-dbTools.visitPromoPhotoUpdate = function(visitId, visitPromoId, visitPromoPhotoId, fileName, onSuccess, onError) {
-    log("visitPromoPhotoUpdate(" + visitId + ", " + visitPromoId + ", " + visitPromoPhotoId + ", '" + fileName + "')");
+dbTools.visitPromoPhotoUpdate = function(visitId, visitPromoId, visitPromoPhotoId, fileId, onSuccess, onError) {
+    log("visitPromoPhotoUpdate(" + visitId + ", " + visitPromoId + ", " + visitPromoPhotoId + ", '" + fileId + "')");
     dbTools.db.transaction(function(tx) {
-        dbTools.sqlInsertUpdate(tx, "VisitPromoPhoto", ["visitPromoPhotoId"], ["visitId", "visitPromoId", "fileName"], [visitPromoPhotoId], [visitId, visitPromoId, fileName], 
-            function() {if (onSuccess != undefined) {onSuccess(visitPromoPhotoId);}},
+        if (visitPromoPhotoId > 0) {
+                dbTools.sqlInsertUpdate(tx, "VisitPromoPhoto", ["visitPromoPhotoId"], ["visitId", "visitPromoId", "fileId"], [visitPromoPhotoId], [visitId, visitPromoId, fileId], 
+                    function() {if (onSuccess != undefined) {onSuccess(visitPromoPhotoId);}},
+                    onError
+                );
+        } else {
+            dbTools.tableNextIdGet(tx, "VisitPromoPhoto", 
+                function(tx, visitPromoPhotoId) {
+                    dbTools.sqlInsertUpdate(tx, "VisitPromoPhoto", ["visitPromoPhotoId"], ["visitId", "visitPromoId", "fileId"], [visitPromoPhotoId], [visitId, visitPromoId, fileId], 
+                        function() {if (onSuccess != undefined) {onSuccess(visitPromoPhotoId);}},
+                        onError
+                    );
+                }, 
+                onError
+            );
+        }
+    }, function(error) {if (onError != undefined) {onError("!!! SQLite transaction error, " + dbTools.errorMsg(error));}});
+}
+
+dbTools.visitSurveyAnswerListGet = function(visitId, surveyId, datasetGet) {
+    log("visitSurveyAnswerListGet(" + visitId + ", " + surveyId + ")");
+    dbTools.db.transaction(function(tx) {
+        var sql = "SELECT SQ.surveyId, SQ.questionId, SQ.name, SQ.weight, SQP.ttlWeight, SQ.answerType, SQ.parentId, "
+            + "    CASE WHEN SQ.parentId IS NULL THEN 1 ELSE 2 END AS treeLvl, CASE WHEN SQ.surveyId = 1 THEN 1 ELSE 0 END AS isCalcWeight,"
+            + "    SQP.weight AS parentWeight, SQT.ttlParentWeight, VSA.answer"
+            + "  FROM SurveyQuestion SQ"
+            + "  LEFT JOIN "
+            + "    (SELECT SQP.questionId, SQP.weight, SQP.lvl, SUM(SQ.weight) AS ttlWeight"
+            + "      FROM SurveyQuestion SQ"
+            + "      INNER JOIN SurveyQuestion SQP ON SQ.parentId = SQP.questionId"
+            + "      GROUP BY SQP.questionId, SQP.weight, SQP.lvl"
+            + "    ) SQP ON IFNULL(SQ.parentId, SQ.questionId) = SQP.questionId"
+            + "  LEFT JOIN "
+            + "    (SELECT SQ.surveyId, SUM(SQ.weight) AS ttlParentWeight"
+            + "      FROM SurveyQuestion SQ"
+            + "      WHERE SQ.parentId IS NULL"
+            + "      GROUP BY SQ.surveyId"
+            + "    ) SQT ON SQ.surveyId = SQT.surveyId"
+            + "  LEFT JOIN VisitSurveyAnswer VSA ON VSA.visitId = ? AND SQ.questionId = VSA.questionId"
+            + "  WHERE SQ.surveyId = ?"
+            + "  ORDER BY IFNULL(SQP.lvl, SQ.lvl), SQ.lvl, SQ.questionId";
+        tx.executeSql(sql, [visitId, surveyId], datasetGet, dbTools.onSqlError);
+    }, dbTools.onTransError);
+}
+
+dbTools.visitSurveyAnswerUpdate = function(visitId, questionId, answer, onSuccess, onError) {
+    log("visitSurveyAnswerUpdate(" + visitId + ", " + questionId + ", " + answer + ")");
+    dbTools.db.transaction(function(tx) {
+        dbTools.sqlInsertUpdate(tx, "VisitSurveyAnswer", ["visitId", "questionId"], ["answer"], [visitId, questionId], [answer], 
+            function() {if (onSuccess != undefined) {onSuccess(visitId, questionId);}},
             onError
         );
     }, function(error) {if (onError != undefined) {onError("!!! SQLite transaction error, " + dbTools.errorMsg(error));}});

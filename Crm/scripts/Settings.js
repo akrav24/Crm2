@@ -20,6 +20,11 @@ function settingsInit() {
     settings.filterPoints.orgCatId = "-1";
     settings.filterPoints.orgTypeId = "-1";
     
+    settings.newPhoto = {};
+    settings.newPhoto.quality = 85;
+    settings.newPhoto.height = 600;
+    settings.newPhoto.width = 600;
+    
     settings.skuCatId = -1;
     settings.skuCatName = "Все";
 }

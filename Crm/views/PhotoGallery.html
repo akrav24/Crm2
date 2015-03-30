@@ -6,6 +6,7 @@
 </head>
 <body>
     <script src="scripts/PhotoGallery.js"></script>
+    
     <div data-role="view" 
         id="photo-gallery-view" 
         data-layout="main" 
@@ -16,9 +17,9 @@
         
         <header data-role="header">
             <div data-role="navbar">
-                <a class="nav-button" data-align="left" data-role="button" data-icon="back" href="#:back"></a>
+                <a class="nav-button" data-align="left" data-role="button" data-icon="back" data-click="photoGalleryNavBackClick"></a>
                 <span data-role="view-title"></span>
-                <a class="nav-button" data-align="right" data-role="button" data-icon="add" data-click="photoGalleryAddNewPhotoClick"></a>
+                <a id="photo-gallery-add-new-photo-button" class="nav-button" data-align="right" data-role="button" data-icon="add" data-click="photoGalleryAddNewPhotoClick"></a>
             </div>
         </header>
         
@@ -35,7 +36,7 @@
         <script id="photo-gallery-scrollview-template" type="text/x-kendo-template">
             <div class="gallery-image-content">
                 <p class="gallery-title">#=title#</p>
-                <div class="gallery-image" data-role="touch" data-tap="photoGalleryShowImage" style="background-image: url(#=filePath#);"></div>
+                <div class="gallery-image" data-role="touch" data-tap="photoGalleryShowImage" style="background-image: url(#=fileLocalPath#);"></div>
             </div>
         </script>
     </div>

@@ -32,33 +32,12 @@ fileHelper.getFileEntry = function(folderName, fileName, onSuccess, onError) {
     );
 }
 
-fileHelper.fileName = function(galleryType, fileId) {
-    var filePrefix = "";
-    switch (galleryType.toLowerCase()) {
-        case "visitpromophoto":
-            filePrefix = settings.promoPhotoFilePrefix;
-            break;
-        case "visitplanogram":
-            filePrefix = settings.planogamFilePrefix;
-            break;
-        default:
-            filePrefix = "";
-            break;
-    }
+fileHelper.fileName = function(filePrefix, fileId) {
     return filePrefix + fileId.toString() + ".png";
 }
 
-fileHelper.folderName = function(galleryType) {
-    var fName = "";
-    switch (galleryType.toLowerCase()) {
-        case "visitpromophoto":
-            fName = settings.rootFolderName;
-            break;
-        default:
-            fName = settings.rootFolderName;
-            break;
-    }
-    return fName;
+fileHelper.folderName = function() {
+    return settings.rootFolderName;
 }
 
 fileHelper.fileCopy = function(srcFullName, dstFolderName, dstFileName, onSuccess, onError) {

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <script src="scripts/VisitSurveyAnswer.js"></script>
+    <script src="scripts/Visit.js"></script>
+    
+    <div id="visit-survey-answer-view"
+        data-role="view" 
+        data-title="Контроль работы" 
+        data-layout="main" 
+        data-init="visitSurveyAnswerInit" 
+        data-show="visitSurveyAnswerShow">
+        
+        <header data-role="header">
+            <div id="visit-survey-answer-navbar" data-role="navbar">
+                <a class="nav-button" data-align="left" data-role="button" data-icon="back" data-click="visitSurveyAnswerNavBackClick"></a>
+                <span data-role="view-title"></span>
+            </div>
+        </header>
+        
+        <form>
+            <ul data-role="listview" id="visit-survey-answer-list" class="list" data-template="visit-survey-answer-tmpl">
+            </ul>
+            
+            <script id="visit-survey-answer-tmpl" type="text/x-kendo-template">
+                <div class="list-item-header">
+                    <p>
+                        <table class="list-item-table-del">
+                            <tr class="table-text-align">
+                                <td width="100%">
+                                    <div #if (treeLvl == 2) {#style="margin-left: 50px;"#}#>#:name#</div>
+                                </td>
+                                #if (visitSurveyAnswer.surveyId == 2) {#
+                                <td>
+                                    <table class="list-item-table-del">
+                                        <tr class="table-text-align">
+                                            <td><div align="center" class="rating-symbol #if (answer == 1) {#color-selected#} else {#color-unselected#}#" data-question-id="#:questionId#" data-answer-id="1" onclick="visitSurveyAnswerStarClick(this, #:questionId#, 1)">1</div></td>
+                                            <td><div align="center" class="rating-symbol #if (answer == 2) {#color-selected#} else {#color-unselected#}#" data-question-id="#:questionId#" data-answer-id="2" onclick="visitSurveyAnswerStarClick(this, #:questionId#, 2)">2</div></td>
+                                            <td><div align="center" class="rating-symbol #if (answer == 3) {#color-selected#} else {#color-unselected#}#" data-question-id="#:questionId#" data-answer-id="3" onclick="visitSurveyAnswerStarClick(this, #:questionId#, 3)">3</div></td>
+                                            <td><div align="center" class="rating-symbol #if (answer == 4) {#color-selected#} else {#color-unselected#}#" data-question-id="#:questionId#" data-answer-id="4" onclick="visitSurveyAnswerStarClick(this, #:questionId#, 4)">4</div></td>
+                                            <td><div align="center" class="rating-symbol #if (answer == 5) {#color-selected#} else {#color-unselected#}#" data-question-id="#:questionId#" data-answer-id="5" onclick="visitSurveyAnswerStarClick(this, #:questionId#, 5)">5</div></td>
+                                        </tr>
+                                    </table>
+                                </td>
+                                #} else {#
+                                <td width="100px">
+                                    <div>
+                                        #if (treeLvl == 2) {#
+                                        <input class="editable" type="checkbox" data-role="switch" data-off-label="Нет" data-on-label="Да"
+                                            data-checked="#if (answer == 1) {#true#} else {#false#}#"
+                                            data-question-id="#:questionId#"
+                                            data-change="visitSurveyAnswerSwitchChange"
+                                        />
+                                        #}#
+                                    </div>
+                                </td>
+                                #}#
+                            </tr>
+                        </table>
+                    </p>
+                </div>
+            </script>
+        </form>
+    </div>
+    
+</body>
+</html>

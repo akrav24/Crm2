@@ -68,6 +68,7 @@ function visitShelfShareEditControlChange(id, value) {
     switch (id) {
         case "visit-shelf-share-edit-shelf-share":
             visitShelfShareItem.shelfShare = val / 100;
+            visitShelfShareEditCalcShelfWidthOur();
             break;
         case "visit-shelf-share-edit-shelf-width-total":
             visitShelfShareItem.shelfWidthTotal = val;
@@ -86,6 +87,14 @@ function visitShelfShareEditCalcShelfShare() {
     if (visitShelfShareItem.shelfWidthTotal > 0 && visitShelfShareItem.shelfWidthOur > 0) {
         visitShelfShareItem.shelfShare = visitShelfShareItem.shelfWidthOur / visitShelfShareItem.shelfWidthTotal;
         $("#visit-shelf-share-edit-shelf-share").val(Math.round(visitShelfShareItem.shelfShare * 100));
+    }
+}
+
+function visitShelfShareEditCalcShelfWidthOur() {
+    log("..visitShelfShareEditCalcShelfWidthOur");
+    if (visitShelfShareItem.shelfWidthTotal > 0 && visitShelfShareItem.shelfShare > 0) {
+        visitShelfShareItem.shelfWidthOur = Math.round(visitShelfShareItem.shelfWidthTotal * visitShelfShareItem.shelfShare);
+        $("#visit-shelf-share-edit-shelf-width-our").val(visitShelfShareItem.shelfWidthOur);
     }
 }
 
