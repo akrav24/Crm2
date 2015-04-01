@@ -7,6 +7,12 @@
     content: "\e0ed";
 }
 
+.km-check:after,
+.km-check:before
+{
+    content: "\e037";
+}
+
 .km-drawer:after,
 .km-drawer:before
 {

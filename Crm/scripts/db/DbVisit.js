@@ -289,7 +289,7 @@ dbTools.visitAnalysisResultsGet = function(visitId, datasetGet) {
             + "  LEFT JOIN Sku S ON VS.skuId = S.skuId"
             + "  LEFT JOIN Reason R ON VS.reasonId = R.reasonId"
             + "  WHERE VS.visitId = ?"
-            + "    AND VS.sel0 = 1"
+            + "    AND VS.sel0 = 0"
             + "  ORDER BY S.name";
         tx.executeSql(sql, [visitId], datasetGet, dbTools.onSqlError);
     }, dbTools.onTransError);

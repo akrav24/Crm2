@@ -40,6 +40,9 @@ function renderVisitProductsView(tx, rs) {
     });
     if (visit.readonly) {
         $(".checkbox").iCheck("disable");
+        $("#visit-products-check-all-button").addClass("hidden");
+    } else {
+        $("#visit-products-check-all-button").removeClass("hidden");
     }
     //iCheck class="iradio icheckbox checked hover focus disabled"
     log("..renderVisitProductsView render end");
@@ -91,6 +94,15 @@ function renderVisitProductEditView(tx, rs) {
 function visitProductsNavBackClick(e) {
     log("..visitProductsNavBackClick");
     navigateBack(visitProducts.navBackCount);
+}
+
+function visitProductsCheckAllClick(e) {
+    log("..visitProductsCheckAllClick");
+    dialogHelper.confirm("#visit-products-dialog", false, "Вы действительно намерены отметить все продукты?",
+        function() {
+            $(".checkbox").iCheck("check");
+        }
+    );
 }
 
 function visitProductsShowAll(e) {
