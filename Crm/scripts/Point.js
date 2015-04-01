@@ -1,19 +1,21 @@
-function pointShow(e) {
-    log("..pointShow custId=" + e.view.params.custId);
-    renderPoint(e.view.params.custId);
-}
+var point;
 
 function pointInit(e) {
-    log("..filterPointsInit");
+    log("..pointInit");
     dbTools.objectListItemSet("point", true);
- }
+}
+ 
+function pointShow(e) {
+    log("..pointShow");
+    renderPoint(point.custId);
+}
 
 function pointSwipe(e) {
     log("..pointSwipe=" + e.direction);
     var found = 0;
     var index = 0;
     while (found == 0 && index < dbTools.pointLst.rows.length) {
-        if (dbTools.pointLst.rows.item(index)["custId"] == dbTools.pointId) {
+        if (dbTools.pointLst.rows.item(index)["custId"] == point.custId) {
             found = 1;
         } else {
             index++;
@@ -40,10 +42,22 @@ function renderPointView(tx, rs) {
     log("..renderPointView");
     var data = dbTools.rsToJson(rs);
     //log("..data=" + JSON.stringify(data));
-    dbTools.pointId = rs.rows.item(0)["custId"]
+    point.custId = rs.rows.item(0)["custId"];
+    point.name = rs.rows.item(0).name;
+    point.addr = rs.rows.item(0).addr;
+    point.fmtId = rs.rows.item(0).fmtId;
     $("#custName").val(rs.rows.item(0)["name"]);
     $("#custAddr").val(rs.rows.item(0)["addr"]);
     $("#custOrgCat").val(rs.rows.item(0)["orgCatName"]);
     $("#custOrgType").val(rs.rows.item(0)["orgTypeName"]);
     $("#custChannel").val(rs.rows.item(0)["channelName"]);
 }
+
+function pointObjInit() {
+    point = {};
+    point.custId = 0;
+    point.name = "";
+    point.addr = "";
+    point.fmtId = null;
+}
+

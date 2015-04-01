@@ -2,41 +2,18 @@ var visit;
 
 function visitInit(e) {
     log("..visitInit");
-    visit = {};
-    visit.visitPlanItemId = null;
-    visit.visitId = null;
-    visit.isVisitIdReset = 1;
-    visit.readonly = false;
-    visit.dateBgn = null;
-    visit.custId = null;
-    visit.fmtFilterType = 0;    // 0 - МА, 1 - Все
-    visit.fmtId = null;
-    visit.timeBgn = null;
-    visit.timeEnd = null;
+    //visitObjInit();
 }
-
+ 
 function visitShow(e) {
-    log("..visitShow visitPlanItemId=" + e.view.params.visitPlanItemId + ", visitId=" + e.view.params.visitId);
-    if (e.view.params.visitPlanItemId != "" && e.view.params.visitPlanItemId != "null") {
-        visit.visitPlanItemId = e.view.params.visitPlanItemId;
-    } else {
-        visit.visitPlanItemId = null;
-    }
-    if (visit.isVisitIdReset == 1) {
-        if (e.view.params.visitId != "" && e.view.params.visitId != "null") {
-            visit.visitId = e.view.params.visitId;
-        } else {
-            visit.visitId = null;
-        }
-    }
-    visit.isVisitIdReset = 0;
-    renderVisit(visit.visitPlanItemId, visit.visitId);
+    log("..visitShow");
+    renderVisit(visit.visitPlanItemId, visit.visitId, visit.custId);
 }
 
-function renderVisit(visitPlanItemId, visitId) {
-    log("..renderVisit");
+function renderVisit(visitPlanItemId, visitId, custId) {
+    log("..renderVisit(" + visitPlanItemId + ", " + visitId + ", " + custId + ")");
     dbTools.visitGet(visitPlanItemId, visitId, renderVisitView);
-    dbTools.visitActivityGet(visitPlanItemId, visitId, settings.skuCatId, -1, -1, renderVisitActivityList);
+    dbTools.visitActivityGet(visitPlanItemId, visitId, settings.skuCatId, custId, -1, -1, renderVisitActivityList);
 }
 
 function renderVisitView(tx, rs) {
@@ -45,12 +22,14 @@ function renderVisitView(tx, rs) {
     if (data.length > 0) {
         visit.dateBgn = sqlDateToDate(data[0].dateBgn);
         visit.custId = data[0].custId;
+        visit.name = data[0].name;
+        visit.addr = data[0].addr;
         visit.timeBgn = sqlDateToDate(data[0].timeBgn);
         visit.timeEnd = sqlDateToDate(data[0].timeEnd);
         visit.fmtId = data[0].fmtId;
-        $("#visit-point-name").text(data[0].name + ', ' + data[0].addr);
-        visitTimeCaptionSet(visit.timeBgn, visit.timeEnd);
     }
+    $("#visit-point-name").text(visit.name + ', ' + visit.addr);
+    visitTimeCaptionSet(visit.timeBgn, visit.timeEnd);
     $("#visit-cat-name").text(settings.skuCatName);
     visitCheckReadOnly();
     visitEnableButtons();
@@ -61,6 +40,21 @@ function renderVisitActivityList(tx, rs) {
     var data = dbTools.rsToJson(rs);
     $("#visit-activity-list").data("kendoMobileListView").dataSource.data(data);
     app.scroller().reset();
+}
+
+function visitObjInit() {
+    visit = {};
+    visit.visitPlanItemId = null;
+    visit.visitId = null;
+    visit.readonly = false;
+    visit.dateBgn = null;
+    visit.custId = null;
+    visit.name = "";
+    visit.addr = "";
+    visit.fmtFilterType = 0;    // 0 - МА, 1 - Все
+    visit.fmtId = null;
+    visit.timeBgn = null;
+    visit.timeEnd = null;
 }
 
 function visitCheckReadOnly() {
@@ -86,16 +80,9 @@ function visitEnableButtons() {
 
 function visitTimeCaptionSet(timeBgn, timeEnd) {
     log("..visitTimeCaptionSet(" + timeBgn + ", " + timeEnd + ")");
-    var timeStr = "";
-    if (timeBgn != undefined) {
-        timeStr = dateToStr(timeBgn, "DD.MM.YYYY HH:NN");
-        if (timeEnd != undefined) {
-            timeStr += " - " + dateToStr(timeEnd, "HH:NN");
-        }
-    }
-    $("#visit-time").text(timeStr);
+    $("#visit-time").text(periodToStr(timeBgn, timeEnd));
 }
-
+ 
 function visitStartOnClick(e) {
     dbTools.visitAddCheck(function(isAdd, dateBgn) {
         if (isAdd) {

@@ -49,6 +49,17 @@ function dateToStr(dt, format) {
     return result;
 }
 
+function periodToStr(timeBgn, timeEnd) {
+    var timeStr = "";
+    if (timeBgn != undefined) {
+        timeStr = dateToStr(timeBgn, "DD.MM.YYYY HH:NN");
+        if (timeEnd != undefined) {
+            timeStr += " - " + dateToStr(timeEnd, "HH:NN");
+        }
+    }
+    return timeStr;
+}
+
 function viewParamToHref(value) {
     return value.replace(/\[!\]/g, "?").replace(/\[\^\]/g, "&").replace(/\[~\]/g, "=").replace(/\[\|\]/g, "#");
 }

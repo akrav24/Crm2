@@ -35,9 +35,16 @@ function renderPointListView(tx, rs) {
     $("#point-list").data("kendoMobileListView").dataSource.data(data);
 }
 
+function pointListClick(e) {
+    //href="views/Point.html?custId=#:custId#"
+    pointObjInit();
+    point.custId = e.dataItem.custId;
+    app.navigate("views/Point.html");
+}
+
 function pointListOnApplyFilter(filterPoints) {
     dbTools.objectListItemGet("point-list").needReloadData = true;
-    renderPointList()
+    renderPointList();
 }
 
 function pointListFilterShow(e) {

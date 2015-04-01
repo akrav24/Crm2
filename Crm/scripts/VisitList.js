@@ -17,9 +17,6 @@ function visitListInit(e) {
 function visitListShow(e) {
     log("..visitListShow");
     prdBgnOpened = false;
-    if (visit != undefined) {
-        visit.isVisitIdReset = 1;
-    }
     renderVisitList();
     /* // select item
     var listView = $("#visit-list").data("kendoMobileListView");
@@ -32,7 +29,7 @@ function renderVisitList() {
     log("..renderVisitList");
     if (dbTools.objectListItemGet("visit-list").needReloadData) {
         log("..renderVisitList ReloadData");
-        dbTools.visitListGet(prdBgn, renderVisitListView);
+        dbTools.visitListGet(prdBgn, prdBgn, -1, -1, 1, renderVisitListView);
         dbTools.objectListItemSet("visit-list", false);
     }
 }
@@ -49,17 +46,10 @@ function renderVisitListView(tx, rs) {
     }
 }
 
-function visitListOnClick(e) {
-    log("..visitListOnClick visitPlanItemId=" + e.dataItem.visitPlanItemId);
-    //e.item.parent("ul").find("li").removeClass("list-item-selected");
-    //e.item.addClass("list-item-selected");
-    //kendo.mobile.application.navigate("views/VisitListEdit.html?visitPlanItemId=" + e.dataItem.visitPlanItemId);
-}
-
 function visitListPrdBgnOnChange(e) {
     log("..visitPrdBgnOnChange");
     prdBgn = e.sender.value();
-    dbTools.visitListGet(prdBgn, renderVisitListView);
+    dbTools.visitListGet(prdBgn, prdBgn, -1, -1, 1, renderVisitListView);
 }
 
 function visitListPrdBgnOnClick(e) {
@@ -84,7 +74,7 @@ function visitListPrdNext(e) {
 
 function visitListPrdChangeDate(prdBgn) {
     $("#visit-prdbgn").data("kendoDatePicker").value(prdBgn);
-    dbTools.visitListGet(prdBgn, renderVisitListView);
+    dbTools.visitListGet(prdBgn, prdBgn, -1, -1, 1, renderVisitListView);
 }
 
 function visitListSwipe(e) {
@@ -95,4 +85,12 @@ function visitListSwipe(e) {
         prdBgn.setDate(prdBgn.getDate() + 1);
     }
     visitListPrdChangeDate(prdBgn);
+}
+
+function visitListClick(e) {
+    //href="views/Visit.html?visitPlanItemId=#:visitPlanItemId#&visitId=#:visitId#"
+    visitObjInit();
+    visit.visitPlanItemId = e.dataItem.visitPlanItemId;
+    visit.visitId = e.dataItem.visitId;
+    app.navigate("views/Visit.html");
 }

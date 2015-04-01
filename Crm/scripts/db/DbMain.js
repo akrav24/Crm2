@@ -4,7 +4,6 @@ function dbInit() {
     log("dbInit()");
     dbTools.db = null;             // SQLite database
     dbTools.pointLst = null;
-    dbTools.pointId = null;
     dbTools.objectList = []; // [{name: <name>, needReloadData: <true|false>, callback: <callback function>}, ...]
     dbTools.openDB();
     dbTools.createSystemTables();

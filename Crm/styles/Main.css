@@ -140,7 +140,7 @@ body {
 .list {
 }
 .list-item-group-header {
-    background-color: LightGray;
+    font-weight: bold;
 }
 .list-item-header {
     font-size: large;
@@ -248,10 +248,6 @@ body {
 
 .tabstrip-button {
     font-size: 200%;
-}
-
-.visit-item-action-group {
-    font-weight: bold;
 }
 
 .visit-item-table {

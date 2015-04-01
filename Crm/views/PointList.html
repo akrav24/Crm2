@@ -7,6 +7,7 @@
     <script src="scripts/PointList.js"></script>
     <script src="scripts/db/DbPoint.js"></script>
     <script src="scripts/PointFilter.js"></script>
+    <script src="scripts/Point.js"></script>
     
     <div id="point-list-view"
         data-role="view" 
@@ -24,7 +25,7 @@
             </div>
         </header>
         
-        <ul data-role="listview" id="point-list" class="list" data-template="point-tmpl"></ul>
+        <ul data-role="listview" id="point-list" class="list" data-template="point-tmpl" data-click="pointListClick"></ul>
         
         <!--<div id="point-list-filter" class="slide-panel-right">
             <ul data-role="listview">
@@ -37,7 +38,7 @@
         </div>-->
         
         <script id="point-tmpl" type="text/x-kendo-template">
-            <a class="list-item-header" href="views/Point.html?custId=#:custId#">
+            <a class="list-item-header">
                 <p>#: name #, #: addr #</p>
             </a>
         </script>
