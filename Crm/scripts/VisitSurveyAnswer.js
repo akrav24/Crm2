@@ -36,11 +36,37 @@ function renderVisitSurveyAnswer(visitId, surveyId) {
 
 function renderVisitSurveyAnswerView(tx, rs) {
     log("..renderVisitSurveyAnswerView");
+    //var data = visitSurveyAnswerCalcKpi(dbTools.rsToJson(rs));
     var data = dbTools.rsToJson(rs);
     var dataSource = new kendo.data.DataSource({data: data});
     $("#visit-survey-answer-list").data("kendoMobileListView").setDataSource(dataSource);
     visitSurveyAnswerEnableControls();
     app.scroller().reset();
+}
+
+function visitSurveyAnswerCalcKpi(data) {
+    var res = data;
+    for (var i = 0; i < res.length; i++) {
+log("====res[i]" + kendo.stringify(res[i]));
+        var kpi = 0;
+        if (res[i].isShowKpi == 1 && res[i].treeLvl == 0) {
+            for (var j = 0; j < res.length; j++) {
+                if (res[j].treeLvl == 2) {
+                    kpi += res[j].kpi > 0 ? res[j].kpi : 0;
+                }
+            }
+            res[i].kpi = kpi;
+        } else if (res[i].isShowKpi == 1 && res[i].treeLvl == 1) {
+            for (var j = 0; j < res.length; j++) {
+                if (res[j].treeLvl == 2 && res[j].parentId == res[i].questionId) {
+                    kpi += res[j].kpi > 0 ? res[j].kpi : 0;
+                }
+            }
+            res[i].kpi = kpi;
+        }
+        
+    }
+    return res;
 }
 
 function visitSurveyAnswerNavBackClick(e) {
@@ -60,7 +86,9 @@ function visitSurveyAnswerSwitchChange(e) {
         answer = 1;
     }
     var questionId = this.element.attr("data-question-id");
-    dbTools.visitSurveyAnswerUpdate(visit.visitId, questionId, answer);
+    dbTools.visitSurveyAnswerUpdate(visit.visitId, questionId, answer, 
+        function() {renderVisitSurveyAnswer(visit.visitId, visitSurveyAnswer.surveyId);}
+    );
 }
 
 function visitSurveyAnswerStarClick(e, questionId, answer) {

@@ -27,7 +27,7 @@
             </ul>
             
             <script id="visit-survey-answer-tmpl" type="text/x-kendo-template">
-                <div class="list-item-header #if (visitSurveyAnswer.surveyId == 1 && treeLvl == 1) {#list-item-group-header#}#">
+                <div class="list-item-header #if (visitSurveyAnswer.surveyId == 1 && treeLvl <= 1) {#list-item-group-header#}#">
                     <p>
                         <table class="list-item-table-del">
                             <tr class="table-text-align">
@@ -55,6 +55,8 @@
                                             data-question-id="#:questionId#"
                                             data-change="visitSurveyAnswerSwitchChange"
                                         />
+                                        #} else if (treeLvl == 0) {#
+                                        <div>#:Math.round(kpi * 100)#%</div>
                                         #}#
                                     </div>
                                 </td>
