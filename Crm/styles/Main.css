@@ -61,7 +61,7 @@ body {
     width: 100%;
 }
 .km-root .km-pane .km-view .form-list input,
-/*.km-root .km-pane .km-view .form-list div,*/
+.km-root .km-pane .form-list input,
 .km-root .km-pane .km-view .form-list .k-dropdown {
     position: relative;
     width: 100%;
@@ -101,6 +101,10 @@ body {
     width: 5em;
     margin-left: 0.5em;
     margin-right: 0.5em;
+}
+
+.edit-modal-view {
+    width: 80%;
 }
 
 .gallery-title { 
