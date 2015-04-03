@@ -2,10 +2,34 @@ dbTools.serverUrl = function(serverName, port) {
     return "http://" + serverName + (port != undefined ? ":" + port : "") + "/"
 }
 
+dbTools.checkConnection = function(onSuccess, onError) {
+    log("checkConnection()");
+    var networkState = navigator.connection.type;
+    
+    var states = {};
+    states[Connection.UNKNOWN]  = 'Unknown connection';
+    states[Connection.ETHERNET] = 'Ethernet connection';
+    states[Connection.WIFI]     = 'WiFi connection';
+    states[Connection.CELL_2G]  = 'Cell 2G connection';
+    states[Connection.CELL_3G]  = 'Cell 3G connection';
+    states[Connection.CELL_4G]  = 'Cell 4G connection';
+    states[Connection.CELL]     = 'Cell generic connection';
+    states[Connection.NONE]     = 'No network connection';
+    
+    log("..checkConnection: " + states[networkState]);
+    if (networkState != Connection.NONE) {
+        if (onSuccess != undefined) {onSuccess(networkState, states[networkState]);}
+    } else {
+        if (onError != undefined) {onError(networkState, states[networkState]);}
+    }
+    
+    return networkState != Connection.NONE;
+}
+
 // Get blockId (exchange start)
 dbTools.exchangeBlockIdGet = function(onSuccess, onError) {
     var blockId = 0;
-    var url = dbTools.serverUrl(serverName, port) + "Api/ExchangeStart/?nodeId=" + settings.nodeId;
+    var url = dbTools.serverUrl(settings.serverName, settings.serverPort) + "Api/ExchangeStart/?nodeId=" + settings.nodeId;
     log("exchangeBlockIdGet() nodeId=" + settings.nodeId);
     $.ajax({
         async: false,
@@ -28,7 +52,7 @@ dbTools.exchangeBlockIdGet = function(onSuccess, onError) {
 dbTools.exchangeDataPost = function(blockId, data, onSuccess, onError) {
     dataLength = data.length;
     log("exchangeDataPost(blockId=" + blockId  + ", data=[" + data.length + " rows])");
-    var url = dbTools.serverUrl(serverName, port) + "Api/Exchange/?blockId=" + blockId;
+    var url = dbTools.serverUrl(settings.serverName, settings.serverPort) + "Api/Exchange/?blockId=" + blockId;
     log("..exchangeDataPost: sending data...");
     $.ajax({
         type: "POST",
@@ -50,7 +74,7 @@ dbTools.exchangeDataPost = function(blockId, data, onSuccess, onError) {
 // Get data from web service
 dbTools.exchangeDataGet = function(blockId, onSuccess, onError) {
     log("exchangeDataGet(blockId=" + blockId + ")");
-    var url = dbTools.serverUrl(serverName, port) + "Api/Exchange/?blockId=" + blockId;
+    var url = dbTools.serverUrl(settings.serverName, settings.serverPort) + "Api/Exchange/?blockId=" + blockId;
     log("..exchangeDataGet: receiving data...");
     $.ajax({
         async: false,
@@ -87,7 +111,7 @@ dbTools.exchangeDataFileUpload = function(blockId, dstFileName, fileURI, mimeTyp
         }
     }
     
-    var url = dbTools.serverUrl(serverName, port) + "Api/Exchange/PostFile/?blockId=" + blockId + "&fileName=" + dstFileName;
+    var url = dbTools.serverUrl(settings.serverName, settings.serverPort) + "Api/Exchange/PostFile/?blockId=" + blockId + "&fileName=" + dstFileName;
     
     var options = new FileUploadOptions();
     options.fileKey = "file";
@@ -108,7 +132,7 @@ dbTools.exchangeDataFileUpload = function(blockId, dstFileName, fileURI, mimeTyp
 dbTools.exchangeDataFileByIdDownload = function(blockId, fileId, onSuccess, onError) {
     log("exchangeDataFileByIdDownload(blockId=" + blockId  + ", fileId=" + fileId +  ")");
     
-    var url = dbTools.serverUrl(serverName, port) + "Api/Exchange/GetFileById/?blockId=" + blockId + "&fileId=" + fileId;
+    var url = dbTools.serverUrl(settings.serverName, settings.serverPort) + "Api/Exchange/GetFileById/?blockId=" + blockId + "&fileId=" + fileId;
     var folderName = fileHelper.folderName();
     var fileName = fileHelper.fileName("plan", fileId);
     var filePath = "";

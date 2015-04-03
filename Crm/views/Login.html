@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <script src="scripts/Login.js"></script>
+    
+    <div id="login-view"
+        data-role="view" 
+        data-title="DSS Mobile" 
+        data-layout="main"
+        data-stretch="false"
+        data-init="loginInit"
+        data-show="loginShow">
+      
+        <header data-role="header">
+            <div data-role="navbar">
+                <span data-role="view-title"></span>
+                <a class="login-dialog hidden" data-role="button" data-align="right" data-click="loginDialogButtonYesClick">Войти</a>
+            </div>
+        </header>
+        
+        <div id="login-dialog" class="login-dialog hidden">
+            <!--<div class="dialog">-->
+                <ul class="list form-list" data-role="listview">
+                    <li>
+                        <label>Пароль
+                            <input id="login-dialog-password" type="password" placeholder="Введите пароль"/>
+                        </label>
+                    </li>
+                    <!--<li>
+                        <div align="center">
+                            <a data-role="button" data-click="loginDialogButtonYesClick">Войти</a>
+                        </div>
+                    </li>-->
+                </ul>
+            <!--</div>-->
+            <div id="login-info-dialog"></div>
+        </div>
+        
+        <div id="login-progress"></div>
+    </div>
+</body>
+</html>

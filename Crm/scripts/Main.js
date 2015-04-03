@@ -1,10 +1,3 @@
-var serverName = "93.190.44.9";
-var port = 331;
-/*var serverName = "127.0.0.1";
-var port = 59278;
-*/
-//var nodeId = 0;
-
 var app;
 
 (function () {
@@ -47,6 +40,7 @@ var app;
         }
     };
     */
+    
     // this function is called by Cordova when the application is loaded by the device
     document.addEventListener('deviceready', function () {
 
@@ -62,19 +56,14 @@ var app;
             // and feel of the operating system
             skin: 'flat',
             
-            
-            
             // the application needs to know which view to load first
-            //initial: 'views/VisitList.html'
-            //initial: 'views/PointList.html'
-            //initial: 'views/test/Test.html'
-            initial: 'views/Start.html'
+            //initial: 'views/Start.html'
+            initial: 'views/Login.html'
         });
         
         kendo.culture("en-GB");
         
-        settingsInit();
-        dbInit();
+        //settingsObjInit(function(settings) {dbInit();});
 
     }, false);
 
@@ -84,6 +73,7 @@ var app;
 function nodeIdSet(newNodeId) {
     log("nodeIdSet(newNodeId=" + newNodeId + ")");
     //if (newNodeId != settings.nodeId) {
+        settingsObjInit();
         settings.nodeId = newNodeId;
         dbTools.dropAllTables();
         dbTools.createSystemTables();

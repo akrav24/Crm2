@@ -1,17 +1,30 @@
 var dbTools = {};
 
-function dbInit() {
+function dbInit(onSuccsess) {
     log("dbInit()");
     dbTools.db = null;             // SQLite database
     dbTools.pointLst = null;
     dbTools.objectList = []; // [{name: <name>, needReloadData: <true|false>, callback: <callback function>}, ...]
     dbTools.openDB();
-    dbTools.createSystemTables();
-    dbTools.loadSettings(onLoadSettings);
+    dbTools.createSystemTables(
+        function() {
+            dbTools.loadSettings(
+                function() {
+                    dbTools.onLoadSettings();
+                    if (onSuccsess != undefined) {onSuccsess();}
+                }
+            );
+        }
+    );
 }
 
-function onLoadSettings() {
-    log("onLoadSettings() nodeId=" + settings.nodeId);
+dbTools.onLoadSettings = function() {
+    log("onLoadSettings()");
+    log("settings.nodeId=" + settings.nodeId);
+    log("settings.serverName=" + settings.serverName);
+    log("settings.serverPort=" + settings.serverPort);
+    log("settings.password=" + (settings.password != "" ? "Yes" : "No"));
+    logSqlResult("select * from parm");
 }
 
 dbTools.openDB = function() {
@@ -25,35 +38,85 @@ dbTools.openDB = function() {
     }
 }
 
-dbTools.createSystemTables = function() {
+dbTools.createSystemTables = function(onSuccess) {
     log("createSystemTables()");
     dbTools.db.transaction(function(tx) {
         tx.executeSql("CREATE TABLE IF NOT EXISTS MailBlockDataIn(blockId int, irow int, data varchar(8000), constraint pkMailBlockDataIn primary key(blockId, irow))", [], undefined, dbTools.onSqlError);
         tx.executeSql("CREATE TABLE IF NOT EXISTS MailBlockDataOut(blockId int, irow int, data varchar(8000), constraint pkMailBlockDataOut primary key(blockId, irow))", [], undefined, dbTools.onSqlError);
         tx.executeSql("CREATE TABLE IF NOT EXISTS MailExchParm(blockId int, nodeId int, exchDate datetime)", [], undefined, dbTools.onSqlError);
         tx.executeSql("CREATE TABLE IF NOT EXISTS MailToDelete(blockId int, refTypeId int, refId int)", [], undefined, dbTools.onSqlError);
-        tx.executeSql("CREATE TABLE IF NOT EXISTS Parm(nodeId int, dataVersionId int, exchDataFromOfficeSent datetime, constraint pkParm primary key(nodeId))", [], undefined, dbTools.onSqlError);
+        tx.executeSql("CREATE TABLE IF NOT EXISTS Parm(nodeId int, dataVersionId int, constraint pkParm primary key(nodeId))", [], undefined, dbTools.onSqlError);
         tx.executeSql("CREATE TABLE IF NOT EXISTS RefType(refTypeId int, name varchar(100), parentId int, test int, useNodeId int, dir int, updateDate datetime, sendAll int, lvl int, flds varchar(1000), constraint pkRefType primary key (refTypeId))", [], undefined, dbTools.onSqlError);
         tx.executeSql("CREATE TABLE IF NOT EXISTS Script(versionId int, sql varchar(8000), constraint pkScript primary key(versionId))", [], undefined, dbTools.onSqlError);
-        if (settings.nodeId > 0) {
-            tx.executeSql("INSERT INTO Parm(nodeId, dataVersionId) SELECT ?, 0 WHERE NOT EXISTS(SELECT 1 FROM Parm WHERE nodeId = ?)", [settings.nodeId, settings.nodeId], undefined, dbTools.onSqlError);
-        }
-    }, dbTools.onTransError);
+        
+        dbTools.tableFieldListGet(tx, "parm", function(tx, tableName, fieldList) {
+            if (!inArray(fieldList, "password")) {tx.executeSql("ALTER TABLE Parm ADD password varchar(250)", [], undefined, dbTools.onSqlError);}
+            if (!inArray(fieldList, "exchDataFromOfficeSent")) {tx.executeSql("ALTER TABLE Parm ADD exchDataFromOfficeSent datetime", [], undefined, dbTools.onSqlError);}
+            if (!inArray(fieldList, "exchDataFromOfficeReceived")) {tx.executeSql("ALTER TABLE Parm ADD exchDataFromOfficeReceived datetime", [], undefined, dbTools.onSqlError);}
+            if (!inArray(fieldList, "exchDataToOfficeSent")) {tx.executeSql("ALTER TABLE Parm ADD exchDataToOfficeSent datetime", [], undefined, dbTools.onSqlError);}
+            if (!inArray(fieldList, "serverName")) {tx.executeSql("ALTER TABLE Parm ADD serverName varchar(250)", [], undefined, dbTools.onSqlError);}
+            if (!inArray(fieldList, "serverPort")) {tx.executeSql("ALTER TABLE Parm ADD serverPort int", [], undefined, dbTools.onSqlError);}
+            
+            if (settings.nodeId > 0) {
+                tx.executeSql("INSERT INTO Parm(nodeId, dataVersionId, password, serverName, serverPort) SELECT ?, 0, ?, ?, ? WHERE NOT EXISTS(SELECT 1 FROM Parm WHERE nodeId = ?)", 
+                        [settings.nodeId, settings.password, settings.serverName, settings.serverPort, settings.nodeId], 
+                    function() {if (onSuccess != undefined) {onSuccess();}}, 
+                    dbTools.onSqlError
+                );
+            } else {
+                if (onSuccess != undefined) {onSuccess();}
+            }
+         });
+        /*tx.executeSql("INSERT INTO Parm(nodeId, dataVersionId) SELECT ?, 0 WHERE NOT EXISTS(SELECT 1 FROM Parm WHERE nodeId = ?)", 
+            [settings.nodeId, settings.nodeId], undefined, dbTools.onSqlError);*/
+    }, 
+    dbTools.onTransError
+    );
 }
 
 dbTools.loadSettings = function(onSuccess) {
     log("loadSettings()");
     dbTools.db.transaction(function(tx) {
-        tx.executeSql("SELECT nodeId, dataVersionId FROM Parm", [], 
+        tx.executeSql("SELECT * FROM Parm", [], 
             function(tx, rs) {
                 if (rs.rows.length > 0) {
-                    settings.nodeId = rs.rows.item(0)["nodeId"];
+                    settings.nodeId = rs.rows.item(0).nodeId;
+                    settings.password = rs.rows.item(0).password != null ? rs.rows.item(0).password : "";
+                    settings.exchange.dataInDateSend = sqlDateToDate(rs.rows.item(0).exchDataFromOfficeSent);
+                    settings.exchange.dataInDateReceive = sqlDateToDate(rs.rows.item(0).exchDataFromOfficeReceived);
+                    settings.exchange.dataOutDateSend = sqlDateToDate(rs.rows.item(0).exchDataToOfficeSent);
+                    settings.serverName = rs.rows.item(0).serverName;
+                    settings.serverPort = rs.rows.item(0).serverPort;
                     if (onSuccess != undefined) {onSuccess();}
                 }
             }, 
             dbTools.onSqlError
         );
     }, dbTools.onTransError);
+}
+
+dbTools.tableFieldListGet = function(tx, tableName, onSuccess, onError) {
+    var errMsg = "tableFieldListGet function error: ";
+    dbTools.db.transaction(function(tx) {
+        tx.executeSql("SELECT * FROM sqlite_master WHERE name = ? COLLATE NOCASE", [tableName], 
+            function(tx, rs) {
+                var fldLst = [];
+                if (rs.rows.length > 0) {
+                    var table = rs.rows.item(0);
+                    var s = table.sql.split(',');
+                    s[0] = s[0].replace(new RegExp('create\\s+table\\s+' + table.name + '\\s*\\(', 'i'),'');
+                    fldLst = s.map(function(i){
+                        return i.trim().split(/\s/).shift();
+                    })
+                    .filter(function(i){
+                        return (i.indexOf(')') === -1 && i !== "constraint")
+                    })
+                }
+                if (onSuccess != undefined) {onSuccess(tx, tableName, fldLst);}
+            }, 
+            function(tx, error) {if (onError != undefined) {onError(errMsg + dbTools.errorMsg(error));}}
+        );
+    }, function(error) {if (onError != undefined) {onError(errMsg + dbTools.errorMsg(error));}});
 }
 
 dbTools.tableNextIdGet = function(tx, tableName, onSuccess, onError) {
@@ -85,7 +148,7 @@ dbTools.tableNextIdGet = function(tx, tableName, onSuccess, onError) {
 }
 
 dbTools.tableUpdateDateFieldExists = function(tableName) {
-    return !inArray(["visitpromo", "visitsku", "visitskucat", "visitpromophoto", "visitsurveyanswer"], tableName.toLowerCase());
+    return !inArray(["parm", "visitpromo", "visitsku", "visitskucat", "visitpromophoto", "visitsurveyanswer"], tableName.toLowerCase());
 }
 
 dbTools.sqlInsert = function(tx, tableName, keyFieldNameArray, fieldNameArray, keyFieldValueArray, fieldValueArray, onSuccess, onError) {
@@ -165,6 +228,7 @@ dbTools.sqlDelete = function(tx, tableName, keyFieldNameArray, keyFieldValueArra
 }
 
 dbTools.sqlInsertUpdate = function(tx, tableName, keyFieldNameArray, fieldNameArray, keyFieldValueArray, fieldValueArray, onSuccess, onError) {
+    //log("sqlInsertUpdate('" + tableName + "', " + keyFieldNameArray + ", " + fieldNameArray + ", " + keyFieldValueArray + ", " + fieldValueArray);
     var errMsg = "sqlInsertUpdate function error: ";
     if (tx != undefined) {
         var sqlWhere = "";

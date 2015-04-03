@@ -4,39 +4,46 @@ dbTools.exchange = function(onSuccess, onError, onProgress) {
     log("exchange()");
     if (onProgress != undefined) {onProgress(1);}
     if (settings.nodeId > 0) {
-        for (var i = 0; i < dbTools.objectList.length; i++) {
-            dbTools.objectList[i].needReloadData = true;
-            if (dbTools.objectList[i].callback != undefined) {
-                dbTools.objectList[i].callback();
+        if (dbTools.checkConnection()) {
+            for (var i = 0; i < dbTools.objectList.length; i++) {
+                dbTools.objectList[i].needReloadData = true;
+                if (dbTools.objectList[i].callback != undefined) {
+                    dbTools.objectList[i].callback();
+                }
             }
+            var blockId = dbTools.exchangeBlockIdGet(
+                function(blockId) {
+                    dbTools.exchangeExport(blockId, 
+                        function(blockId) {
+                            dbTools.exchangeImport(blockId, 
+                                function(blockId) {
+                                    dbTools.exchangeDelMailBlockData(blockId, 
+                                        function(blockId) {
+                                            if (onProgress != undefined) {onProgress();}
+                                            if (onSuccess != undefined) {onSuccess(blockId);}
+                                            logSqlResult("select * from parm");
+                                        }, 
+                                        onError/*, 
+                                        onProgress*/
+                                    );
+                                },
+                                onError,
+                                onProgress
+                            );
+                        },
+                        onError,
+                        onProgress
+                    );
+                },
+                onError
+            );
+        } else {
+            var errMsg = "Отсутствует соединение с сетью передачи данных";
+            log(errMsg);
+            if (onError != undefined) {onError(errMsg);}
         }
-        var blockId = dbTools.exchangeBlockIdGet(
-            function(blockId) {
-                dbTools.exchangeExport(blockId, 
-                    function(blockId) {
-                        dbTools.exchangeImport(blockId, 
-                            function(blockId) {
-                                dbTools.exchangeDelMailBlockData(blockId, 
-                                    function(blockId) {
-                                        if (onProgress != undefined) {onProgress();}
-                                        if (onSuccess != undefined) {onSuccess(blockId);}
-                                    }, 
-                                    onError/*, 
-                                    onProgress*/
-                                );
-                            },
-                            onError, 
-                            onProgress
-                        );
-                    },
-                    onError,
-                    onProgress
-                );
-            },
-            onError
-        );
     } else {
-        var errMsg = "nodeId undefined";
+        var errMsg = "Не установлен код узла";
         log(errMsg);
         if (onError != undefined) {onError(errMsg);}
     }
@@ -59,9 +66,15 @@ dbTools.exchangeExport = function(blockId, onSuccess, onError, onProgress) {
                         /*log("exchangeExport dataOut: " + JSON.stringify(dataOut).substring(0, 500));*/
                         dbTools.exchangeDataPost(blockId, dataOut, 
                             function(blockId, data) {
-                                if (onSuccess != undefined) {
-                                    onSuccess(blockId);
-                                }
+                                // TODO: get datetime from server
+                                settings.exchange.dataOutDateSend = new Date();
+                                dbTools.db.transaction(
+                                    function(tx) {
+                                        dbTools.sqlInsertUpdate(tx, "Parm", ["nodeId"], ["exchDataToOfficeSent"], [settings.nodeId], [dateToSqlDate(settings.exchange.dataOutDateSend)], undefined, onError);
+                                    },
+                                    function(error) {if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error));}}
+                                );
+                                if (onSuccess != undefined) {onSuccess(blockId);}
                             }, 
                             onError
                         );
@@ -90,7 +103,14 @@ dbTools.exchangeImport = function(blockId, onSuccess, onError, onProgress) {
                                 function(blockId) {
                                     dbTools.exchangeMailImport(blockId, 
                                         function(blockId) {
-                                            if (onProgress != undefined) {onSuccess(blockId);}
+                                            settings.exchange.dataInDateReceive = new Date();
+                                            dbTools.db.transaction(
+                                                function(tx) {
+                                                    dbTools.sqlInsertUpdate(tx, "Parm", ["nodeId"], ["exchDataFromOfficeReceived"], [settings.nodeId], [dateToSqlDate(settings.exchange.dataInDateReceive)], undefined, onError);
+                                                },
+                                                function(error) {if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error));}}
+                                            );
+                                            if (onSuccess != undefined) {onSuccess(blockId);}
                                         },
                                         onError
                                     );
@@ -282,7 +302,6 @@ dbTools.exchangeMailBlockDataInProcScriptExec = function(blockId, onSuccess, onE
         },
         function(error) {if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error));}}
     );
-logSqlResult("select * from parm");
 }
 
 dbTools.exchangeMailBlockDataInProcMailAdd = function(blockId, onSuccess, onError) {
@@ -318,14 +337,16 @@ dbTools.exchangeMailBlockDataInProcMailAdd = function(blockId, onSuccess, onErro
 dbTools.exchangeMailImportParm = function(blockId, onSuccess, onError) {
     log("exchangeMailImportParm(blockId=" + blockId + ")");
     
+    var exchDate = null;
     dbTools.db.transaction(
         function(tx) {
             var sql = "SELECT exchDate FROM MailExchParm WHERE blockId=?";
             tx.executeSql(sql, [blockId], function(tx, rs) {
                 if (rs.rows.length > 0) {
-                    var exchDate = rs.rows.item(0).exchDate;
+                    exchDate = rs.rows.item(0).exchDate;
                     var sql = "UPDATE Parm SET exchDataFromOfficeSent = ?";
                     tx.executeSql(sql, [exchDate]);
+                    settings.exchange.dataInDateSend = sqlDateToDate(exchDate);
                 }
             });
         },

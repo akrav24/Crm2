@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <script src="scripts/Settings.js"></script>
+    <script src="scripts/db/DbSettings.js"></script>
+    
+    <div id="settings-view"
+        data-role="view" 
+        data-title="Настройки" 
+        data-layout="main" 
+        data-init="settingsInit" 
+        data-show="settingsShow">
+      
+        <header data-role="header">
+            <div data-role="navbar">
+                <a class="nav-button" data-align="left" data-role="button" data-icon="back" data-click="settingsNavBackClick"></a>
+                <span data-role="view-title"></span>
+            </div>
+        </header>
+        
+        <ul id="settings-list" class="list form-list" data-role="listview">
+            <li>
+                <label>Время формирования информации для получения
+                    <input id="settings-date-in-send" type="text" readonly/>
+                </label>
+            </li>
+            <li>
+                <label>Время последнего получения информации
+                    <input id="settings-date-in-receive" type="text" readonly/>
+                </label>
+            </li>
+            <li>
+                <label>Время последней отправки информации
+                    <input id="settings-date-out-send" type="text" readonly/>
+                </label>
+            </li>
+            <li>
+                <a data-rel="modalview" href="#settings-node-id-edit-view">
+                    <label>Код узла
+                        <input id="settings-node-id" type="text" readonly/>
+                    </label>
+                </a>
+            </li>
+            <li>
+                <a data-rel="modalview" href="#settings-server-edit-view">
+                    <label>Сервер
+                        <input id="settings-server" type="text" readonly/>
+                    </label>
+                </a>
+            </li>
+            <li>
+                <a data-rel="modalview" href="#settings-password-edit-view">
+                    <label>Пароль
+                        <input id="settings-password" type="password" readonly/>
+                    </label>
+                </a>
+            </li>
+        </ul>
+    </div>
+    
+    <div id="settings-node-id-edit-view"
+        style="width: 80%; min-height: 200px;"
+        data-role="modalview"
+        data-title="Код узла"
+        data-layout="main"
+        data-open="settingsNodeIdEditShow">
+        
+        <header data-role="header">
+            <div data-role="navbar">
+                <a class="nav-button" data-role="button" data-align="left" data-icon="back" data-click="settingsModalViewNavBackClick"></a>
+                <span data-role="view-title"></span>
+                <a id="settings-node-id-edit-save-button" class="nav-button" data-role="button" data-align="right" data-click="settingsNodeIdEditSave">Сохранить</a>
+            </div>
+        </header>
+        
+        <ul class="list form-list" data-role="listview">
+            <li>
+                <label>Код узла
+                    <input id="settings-node-id-edit-node-id" type="number"/>
+                </label>
+            </li>
+            <li>
+                <div align="center">
+                        <a data-role="button" data-enable="false">Очистить БД</a>
+                </div>
+            </li>
+        </ul>
+        
+        <div id="settings-node-id-edit-dialog"></div>
+    </div>
+    
+    <div id="settings-server-edit-view"
+        style="width: 80%; min-height: 215px;"
+        data-role="modalview"
+        data-title="Сервер"
+        data-layout="main"
+        data-open="settingsServerEditShow">
+        
+        <header data-role="header">
+            <div data-role="navbar">
+                <a class="nav-button" data-role="button" data-align="left" data-icon="back" data-click="settingsModalViewNavBackClick"></a>
+                <span data-role="view-title"></span>
+                <a id="settings-server-edit-save-button" class="nav-button" data-role="button" data-align="right" data-click="settingsServerEditSave">Сохранить</a>
+            </div>
+        </header>
+        
+        <ul class="list form-list" data-role="listview">
+            <li>
+                <label>Сервер
+                    <input id="settings-server-edit-server-name" type="text"/>
+                </label>
+            </li>
+            <li>
+                <label>Порт
+                    <input id="settings-server-edit-server-port" type="number"/>
+                </label>
+            </li>
+        </ul>
+    </div>
+    
+    <div id="settings-password-edit-view"
+        style="width: 80%; min-height: 290px;"
+        data-role="modalview"
+        data-title="Смена пароля"
+        data-layout="main"
+        data-open="settingsPasswordEditShow">
+        
+        <header data-role="header">
+            <div data-role="navbar">
+                <a class="nav-button" data-role="button" data-align="left" data-icon="back" data-click="settingsModalViewNavBackClick"></a>
+                <span data-role="view-title"></span>
+                <a id="settings-password-edit-save-button" class="nav-button" data-role="button" data-align="right" data-click="settingsPasswordEditSave">Сохранить</a>
+            </div>
+        </header>
+        
+        <ul class="list form-list" data-role="listview">
+            <li id="settings-password-edit-password-old-li">
+                <label>Текущий пароль
+                    <input id="settings-password-edit-password-old" type="password"/>
+                </label>
+            </li>
+            <li>
+                <label>Новый пароль
+                    <input id="settings-password-edit-password-new" type="password"/>
+                </label>
+            </li>
+            <li>
+                <label>Подтверждение нового пароля
+                    <input id="settings-password-edit-password-new-confirm" type="password"/>
+                </label>
+            </li>
+        </ul>
+        
+        <div id="settings-password-edit-dialog"></div>
+    </div>
+</body>
+</html>

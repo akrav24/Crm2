@@ -90,11 +90,11 @@ function navigateBack(backCount) {
 function navigateBackTo(viewId) {
     log("..navigateBackTo(" + viewId + ")");
     var maxStayCount = 10;
-    var initialViewId = "views/Start.html";
+    var initialViewId = "views/Login.html";
     var srcViewId = app.view().id;
     var delay;
     if (window.sqlitePlugin != undefined) {
-        delay = 50;
+        delay = 51;
     } else {
         delay = 50;
     }
