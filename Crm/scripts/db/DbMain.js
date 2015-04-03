@@ -66,7 +66,7 @@ dbTools.createSystemTables = function(onSuccess) {
             } else {
                 if (onSuccess != undefined) {onSuccess();}
             }
-         });
+         }, function(errMsg) {log(errMsg);});
         /*tx.executeSql("INSERT INTO Parm(nodeId, dataVersionId) SELECT ?, 0 WHERE NOT EXISTS(SELECT 1 FROM Parm WHERE nodeId = ?)", 
             [settings.nodeId, settings.nodeId], undefined, dbTools.onSqlError);*/
     }, 
@@ -96,8 +96,9 @@ dbTools.loadSettings = function(onSuccess) {
 }
 
 dbTools.tableFieldListGet = function(tx, tableName, onSuccess, onError) {
+    log("tableFieldListGet(tx, '" + tableName + "')");
     var errMsg = "tableFieldListGet function error: ";
-    dbTools.db.transaction(function(tx) {
+    if (tx != undefined) {
         tx.executeSql("SELECT * FROM sqlite_master WHERE name = ? COLLATE NOCASE", [tableName], 
             function(tx, rs) {
                 var fldLst = [];
@@ -116,7 +117,9 @@ dbTools.tableFieldListGet = function(tx, tableName, onSuccess, onError) {
             }, 
             function(tx, error) {if (onError != undefined) {onError(errMsg + dbTools.errorMsg(error));}}
         );
-    }, function(error) {if (onError != undefined) {onError(errMsg + dbTools.errorMsg(error));}});
+    } else {
+        if (onError != undefined) {onError(errMsg + "parameter 'tx' undefined");}
+    }
 }
 
 dbTools.tableNextIdGet = function(tx, tableName, onSuccess, onError) {

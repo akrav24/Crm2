@@ -63,6 +63,8 @@ var app;
         
         kendo.culture("en-GB");
         
+        //document.addEventListener("backbutton", function(e) {log("====BACK"); logObjectKeys(e);}, false);
+        
         //settingsObjInit(function(settings) {dbInit();});
 
     }, false);

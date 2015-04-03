@@ -280,18 +280,22 @@ dbTools.visitActivityGet = function(visitPlanItemId, visitId, skuCatId, custId, 
     }, dbTools.onTransError);
 }
 
-dbTools.visitAnalysisResultsGet = function(visitId, datasetGet) {
+dbTools.visitAnalysisResultsGet = function(visitId, fmtFilterType, fmtId, datasetGet) {
     log("visitAnalysisResultsGet(" + visitId + ")");
     dbTools.db.transaction(function(tx) {
         var sql = "SELECT S.skuId, S.name, S.code, VS.sel, VS.sel0,"
             + "    VS.qntRest, VS.qntOrder, VS.reasonId, IFNULL(R.name, '') AS reasonName, R.useQnt, VS.reasonQnt, R.useDate, VS.reasonDate"
-            + "  FROM VisitSku VS"
-            + "  LEFT JOIN Sku S ON VS.skuId = S.skuId"
+            + "  FROM Sku S"
+            + "  INNER JOIN BrandGrp BG ON S.brandGrpId = BG.brandGrpId"
+            + "  INNER JOIN Brand B ON BG.brandId = B.brandId"
+            + "  LEFT JOIN VisitSku VS ON VS.visitId = ? AND S.skuId = VS.skuId"
             + "  LEFT JOIN Reason R ON VS.reasonId = R.reasonId"
-            + "  WHERE VS.visitId = ?"
-            + "    AND VS.sel0 = 0"
+            + "  WHERE S.active = 1"
+            + "    AND B.ext = 0"
+            + "    AND (? = 1 OR EXISTS(SELECT 1 FROM FmtSku WHERE fmtId = ? AND skuId = S.skuId))"
+            + "    AND IFNULL(VS.sel0, 0) = 0"
             + "  ORDER BY S.name";
-        tx.executeSql(sql, [visitId], datasetGet, dbTools.onSqlError);
+        tx.executeSql(sql, [visitId, fmtFilterType, fmtId], datasetGet, dbTools.onSqlError);
     }, dbTools.onTransError);
 }
 

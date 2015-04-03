@@ -24,7 +24,7 @@ function visitAnalysisResultsShow(e) {
 }
 
 function renderVisitAnalysisResults(visitId) {
-    dbTools.visitAnalysisResultsGet(visitId, renderVisitAnalysisResultsView);
+    dbTools.visitAnalysisResultsGet(visitId, /*visit.fmtFilterType*/1, visit.fmtId, renderVisitAnalysisResultsView);
 }
 
 function renderVisitAnalysisResultsView(tx, rs) {
