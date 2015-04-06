@@ -267,6 +267,22 @@ body {
     width: 100%;
 }
 
+.visit-sku-cat-list-item-table {
+    width: 100%;
+}
+.visit-sku-cat-list-item-table-name {
+    margin-left: 5px;
+    width: 100%;
+}
+.visit-sku-cat-list-item-table-activity {
+    width: 1.1em;
+}
+.visit-sku-cat-list-item-table-activity-end {
+    height: 1px;
+    width: 0.5em;
+}
+
+
 
 
 /*--theming-----------------------------------*/

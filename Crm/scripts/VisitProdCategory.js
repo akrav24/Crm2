@@ -21,7 +21,7 @@ function visitProdCatShow(e) {
 
 function renderVisitProdCat(isItemAllShow) {
     log("..renderVisitProdCat(" + isItemAllShow + ")");
-    dbTools.visitProductCategoryGet(isItemAllShow, renderVisitProdCatView);
+    dbTools.visitProductCategoryMatrixGet(visit.visitId, isItemAllShow, renderVisitProdCatView);
 }
 
 function renderVisitProdCatView(tx, rs) {

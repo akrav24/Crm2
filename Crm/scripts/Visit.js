@@ -38,6 +38,7 @@ function renderVisitView(tx, rs) {
 function renderVisitActivityList(tx, rs) {
     log("..renderVisitActivityList");
     var data = dbTools.rsToJson(rs);
+    visit.activityLst = data;
     $("#visit-activity-list").data("kendoMobileListView").dataSource.data(data);
     app.scroller().reset();
 }
@@ -55,6 +56,7 @@ function visitObjInit() {
     visit.fmtId = null;
     visit.timeBgn = null;
     visit.timeEnd = null;
+    visit.activityLst = [];
 }
 
 function visitCheckReadOnly() {
