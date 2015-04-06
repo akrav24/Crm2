@@ -403,7 +403,12 @@ dbTools.exchangeMailImport = function(blockId, onSuccess, onError) {
                                         if (rs.rows.length > 0) {
                                             var idLst = [];
                                             for (var i = 0; i < rs.rows.length; i++) {
-                                                idLst.push(rs.rows.item(i).id);
+                                                if (rs.rows.item(i).id != null) {
+                                                    idLst.push(rs.rows.item(i).id);
+                                                }
+                                            }
+                                            if (idLst.length === 0) {
+                                                idLst.push(0);
                                             }
                                             var sql = "INSERT INTO @tblName(@flds) SELECT @flds FROM Mail@tblName WHERE blockId=? AND @tblNameId IN (@idLst)";
                                             var sqlExec = sql.replace(new RegExp("@tblName", "g"), tblName).replace(new RegExp("@flds", "g"), flds).replace(new RegExp("@idLst", "g"), idLst.join(","));

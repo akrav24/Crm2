@@ -7,10 +7,10 @@ function dbInit(onSuccsess) {
     dbTools.objectList = []; // [{name: <name>, needReloadData: <true|false>, callback: <callback function>}, ...]
     dbTools.openDB();
     dbTools.createSystemTables(
-        function() {
-            dbTools.loadSettings(
-                function() {
-                    dbTools.onLoadSettings();
+        function(tx) {
+            dbTools.loadSettings(tx,
+                function(tx) {
+                    dbTools.onLoadSettings(tx);
                     if (onSuccsess != undefined) {onSuccsess();}
                 }
             );
@@ -60,11 +60,11 @@ dbTools.createSystemTables = function(onSuccess) {
             if (settings.nodeId > 0) {
                 tx.executeSql("INSERT INTO Parm(nodeId, dataVersionId, password, serverName, serverPort) SELECT ?, 0, ?, ?, ? WHERE NOT EXISTS(SELECT 1 FROM Parm WHERE nodeId = ?)", 
                         [settings.nodeId, settings.password, settings.serverName, settings.serverPort, settings.nodeId], 
-                    function() {if (onSuccess != undefined) {onSuccess();}}, 
+                    function() {if (onSuccess != undefined) {onSuccess(tx);}}, 
                     dbTools.onSqlError
                 );
             } else {
-                if (onSuccess != undefined) {onSuccess();}
+                if (onSuccess != undefined) {onSuccess(tx);}
             }
          }, function(errMsg) {log(errMsg);});
         /*tx.executeSql("INSERT INTO Parm(nodeId, dataVersionId) SELECT ?, 0 WHERE NOT EXISTS(SELECT 1 FROM Parm WHERE nodeId = ?)", 
@@ -74,25 +74,23 @@ dbTools.createSystemTables = function(onSuccess) {
     );
 }
 
-dbTools.loadSettings = function(onSuccess) {
+dbTools.loadSettings = function(tx, onSuccess) {
     log("loadSettings()");
-    dbTools.db.transaction(function(tx) {
-        tx.executeSql("SELECT * FROM Parm", [], 
-            function(tx, rs) {
-                if (rs.rows.length > 0) {
-                    settings.nodeId = rs.rows.item(0).nodeId;
-                    settings.password = rs.rows.item(0).password != null ? rs.rows.item(0).password : "";
-                    settings.exchange.dataInDateSend = sqlDateToDate(rs.rows.item(0).exchDataFromOfficeSent);
-                    settings.exchange.dataInDateReceive = sqlDateToDate(rs.rows.item(0).exchDataFromOfficeReceived);
-                    settings.exchange.dataOutDateSend = sqlDateToDate(rs.rows.item(0).exchDataToOfficeSent);
-                    settings.serverName = rs.rows.item(0).serverName;
-                    settings.serverPort = rs.rows.item(0).serverPort;
-                    if (onSuccess != undefined) {onSuccess();}
-                }
-            }, 
-            dbTools.onSqlError
-        );
-    }, dbTools.onTransError);
+    tx.executeSql("SELECT * FROM Parm", [], 
+        function(tx, rs) {
+            if (rs.rows.length > 0) {
+                settings.nodeId = rs.rows.item(0).nodeId;
+                settings.password = rs.rows.item(0).password != null ? rs.rows.item(0).password : "";
+                settings.exchange.dataInDateSend = sqlDateToDate(rs.rows.item(0).exchDataFromOfficeSent);
+                settings.exchange.dataInDateReceive = sqlDateToDate(rs.rows.item(0).exchDataFromOfficeReceived);
+                settings.exchange.dataOutDateSend = sqlDateToDate(rs.rows.item(0).exchDataToOfficeSent);
+                settings.serverName = rs.rows.item(0).serverName;
+                settings.serverPort = rs.rows.item(0).serverPort;
+            }
+            if (onSuccess != undefined) {onSuccess(tx);}
+        }, 
+        dbTools.onSqlError
+    );
 }
 
 dbTools.tableFieldListGet = function(tx, tableName, onSuccess, onError) {
