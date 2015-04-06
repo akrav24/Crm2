@@ -34,7 +34,7 @@
                                 if (visit.activityLst[i].stageId > 0 && visit.activityLst[i].activityId > 0) {
                             #
                             <td style="
-            						#if (data["S" + visit.activityLst[i].stageId + "A" + visit.activityLst[i].activityId] > 0) {#background-image: url(styles/images/visitActivity/set2/VisitActivity#:visit.activityLst[i].activityId#.png);#}#
+            						background-image: url(styles/images/visitActivity/set#if (data["S" + visit.activityLst[i].stageId + "A" + visit.activityLst[i].activityId] > 0) {#2#} else {#1#}#/VisitActivity#:visit.activityLst[i].activityId#.png);
             						background-repeat: no-repeat; background-size: contain; background-position: center center">
                                 <div class="visit-sku-cat-list-item-table-activity"></div>
                             </td>
