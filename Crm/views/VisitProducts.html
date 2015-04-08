@@ -36,7 +36,7 @@
                 <div class="list-item-header">
                     <p>
                         <table  width="100%">
-                            <tr class="table-text-align">
+                            <tr class="table-text-align#if (!!isNew) {# color-selected#}#">
                                 <td><input type="checkbox" class="checkbox" data-sku-id="#:skuId#" #if ((visitProducts.stageId == 1 && sel0 == 1) || (visitProducts.stageId == 2 && sel == 1)) {# checked#}#/></td>
                                 <td width="60px"><span style="margin-left: 10px">#:code#</span></td>
                                 <td width="100%">
@@ -50,7 +50,6 @@
                                 #}#
                             </tr>
                         </table>
-                        <!--<input data-role="switch" data-on-label="Yes" data-off-label="No" data-bind="checked: qnt"/>-->
                     </p>
                 </div>
             </script>

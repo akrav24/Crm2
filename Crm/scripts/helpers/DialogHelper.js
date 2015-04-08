@@ -1,6 +1,45 @@
 var dialogHelper = {};
 
 dialogHelper.confirm = function(dialogSelector, title, msg, onYes, onNo) {
+    if (!title) {
+        var navbar = app.view()
+            .header
+            .find(".km-navbar")
+            .data("kendoMobileNavBar");
+        title = navbar.title();
+    }
+    var onConfirm = function (buttonIndex) {
+        if (buttonIndex === 2) {
+            if (onYes != undefined) {onYes();}
+        } else {
+            if (onNo != undefined) {onNo();}
+        }
+    }
+    navigator.notification.confirm(
+        msg,
+        onConfirm,
+        title,
+        ["Нет", "Да"]
+    );
+}
+
+dialogHelper.warning = function(dialogSelector, title, msg) {
+    if (!title) {
+        var navbar = app.view()
+            .header
+            .find(".km-navbar")
+            .data("kendoMobileNavBar");
+        title = navbar.title();
+    }
+    navigator.notification.alert(
+        msg,
+        undefined,
+        title,
+        "Ок"
+    );
+}
+
+dialogHelper.confirmW = function(dialogSelector, title, msg, onYes, onNo) {
     var kendoWindow = $(dialogSelector).kendoWindow({
         actions: [],
         draggable: false,
@@ -34,7 +73,7 @@ dialogHelper.confirm = function(dialogSelector, title, msg, onYes, onNo) {
         .center().open();
 }
 
-dialogHelper.warning = function(dialogSelector, title, msg) {
+dialogHelper.warningW = function(dialogSelector, title, msg) {
     var kendoWindow = $(dialogSelector).kendoWindow({
         actions: [],
         draggable: false,

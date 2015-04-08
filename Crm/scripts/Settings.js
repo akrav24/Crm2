@@ -40,7 +40,7 @@ function settingsNodeIdEditSave(e) {
     if (newNodeId > 0) {
         if (newNodeId != settings.nodeId) {
             if (settings.nodeId > 0) {
-                var msg = "Вы действительно намерены изменить код узла?<div>После изменениия кода узла база данных приложения будет очищена.</div>";
+                var msg = "Вы действительно намерены изменить код узла? После изменениия кода узла база данных приложения будет очищена.";
                 dialogHelper.confirm("#settings-node-id-edit-dialog", false, msg,
                     function() {
                         nodeIdSet(newNodeId);

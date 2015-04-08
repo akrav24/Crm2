@@ -79,7 +79,7 @@ function photoGallerySetDataSource(data, scrollToPageNumber) {
     log("..photoGallerySetDataSource(" + JSON.stringify(data) + ", " + scrollToPageNumber + ")");
     var scrollview = $("#photo-gallery-scrollview").data("kendoMobileScrollView");
     scrollview.setDataSource(data);
-    //scrollview.refresh();
+    scrollview.refresh();
     if (data.length > 0) {
         scrollview.scrollTo(scrollToPageNumber, true);
         photoGalleryImageSourceSet(scrollToPageNumber);
@@ -132,6 +132,7 @@ function photoGalleryObjInit() {
 }
 
 function photoGalleryImageSourceSet(index) {
+    log("..photoGalleryImageSourceSet(" + index + ")");
     photoGalleryImageViewModel.set("fileId", photoGallery.data[index].fileId);
     photoGalleryImageViewModel.set("imageSrc", photoGallery.data[index].fileLocalPath);
     photoGalleryImageViewModel.set("imageTitle", photoGallery.data[index].title);

@@ -4,7 +4,6 @@ function startOnInit(e) {
 
 function startOnShow(e) {
     log("..startOnShow(e)");
-    //$("#start-exchange-button").data("kendoMobileButton").enable(settings.nodeId > 0);
     if (settings.password != "") {
         $("#start-exit-button").removeClass("hidden");
     } else {

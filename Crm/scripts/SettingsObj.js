@@ -20,6 +20,10 @@ function settingsObjInit(onSuccess) {
     // корневая папка для сохранения получаемых и отправляемых файлов
     settings.rootFolderName = "com.bizlg.crm";
     
+    // количество записей для вставки в таблицу SQLite в рамках отдельной транзакции
+    // если количество слишком малое (< 100) или слишком большое (> 50000), то происходит резкое замедление операции вставки
+    settings.bulkRecordCount = 5000;
+    
     // даты последнего обмена информацией с сервером
     settings.exchange = {};
     settings.exchange.dataInDateSend = null;

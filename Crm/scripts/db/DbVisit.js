@@ -219,7 +219,7 @@ dbTools.visitProductsGet = function(visitId, skuCatId, fmtFilterType, fmtId, dat
     dbTools.db.transaction(function(tx) {
         //var sql = "SELECT NULL AS visitPlanId, NULL AS docId, S.skuId, S.name, S.brandGrpId, BG.name AS brandGrpName, BG.brandId, B.name AS brandName,"
         //    + " S.skuCatId, SC.name AS skuCatName, SC.parentId AS skuCatParentId, 1 AS qnt"
-        var sql = "SELECT S.skuId, S.name, S.code, S.brandGrpId, BG.name AS brandGrpName, VS.sel, VS.sel0,"
+        var sql = "SELECT S.skuId, S.name, S.code, S.new AS isNew, S.brandGrpId, BG.name AS brandGrpName, VS.sel, VS.sel0,"
             + "    VS.qntRest, VS.qntOrder, VS.reasonId, IFNULL(R.name, '') AS reasonName, VS.reasonQnt, VS.reasonDate"
             + "  FROM Sku S"
             + "  LEFT JOIN BrandGrp BG ON S.brandGrpId = BG.brandGrpId"
@@ -230,9 +230,10 @@ dbTools.visitProductsGet = function(visitId, skuCatId, fmtFilterType, fmtId, dat
             + "  WHERE S.active = 1"
             + "    AND B.ext = 0"
             + "    AND S.skuCatId = ?"
-            + "    AND (? = 1 OR EXISTS(SELECT 1 FROM FmtSku WHERE fmtId = ? AND skuId = S.skuId))"
-            + "  ORDER BY S.name";
-        tx.executeSql(sql, [visitId, skuCatId, fmtFilterType, fmtId], datasetGet, dbTools.onSqlError);
+            + "    AND (@fmtFilterType = 1 OR EXISTS(SELECT 1 FROM FmtSku WHERE fmtId = ? AND skuId = S.skuId))"
+            + "  ORDER BY CASE WHEN S.new <> 0 THEN 1 ELSE 0 END DESC, S.name";
+        sql = sql.replace(/@fmtFilterType/g, fmtFilterType);
+        tx.executeSql(sql, [visitId, skuCatId, fmtId], datasetGet, dbTools.onSqlError);
     }, dbTools.onTransError);
 }
 

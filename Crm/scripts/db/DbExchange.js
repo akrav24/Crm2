@@ -196,26 +196,38 @@ dbTools.exchangeMailExport = function(blockId, onSuccess, onError) {
     );
 }
 
-
 dbTools.exchangeMailBlockDataIn = function(blockId, onSuccess, onError) {
     log("exchangeMailBlockDataIn(blockId=" + blockId + ")");
     
     dbTools.exchangeDataGet(blockId, 
         function(blockId, data) {
-            dbTools.db.transaction(
-                function(tx) {
-                    $.each(data, function(i, item) {
-                        tx.executeSql("INSERT INTO MailBlockDataIn (blockId, irow, data) VALUES(?, ?, ?)", [item.blockId, item.irow, item.data]);
-                        /*if (item.irow == 9006 || item.irow >= 14500 && item.irow <= 14524) {
-                            //log(JSON.stringify(item));
-                            log("blockId=" + item.blockId + ", irow=" + item.irow + ", data=" + item.data);
-                        }*/
-                    });
-                    /*log("exchangeMailBlockDataIn " + data.length + " rows inserted");*/
-                },
-                function(error) {if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error));}},
-                function() {if (onSuccess != undefined) {onSuccess(blockId);}}
-            );
+            log("..exchangeMailBlockDataIn: insert into MailBlockDataIn begin");
+            
+            var bulkInsert = function(blockId, data, begIndex, bulkCnt, onSuccess, onError) {
+                var endIndex = begIndex + bulkCnt < data.length ? begIndex + bulkCnt : data.length;
+                log("....bulkInsert begIndex=" + begIndex + ", endIndex=" + endIndex);
+                if (begIndex < endIndex) {
+                    dbTools.db.transaction(
+                        function(tx) {
+                            for (var i = begIndex; i < endIndex; i++) {
+                                tx.executeSql("INSERT INTO MailBlockDataIn (blockId, irow, data) VALUES(?, ?, ?)", [data[i].blockId, data[i].irow, data[i].data]);
+                            }
+                        },
+                        function(error) {
+                            log("..exchangeMailBlockDataIn ERROR, begIndex=" + begIndex + ", endIndex=" + endIndex + ", error=" + dbTools.errorMsg(error)); 
+                            if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error));}
+                        },
+                        function() {
+                            log("..exchangeMailBlockDataIn: transaction commited, begIndex=" + begIndex + ", endIndex=" + endIndex); 
+                            bulkInsert(blockId, data, endIndex, bulkCnt, onSuccess, onError);
+                        }
+                    );
+                } else {
+                    if (onSuccess != undefined) {onSuccess(blockId);}
+                }
+            }
+            
+            bulkInsert(blockId, data, 0, settings.bulkRecordCount, onSuccess, onError);
         },
         onError
     );
