@@ -2,11 +2,10 @@ var dialogHelper = {};
 
 dialogHelper.confirm = function(dialogSelector, title, msg, onYes, onNo) {
     if (!title) {
-        var navbar = app.view()
+        title = app.view()
             .header
-            .find(".km-navbar")
-            .data("kendoMobileNavBar");
-        title = navbar.title();
+            .find(".km-navbar [data-role=view-title]")
+            .text();
     }
     var onConfirm = function (buttonIndex) {
         if (buttonIndex === 2) {
@@ -25,11 +24,10 @@ dialogHelper.confirm = function(dialogSelector, title, msg, onYes, onNo) {
 
 dialogHelper.warning = function(dialogSelector, title, msg) {
     if (!title) {
-        var navbar = app.view()
+        title = app.view()
             .header
-            .find(".km-navbar")
-            .data("kendoMobileNavBar");
-        title = navbar.title();
+            .find(".km-navbar [data-role=view-title]")
+            .text();
     }
     navigator.notification.alert(
         msg,
