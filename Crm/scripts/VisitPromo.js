@@ -240,7 +240,6 @@ function visitPromoEditNavBackClick() {
 
 function visitPromoEditFillControls() {
     log("..visitPromoEditFillControls");
-log("====visitPromoItem.photoCount=" + visitPromoItem.photoCount);
     $("#visit-promo-edit-gender-name").text(visitPromoItem.genderName);
     $("#visit-promo-edit-brand-name").text(visitPromoItem.brandName);
     $("#visit-promo-edit-promo-name").text(visitPromoItem.promoName);
@@ -446,7 +445,6 @@ function visitPromoObjInit() {
 
 function visitPromoItemClear(step) {
     log("..visitPromoItemClear(" + step + ")");
-log("====>>" + kendo.stringify(visitPromoItem));
     if (step == undefined) {
         step = 0;
     }
@@ -479,6 +477,5 @@ log("====>>" + kendo.stringify(visitPromoItem));
         visitPromoItem.photoCount = 0;
         visitPromoItem.newPhotoLst = [];
     }
-log("====<<" + kendo.stringify(visitPromoItem));
 }
 

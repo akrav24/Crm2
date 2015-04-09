@@ -45,47 +45,15 @@ body {
 
 /*-user defined--------------------------------*/
 
-.date {
-    width: 100px;
-}
-
-.drawer {
-    width: 60%;
-}
-
-.error {
-    color: DarkRed;
-}
-
-.form-list label {
-    width: 100%;
-}
-.km-root .km-pane .km-view .form-list input,
-.km-root .km-pane .form-list input,
-.km-root .km-pane .km-view .form-list .k-dropdown {
-    position: relative;
-    width: 100%;
-    right: 0;
-    margin-top: 0;
-    top: 0;
-    font-size: large;
-}
-.km-root .km-pane .km-view .form-list div {
-    position: relative;
-    width: 100%;
-    right: 0;
-    margin-top: 5px;
-    margin-left: 5px;
-    top: 0;
-    font-size: large;
-}
-
 .color-selected {
     color: #2eb3a6;
 }
-
 .color-unselected {
     color: #4c5356;
+}
+
+.date {
+    width: 100px;
 }
 
 .dialog {
@@ -103,8 +71,48 @@ body {
     margin-right: 0.5em;
 }
 
+.drawer {
+    width: 60%;
+}
+
 .edit-modal-view {
     width: 80%;
+}
+
+.error {
+    color: DarkRed;
+}
+
+.form-list label {
+    width: 100%;
+}
+.km-root .km-pane .km-view .form-list input:not([type = checkbox]),
+.km-root .km-pane .form-list input:not([type = checkbox]),
+.km-root .km-pane .km-view .form-list .k-dropdown {
+    position: relative;
+    width: 100%;
+    right: 0;
+    margin-top: 0;
+    top: 0;
+    font-size: large;
+}
+/*.km-root .km-pane .km-view .form-list input[type = checkbox],
+.km-root .km-pane .form-list input[type = checkbox] {
+    position: relative;
+    width: 100%;
+    right: 0;
+    margin-top: 0;
+    top: 0;
+    font-size: large;
+}*/
+.km-root .km-pane .km-view .form-list div {
+    position: relative;
+    width: 100%;
+    right: 0;
+    margin-top: 5px;
+    margin-left: 5px;
+    top: 0;
+    font-size: large;
 }
 
 .gallery-title { 
@@ -158,6 +166,8 @@ body {
 .list-item-comment {
     font-size: medium;
     color: DarkRed;
+}
+.list-item-details-button {
 }
 .list-item-lvl2 {
     margin-left: 50px;
@@ -282,6 +292,10 @@ body {
     width: 0.5em;
 }
 
+.visit-task-done {
+    color: Silver;
+    text-decoration: line-through;
+}
 
 
 

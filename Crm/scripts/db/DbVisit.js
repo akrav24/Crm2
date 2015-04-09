@@ -36,10 +36,10 @@ dbTools.visitListGet = function(prdBgn, prdEnd, custId, isVisited, sortOrder, da
             + "  WHERE (@isVisited = -1 OR @isVisited = 1 AND A.visitType IN (2, 3, 4, 5) OR @isVisited = 0 AND A.visitType IN (1))";
         switch (sortOrder) {
             case 2:
-                sql += "  ORDER BY A.timeBgn DESC, A.dateBgn DESC, A.blk, A.lvl";
+                sql += "  ORDER BY A.timeBgn DESC, A.dateBgn DESC, A.blk, A.lvl, A.visitPlanItemId, A.visitId";
                 break;
             default:
-                sql += "  ORDER BY A.dateBgn, A.blk, A.lvl";
+                sql += "  ORDER BY A.dateBgn, A.blk, A.lvl, A.visitPlanItemId, A.visitId";
                 break;
         }
         sql = sql.replace(/@custId/g, custId).replace(/@isVisited/g, isVisited);
@@ -180,6 +180,10 @@ dbTools.visitProductCategoryMatrixGet = function(visitId, isItemAllShow, dataset
                     + "      SELECT 2 AS stageId, 6 AS activityId, VP.skuCatId"
                     + "        FROM VisitPromo VP"
                     + "        WHERE VP.visitId = @visitId"
+                    + "      UNION ALL"
+                    + "      SELECT 2 AS stageId, 5 AS activityId, VT.skuCatId"
+                    + "        FROM VisitTask VT"
+                    + "        WHERE VT.visitId = @visitId"
                     + "      UNION ALL"
                     + "      SELECT 2 AS stageId, 11 AS activityId, SC.skuCatId"
                     + "        FROM SkuCat SC"
@@ -335,6 +339,11 @@ dbTools.visitActivityGet = function(visitPlanItemId, visitId, skuCatId, custId, 
             + "    SELECT 2 AS stageId, 4 AS activityId, VSC.skuCatId"
             + "      FROM VisitSkuCat VSC"
             + "      WHERE VSC.visitId = @visitId"
+            + "    UNION ALL"
+            + "    SELECT 2 AS stageId, 5 AS activityId, VT.skuCatId"
+            + "      FROM VisitTask VT"
+            + "      WHERE VT.visitId = @visitId"
+            + "      GROUP BY VT.skuCatId"
             + "    UNION ALL"
             + "    SELECT 2 AS stageId, 6 AS activityId, VP.skuCatId"
             + "      FROM VisitPromo VP"
@@ -683,6 +692,68 @@ dbTools.visitSurveyAnswerUpdate = function(visitId, questionId, answer, onSucces
     dbTools.db.transaction(function(tx) {
         dbTools.sqlInsertUpdate(tx, "VisitSurveyAnswer", ["visitId", "questionId"], ["answer"], [visitId, questionId], [answer], 
             function() {if (onSuccess != undefined) {onSuccess(visitId, questionId);}},
+            onError
+        );
+    }, function(error) {if (onError != undefined) {onError("!!! SQLite transaction error, " + dbTools.errorMsg(error));}});
+}
+
+dbTools.visitTaskListGet = function(dateBgn, custId, skuCatId, datasetGet) {
+    log("visitTaskListGet('" + dateToSqlDate(dateBgn) + "', " + custId + ", " + skuCatId + ")");
+    dbTools.db.transaction(function(tx) {
+        var sql = "SELECT T.taskId, T.descr, T.nExec, VTT.doneCnt, CASE WHEN VTT.doneCnt >= T.nExec THEN 1 ELSE 0 END AS taskDone, VT.done, IFNULL(VT.note, '') AS note"
+            + "  FROM Task T"
+            + "  INNER JOIN TaskLink TL ON T.taskId = TL.taskId"
+            + "  LEFT JOIN Visit V ON V.custId = TL.custId AND V.dateBgn = ?"
+            + "  LEFT JOIN VisitTask VT ON V.visitId = VT.visitId AND TL.taskId = VT.taskId AND TL.skuCatId = VT.skuCatId"
+            + "  LEFT JOIN"
+            + "    (SELECT VT.taskId, V.custId, VT.skuCatId, COUNT(*) AS doneCnt"
+            + "      FROM VisitTask VT"
+            + "      INNER JOIN Visit V ON VT.visitId = V.visitId"
+            + "      WHERE VT.done <> 0"
+            + "      GROUP BY VT.taskId, V.custId, VT.skuCatId"
+            + "    ) VTT ON TL.taskId = VTT.taskId AND TL.custId = VTT.custId AND TL.skuCatId = VTT.skuCatId"
+            + "  WHERE T.dateBgn <= ? AND T.dateEnd >= ?"
+            + "    AND TL.custId = ?"
+            + "    AND TL.skuCatId = ?"
+            + "  ORDER BY T.descr";
+        var dateBgnSql = dateToSqlDate(dateBgn);
+        tx.executeSql(sql, [dateBgnSql, dateBgnSql, dateBgnSql, custId, skuCatId], datasetGet, dbTools.onSqlError);
+    }, dbTools.onTransError);
+}
+
+dbTools.visitTaskGet = function(visitId, skuCatId, taskId, datasetGet) {
+    log("visitTaskListGet(" + visitId + ", " + skuCatId + ", " + taskId + ")");
+    dbTools.db.transaction(function(tx) {
+        var sql = "SELECT T.taskId, T.descr, VT.done, VT.note"
+            + "  FROM Task T"
+            + "  LEFT JOIN VisitTask VT ON VT.visitId = ? AND VT.skuCatId = ? AND T.taskId = VT.taskId"
+            + "  WHERE T.taskId = ?";
+        tx.executeSql(sql, [visitId, skuCatId, taskId], datasetGet, dbTools.onSqlError);
+    }, dbTools.onTransError);
+}
+
+dbTools.visitTaskUpdate = function(visitId, skuCatId, taskId, done, note, onSuccess, onError) {
+    log("visitTaskUpdate(" + visitId + ", " + skuCatId + ", " + taskId + ", " + done + ", " + note + ")");
+    dbTools.db.transaction(function(tx) {
+        if (done != null || note != null) {
+            dbTools.sqlInsertUpdate(tx, "VisitTask", ["visitId", "skuCatId", "taskId"], ["done", "note"], [visitId, skuCatId, taskId], [done, note], 
+                function() {if (onSuccess != undefined) {onSuccess(visitId, skuCatId, taskId);}},
+                onError
+            );
+        } else {
+            dbTools.sqlDelete(tx, "VisitTask", ["visitId", "skuCatId", "taskId"], [visitId, skuCatId, taskId],
+                function() {if (onSuccess != undefined) {onSuccess(visitId, skuCatId, taskId);}},
+                onError
+            );
+        }
+    }, function(error) {if (onError != undefined) {onError("!!! SQLite transaction error, " + dbTools.errorMsg(error));}});
+}
+
+dbTools.visitTaskDoneUpdate = function(visitId, skuCatId, taskId, done, onSuccess, onError) {
+    log("visitTaskDoneUpdate(" + visitId + ", " + skuCatId + ", " + taskId + ", " + done + ")");
+    dbTools.db.transaction(function(tx) {
+        dbTools.sqlInsertUpdate(tx, "VisitTask", ["visitId", "skuCatId", "taskId"], ["done"], [visitId, skuCatId, taskId], [done], 
+            function() {if (onSuccess != undefined) {onSuccess(visitId, skuCatId, taskId);}},
             onError
         );
     }, function(error) {if (onError != undefined) {onError("!!! SQLite transaction error, " + dbTools.errorMsg(error));}});

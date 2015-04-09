@@ -202,3 +202,6 @@ function showControl(controlSelector, visible) {
     }
 }
 
+function viewTitleSet(view, title) {
+    view.header.find(".km-navbar").data("kendoMobileNavBar").title(title);
+}

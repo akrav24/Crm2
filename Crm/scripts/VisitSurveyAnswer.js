@@ -9,8 +9,6 @@ function visitSurveyAnswerInit(e) {
     visitSurveyAnswer = {};
     visitSurveyAnswer.navBackCount = 1;
     visitSurveyAnswer.surveyId = 1;
-    /*visitAnalysisResult = {};
-    visitAnalysisResultClear(true);*/
 }
 
 function visitSurveyAnswerShow(e) {
@@ -20,14 +18,18 @@ function visitSurveyAnswerShow(e) {
     if (visitSurveyAnswer.navBackCount < 1) {
         visitSurveyAnswer.navBackCount = 1;
     }
-    var title = "";
-    if (visitSurveyAnswer.surveyId == 1) {
-        title = "Контроль работы мерчандайзеров агенства";
-    } else {
-        title = "Контроль работы промоконсультантов";
-    }
-    app.view().header.find(".km-navbar").data("kendoMobileNavBar").title(title);
+
     renderVisitSurveyAnswer(visit.visitId, visitSurveyAnswer.surveyId);
+}
+
+function visitSurveyAnswerAfterShow(e) {
+    var viewTitle = "";
+    if (visitSurveyAnswer.surveyId == 1) {
+        viewTitle = "Контроль работы мерчандайзеров агенства";
+    } else {
+        viewTitle = "Контроль работы промоконсультантов";
+    }
+    viewTitleSet(app.view(), viewTitle);
 }
 
 function renderVisitSurveyAnswer(visitId, surveyId) {
@@ -80,6 +82,7 @@ function visitSurveyAnswerEnableControls() {
         $(element).data("kendoMobileSwitch").enable(!visit.readonly);
     });
 }
+
 function visitSurveyAnswerSwitchChange(e) {
     var answer = 0;
     if (e.checked) {

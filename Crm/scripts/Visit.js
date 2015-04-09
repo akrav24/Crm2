@@ -173,6 +173,9 @@ function hrefByActivityIdGet(stageId, activityId) {
         case 4:
             result = "views/VisitShelfShare.html";
             break;
+        case 5:
+            result = "views/VisitTask.html";
+            break;
         case 6:
             result = "views/VisitPromo.html";
             break;
