@@ -28,15 +28,16 @@ function photoGalleryInit() {
 function photoGalleryShow(e) {
     log("..photoGalleryShow()");
     
-    app.view().header.find(".km-navbar").data("kendoMobileNavBar")
-        .title(photoGallery.title);
-    
     if (!isNotDataReload) {
         renderPhotoGallery(0);
     } else {
         isNotDataReload = false;
     }
     photoGalleryEnableControls();
+}
+
+function photoGalleryAfterShow(e) {
+    viewTitleSet(app.view(), photoGallery.title);
 }
 
 function renderPhotoGallery(scrollToPageNumber) {
