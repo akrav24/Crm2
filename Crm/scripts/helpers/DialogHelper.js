@@ -1,6 +1,6 @@
 var dialogHelper = {};
 
-dialogHelper.confirm = function(dialogSelector, title, msg, onYes, onNo) {
+dialogHelper.confirm = function(title, msg, onYes, onNo) {
     if (!title) {
         title = app.view()
             .header
@@ -22,7 +22,7 @@ dialogHelper.confirm = function(dialogSelector, title, msg, onYes, onNo) {
     );
 }
 
-dialogHelper.warning = function(dialogSelector, title, msg) {
+dialogHelper.warning = function(title, msg) {
     if (!title) {
         title = app.view()
             .header

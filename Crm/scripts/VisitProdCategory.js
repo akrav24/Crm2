@@ -27,6 +27,8 @@ function renderVisitProdCat(isItemAllShow) {
 function renderVisitProdCatView(tx, rs) {
     log("..renderVisitProdCatView");
     var data = dbTools.rsToJson(rs);
+log("====visit.activityLst=" + kendo.stringify(visit.activityLst));
+log("====data=" + kendo.stringify(data));
     $("#prod-cat-list").data("kendoMobileListView").dataSource.data(data);
 }
 

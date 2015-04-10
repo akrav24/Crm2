@@ -20,11 +20,12 @@ function visitAnalysisResultsShow(e) {
     if (visitAnalysisResults.navBackCount < 1) {
         visitAnalysisResults.navBackCount = 1;
     }
-    renderVisitAnalysisResults(visit.visitId);
+    $("#visit-analysis-results-show-all-button").data("kendoMobileButtonGroup").select(visit.fmtFilterType);
+    renderVisitAnalysisResults(visit.visitId, visit.fmtFilterType, visit.fmtId);
 }
 
-function renderVisitAnalysisResults(visitId) {
-    dbTools.visitAnalysisResultsGet(visitId, /*visit.fmtFilterType*/1, visit.fmtId, renderVisitAnalysisResultsView);
+function renderVisitAnalysisResults(visitId, fmtFilterType, fmtId) {
+    dbTools.visitAnalysisResultsGet(visitId, fmtFilterType, fmtId, renderVisitAnalysisResultsView);
 }
 
 function renderVisitAnalysisResultsView(tx, rs) {
@@ -39,6 +40,12 @@ function renderVisitAnalysisResultsView(tx, rs) {
 function visitAnalysisResultsNavBackClick(e) {
     log("..visitAnalysisResultsNavBackClick");
     navigateBack(visitAnalysisResults.navBackCount);
+}
+
+function visitAnalysisResultsShowAll(e) {
+    log("..visitAnalysisResultsShowAll");
+    visit.fmtFilterType = e.index;
+    renderVisitAnalysisResults(visit.visitId, visit.fmtFilterType, visit.fmtId);
 }
 
 //----------------------------------------

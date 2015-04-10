@@ -50,7 +50,7 @@ function loginDialogButtonYesClick(e) {
         //$("#login-dialog").data("kendoWindow").close();
         app.navigate("views/Start.html");
     } else {
-        dialogHelper.warning("#login-info-dialog", false, 
+        dialogHelper.warning(/*"#login-info-dialog", */false, 
             "Вы ввели неправильный пароль!"
         );
     }

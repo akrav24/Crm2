@@ -12,7 +12,7 @@ function startOnShow(e) {
 }
 
 function startErrorOnClick(e) {
-    dialogHelper.warning("#start-dialog", false, "Установите идентификатор устройства (nodeId)");
+    dialogHelper.warning(/*"#start-dialog", */false, "Установите идентификатор устройства (nodeId)");
 }
 
 function startExitButtonClick(e) {

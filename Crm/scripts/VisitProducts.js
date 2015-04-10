@@ -16,6 +16,7 @@ function visitProductsShow(e) {
     if (visitProducts.navBackCount < 1) {
         visitProducts.navBackCount = 1;
     }
+    $("#visit-products-show-all-button").data("kendoMobileButtonGroup").select(visit.fmtFilterType);
     renderVisitProducts(visit.visitId, settings.skuCatId, visit.fmtFilterType, visit.fmtId);
 }
 
@@ -98,7 +99,7 @@ function visitProductsNavBackClick(e) {
 
 function visitProductsCheckAllClick(e) {
     log("..visitProductsCheckAllClick");
-    dialogHelper.confirm("#visit-products-dialog", false, "Вы действительно намерены отметить все продукты?",
+    dialogHelper.confirm(/*"#visit-products-dialog", */false, "Вы действительно намерены отметить все продукты?",
         function() {
             $(".checkbox").iCheck("check");
         }
@@ -106,6 +107,7 @@ function visitProductsCheckAllClick(e) {
 }
 
 function visitProductsShowAll(e) {
+    log("..visitProductsShowAll");
     visit.fmtFilterType = e.index;
     renderVisitProducts(visit.visitId, settings.skuCatId, visit.fmtFilterType, visit.fmtId);
 }

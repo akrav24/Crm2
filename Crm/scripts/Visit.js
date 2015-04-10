@@ -103,7 +103,7 @@ function visitStartOnClick(e) {
                     dbTools.onSqlError
                 );
             } else {
-                dialogHelper.confirm("#visit-dialog", false, "Вы действительно намерены начать визит запланированный на другой день?",
+                dialogHelper.confirm(/*"#visit-dialog", */false, "Вы действительно намерены начать визит запланированный на другой день?",
                     function() {
                         dbTools.visitAdd(visit.dateBgn, visit.custId,
                             function(visitId, timeBgn) {
@@ -120,21 +120,25 @@ function visitStartOnClick(e) {
                 );
             }
         } else {
-            dialogHelper.warning("#visit-dialog", false, "Сначала закончите визит от " + dateToStr(dateBgn, "DD/MM/YYYY"));
+            dialogHelper.warning(/*"#visit-dialog", */false, "Сначала закончите визит от " + dateToStr(dateBgn, "DD/MM/YYYY"));
         }
     });
 }
 
 function visitFinishOnClick(e) {
-    dbTools.visitEnd(visit.visitId,
-        function(timeEnd) {
-            visit.timeEnd = timeEnd;
-            visitTimeCaptionSet(visit.timeBgn, visit.timeEnd);
-            visitCheckReadOnly();
-            visitEnableButtons();
-            dbTools.objectListItemSet("visit-list", true);
-        }, 
-        dbTools.onSqlError
+    dialogHelper.confirm(false, "Вы хотите закончить визит?", 
+        function() {
+            dbTools.visitEnd(visit.visitId,
+                function(timeEnd) {
+                    visit.timeEnd = timeEnd;
+                    visitTimeCaptionSet(visit.timeBgn, visit.timeEnd);
+                    visitCheckReadOnly();
+                    visitEnableButtons();
+                    dbTools.objectListItemSet("visit-list", true);
+                }, 
+                dbTools.onSqlError
+            );
+        }
     );
 }
 

@@ -30,11 +30,13 @@
                             <td class="visit-sku-cat-list-item-table-name">
                                 <div>#:name#</div>
                             </td>
-                            #for (var i = 0; i < visit.activityLst.length; i++) {
-                                if (visit.activityLst[i].stageId > 0 && visit.activityLst[i].activityId > 0) {
+                            #var usedActivity = [];
+                            for (var i = 0; i < visit.activityLst.length; i++) {
+                                if (visit.activityLst[i].activityId > 0 && !inArray(usedActivity, visit.activityLst[i].activityId) && data["A" + visit.activityLst[i].activityId] > 0) {
+                                usedActivity.push(visit.activityLst[i].activityId);
                             #
                             <td style="
-            						background-image: url(styles/images/visitActivity/set#if (data["S" + visit.activityLst[i].stageId + "A" + visit.activityLst[i].activityId] > 0) {#2#} else {#1#}#/VisitActivity#:visit.activityLst[i].activityId#.png);
+            						background-image: url(styles/images/visitActivity/set#if (data["A" + visit.activityLst[i].activityId] > 0) {#2#} else {#1#}#/VisitActivity#:visit.activityLst[i].activityId#.png);
             						background-repeat: no-repeat; background-size: contain; background-position: center center">
                                 <div class="visit-sku-cat-list-item-table-activity"></div>
                             </td>

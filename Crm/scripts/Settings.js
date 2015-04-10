@@ -41,7 +41,7 @@ function settingsNodeIdEditSave(e) {
         if (newNodeId != settings.nodeId) {
             if (settings.nodeId > 0) {
                 var msg = "Вы действительно намерены изменить код узла? После изменениия кода узла база данных приложения будет очищена.";
-                dialogHelper.confirm("#settings-node-id-edit-dialog", false, msg,
+                dialogHelper.confirm(/*"#settings-node-id-edit-dialog", */false, msg,
                     function() {
                         nodeIdSet(newNodeId);
                         renderSettings();
@@ -114,13 +114,13 @@ function settingsPasswordEditSave(e) {
     
     if (oldPassword == settings.password) {
         if (newPassword != newPasswordConfirm) {
-            dialogHelper.warning("#settings-password-edit-dialog", false, 
+            dialogHelper.warning(/*"#settings-password-edit-dialog", */false, 
                 "Новый пароль и подтверждение нового пароля не совпадают!"
             );
         } else {
             if (newPassword == "") {
                 if (settings.password != "") {
-                    dialogHelper.confirm("#settings-password-edit-dialog", false, 
+                    dialogHelper.confirm(/*"#settings-password-edit-dialog", */false, 
                         "Вы действительно намерены очистить пароль?",
                         function() {
                             passwordSave(newPassword);
@@ -136,7 +136,7 @@ function settingsPasswordEditSave(e) {
             }
         }
     } else {
-        dialogHelper.warning("#settings-password-edit-dialog", false, 
+        dialogHelper.warning(/*"#settings-password-edit-dialog", */false, 
             "Введен неправильный текущий пароль!"
         );
     }
