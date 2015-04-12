@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Visit</title>
+</head>
+<body>
+    <script src="scripts/VisitSkuPrice.js"></script>
+    
+    <div id="visit-sku-price-list-view"
+        data-role="view" 
+        data-title="Прайс-аудит" 
+        data-layout="main" 
+        data-init="visitSkuPriceInit" 
+        data-show="visitSkuPriceShow">
+        
+        <header data-role="header">
+            <div data-role="navbar">
+                <a class="nav-button" data-align="left" data-role="button" data-icon="back"  data-click="visitSkuPriceNavBackClick"></a>
+                <span data-role="view-title"></span>
+            </div>
+        </header>
+        
+        <ul id="visit-sku-price-list" class="list" data-role="listview" data-template="visit-sku-price-list-tmpl" data-click="visitSkuPriceListClick"></ul>
+        
+        <script id="visit-sku-price-list-tmpl" type="text/x-kendo-template">
+            <a class="list-item-header">
+                <p>
+                    <table width="100%">
+                        <tr class="table-text-align#if (data.ext == 0) {# color-selected#}#">
+                            <td width="60px"><span style="margin-left: 10px">#:code#</span></td>
+                            <td width="100%"><div>#:name#, #:suppName#</div></td>
+                            <td width="100px"><div>#:price#</div></td>
+                            <td><div class="list-item-table-last-empty-cell"></div></td>
+                        </tr>
+                    </table>
+                </p>
+            </a>
+        </script>
+        
+    </div>
+    
+    <div id="visit-sku-price-edit-view"
+        data-role="view" 
+        data-title="Прайс-аудит" 
+        data-layout="main" 
+        data-init="visitSkuPriceEditInit"
+        data-show="visitSkuPriceEditShow">
+      
+        <header data-role="header">
+            <div data-role="navbar">
+                <a class="nav-button" data-align="left" data-role="button" data-icon="back" data-click="visitSkuPriceEditNavBackClick"></a>
+                <span data-role="view-title"></span>
+                <a id="visit-sku-price-edit-save-button" class="nav-button hidden" data-align="right" data-role="button" data-click="visitSkuPriceEditSaveClick">Сохранить</a>
+                <a id="visit-sku-price-edit-del-button" class="nav-button hidden" data-align="right" data-role="button" data-click="visitSkuPriceEditDelClick">Удалить</a>
+            </div>
+        </header>
+        
+        <form>
+            <ul id="visit-sku-price-edit-list" class="list form-list" data-role="listview">
+                <li>
+                    <label>Продукт
+                        <div><span id="visit-sku-price-edit-name"></span></div>
+                    </label>
+                </li>
+                <li>
+                    <label>Цена
+                        <input id="visit-sku-price-edit-price" class="editable" type="number" onchange="visitSkuPriceEditControlChange(this.id, this.value)"/>
+                    </label>
+                </li>
+            </ul>
+        </form>
+    </div>
+    
+</body>
+</html>

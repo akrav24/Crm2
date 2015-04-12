@@ -175,6 +175,11 @@ dbTools.visitProductCategoryMatrixGet = function(visitId, isItemAllShow, dataset
                     + "        FROM VisitPromo VP"
                     + "        WHERE VP.visitId = @visitId"
                     + "      UNION ALL"
+                    + "      SELECT 8 AS activityId, S.skuCatId"
+                    + "        FROM VisitSkuPrice VSP"
+                    + "        INNER JOIN Sku S ON VSP.skuId = S.skuId"
+                    + "        WHERE VSP.visitId = @visitId"
+                    + "      UNION ALL"
                     + "      SELECT 11 AS activityId, -1 AS skuCatId"
                     //+ "        FROM SkuCat SC"
                     + "        WHERE EXISTS(SELECT 1 FROM VisitSurveyAnswer VSA INNER JOIN SurveyQuestion SQ ON VSA.questionId = SQ.questionId WHERE VSA.visitId = @visitId AND SQ.surveyId = 2)"
@@ -346,6 +351,12 @@ dbTools.visitActivityGet = function(visitPlanItemId, visitId, skuCatId, custId, 
             + "      FROM VisitPromo VP"
             + "      WHERE VP.visitId = @visitId"
             + "      GROUP BY VP.skuCatId"
+            + "    UNION ALL"
+            + "    SELECT 2 AS stageId, 8 AS activityId, S.skuCatId"
+            + "      FROM VisitSkuPrice VSP"
+            + "      INNER JOIN Sku S ON VSP.skuId = S.skuId"
+            + "      WHERE VSP.visitId = @visitId"
+            + "      GROUP BY S.skuCatId"
             + "    UNION ALL"
             + "    SELECT 2 AS stageId, 11 AS activityId, SC.skuCatId"
             + "      FROM SkuCat SC"
@@ -753,6 +764,46 @@ dbTools.visitTaskDoneUpdate = function(visitId, skuCatId, taskId, done, onSucces
     dbTools.db.transaction(function(tx) {
         dbTools.sqlInsertUpdate(tx, "VisitTask", ["visitId", "skuCatId", "taskId"], ["done"], [visitId, skuCatId, taskId], [done], 
             function() {if (onSuccess != undefined) {onSuccess(visitId, skuCatId, taskId);}},
+            onError
+        );
+    }, function(error) {if (onError != undefined) {onError("!!! SQLite transaction error, " + dbTools.errorMsg(error));}});
+}
+
+dbTools.visitSkuPriceListGet = function(visitId, skuCatId, datasetGet) {
+    log("visitTaskListGet(" + visitId + ", " + skuCatId + ")");
+    dbTools.db.transaction(function(tx) {
+        var sql = "SELECT S.skuId, CASE WHEN B.ext = 0 THEN IFNULL(S.code, '') ELSE '' END AS code, S.name, IFNULL(SP.name, '') AS suppName, B.ext, IFNULL(VSP.price, 0) AS price"
+            + "  FROM Sku S"
+            + "  LEFT JOIN BrandGrp BG ON S.brandGrpId = BG.brandGrpId"
+            + "  LEFT JOIN Brand B ON BG.brandId = B.brandId"
+            + "  LEFT JOIN Supp SP ON S.suppId = SP.suppId"
+            + "  LEFT JOIN VisitSkuPrice VSP ON VSP.visitId = ? AND S.skuId = VSP.skuId"
+            + "  WHERE S.pAudit <> 0 AND S.active = 1"
+            + "    AND S.skuCatId = ?"
+            + "  ORDER BY CASE WHEN B.ext = 0 THEN 0 ELSE 1 END, S.name";
+        tx.executeSql(sql, [visitId, skuCatId], datasetGet, dbTools.onSqlError);
+    }, dbTools.onTransError);
+}
+
+dbTools.visitSkuPriceGet = function(visitId, skuId, datasetGet) {
+    log("visitSkuPriceGet(" + visitId + ", " + skuId + ")");
+    dbTools.db.transaction(function(tx) {
+        var sql = "SELECT S.skuId, CASE WHEN B.ext = 0 THEN IFNULL(S.code, '') ELSE '' END AS code, S.name, IFNULL(SP.name, '') AS suppName, VSP.price"
+            + "  FROM Sku S"
+            + "  LEFT JOIN BrandGrp BG ON S.brandGrpId = BG.brandGrpId"
+            + "  LEFT JOIN Brand B ON BG.brandId = B.brandId"
+            + "  LEFT JOIN Supp SP ON S.suppId = SP.suppId"
+            + "  LEFT JOIN VisitSkuPrice VSP ON VSP.visitId = ? AND S.skuId = VSP.skuId"
+            + "  WHERE S.skuId = ?";
+        tx.executeSql(sql, [visitId, skuId], datasetGet, dbTools.onSqlError);
+    }, dbTools.onTransError);
+}
+
+dbTools.visitSkuPriceUpdate = function(visitId, skuId, price, onSuccess, onError) {
+    log("visitTaskDoneUpdate(" + visitId + ", " + skuId + ", " + price + ")");
+    dbTools.db.transaction(function(tx) {
+        dbTools.sqlInsertUpdate(tx, "VisitSkuPrice", ["visitId", "skuId"], ["price"], [visitId, skuId], [price], 
+            function() {if (onSuccess != undefined) {onSuccess(visitId, skuId);}},
             onError
         );
     }, function(error) {if (onError != undefined) {onError("!!! SQLite transaction error, " + dbTools.errorMsg(error));}});

@@ -182,6 +182,10 @@ body {
     margin-left: 5px;
     width: 100%;
 }
+.list-item-table-last-empty-cell {
+    height: 1px;
+    width: 0.5em;
+}
 
 .logo {
     margin-top: 40px;
@@ -286,10 +290,6 @@ body {
 }
 .visit-sku-cat-list-item-table-activity {
     width: 1.5em;
-}
-.visit-sku-cat-list-item-table-activity-end {
-    height: 1px;
-    width: 0.5em;
 }
 
 .visit-task-done {
