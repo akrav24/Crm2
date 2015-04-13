@@ -174,6 +174,9 @@ function hrefByActivityIdGet(stageId, activityId) {
         /*case 2:
             result = "views/VisitPlanogramList.html";
             break;*/
+        case 3:
+            result = "views/VisitPhoto.html?stageId=" + stageId;
+            break;
         case 4:
             result = "views/VisitShelfShare.html";
             break;
