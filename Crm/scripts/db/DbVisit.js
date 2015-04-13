@@ -163,6 +163,10 @@ dbTools.visitProductCategoryMatrixGet = function(visitId, isItemAllShow, dataset
                     + "        INNER JOIN Sku S ON VS.skuId = S.skuId"
                     + "        WHERE VS.visitId = @visitId"
                     + "      UNION ALL"
+                    + "      SELECT 3 AS activityId, VP.skuCatId"
+                    + "        FROM VisitPhoto VP"
+                    + "        WHERE VP.visitId = @visitId"
+                    + "      UNION ALL"
                     + "      SELECT 4 AS activityId, VSC.skuCatId"
                     + "        FROM VisitSkuCat VSC"
                     + "        WHERE VSC.visitId = @visitId"
@@ -322,6 +326,10 @@ dbTools.visitActivityGet = function(visitPlanItemId, visitId, skuCatId, custId, 
             + "      WHERE VS.visitId = @visitId"
             + "      GROUP BY S.skuCatId"
             + "    UNION ALL"
+            + "    SELECT 1 AS stageId, 3 AS activityId, VP.skuCatId"
+            + "      FROM VisitPhoto VP"
+            + "      WHERE VP.visitId = @visitId AND VP.stageId = 1"
+            + "    UNION ALL"
             /*+ "    SELECT 1 AS stageId, 14 AS activityId, S.skuCatId"
             + "      FROM VisitSku VS"
             + "      INNER JOIN Sku S ON VS.skuId = S.skuId"
@@ -337,6 +345,10 @@ dbTools.visitActivityGet = function(visitPlanItemId, visitId, skuCatId, custId, 
             //+ "      WHERE VS.visitId = @visitId AND VS.sel = 1"
             + "      WHERE VS.visitId = @visitId AND VS.sel <> IFNULL(VS.sel0, 0)"
             + "      GROUP BY S.skuCatId"
+            + "    UNION ALL"
+            + "    SELECT 2 AS stageId, 3 AS activityId, VP.skuCatId"
+            + "      FROM VisitPhoto VP"
+            + "      WHERE VP.visitId = @visitId AND VP.stageId = 2"
             + "    UNION ALL"
             + "    SELECT 2 AS stageId, 4 AS activityId, VSC.skuCatId"
             + "      FROM VisitSkuCat VSC"
@@ -632,7 +644,7 @@ dbTools.visitPromoPhotoListGet = function(visitPromoId, datasetGet) {
 }
 
 dbTools.visitPromoPhotoUpdate = function(visitId, visitPromoId, visitPromoPhotoId, fileId, onSuccess, onError) {
-    log("visitPromoPhotoUpdate(" + visitId + ", " + visitPromoId + ", " + visitPromoPhotoId + ", '" + fileId + "')");
+    log("visitPromoPhotoUpdate(" + visitId + ", " + visitPromoId + ", " + visitPromoPhotoId + ", " + fileId + ")");
     dbTools.db.transaction(function(tx) {
         if (visitPromoPhotoId > 0) {
                 dbTools.sqlInsertUpdate(tx, "VisitPromoPhoto", ["visitPromoPhotoId"], ["visitId", "visitPromoId", "fileId"], [visitPromoPhotoId], [visitId, visitPromoId, fileId], 
@@ -806,6 +818,38 @@ dbTools.visitSkuPriceUpdate = function(visitId, skuId, price, onSuccess, onError
             function() {if (onSuccess != undefined) {onSuccess(visitId, skuId);}},
             onError
         );
+    }, function(error) {if (onError != undefined) {onError("!!! SQLite transaction error, " + dbTools.errorMsg(error));}});
+}
+
+dbTools.visitPhotoListGet = function(visitId, stageId, skucatId, datasetGet) {
+    log("visitPhotoListGet(" + visitId + ", " + stageId + ", " + skucatId + ")");
+    dbTools.db.transaction(function(tx) {
+        var sql = "SELECT VP.visitPhotoId, VP.visitId, VP.stageId, VP.skuCatId, VP.fileId"
+            + "  FROM VisitPhoto VP"
+            + "  WHERE VP.visitId = ? AND VP.stageId = ? AND VP.skuCatId = ?";
+        tx.executeSql(sql, [visitId, stageId, skucatId], datasetGet, dbTools.onSqlError);
+    }, dbTools.onTransError);
+}
+
+dbTools.visitPhotoUpdate = function(visitPhotoId, visitId, stageId, skucatId, fileId, onSuccess, onError) {
+    log("visitPhotoUpdate(" + visitPhotoId + ", " + visitId + ", " + stageId + ", " + skucatId + ", " + fileId + ")");
+    dbTools.db.transaction(function(tx) {
+        if (visitPhotoId > 0) {
+                dbTools.sqlInsertUpdate(tx, "VisitPhoto", ["visitPhotoId"], ["visitId", "stageId", "skucatId", "fileId"], [visitPhotoId], [visitId, stageId, skucatId, fileId], 
+                    function() {if (onSuccess != undefined) {onSuccess(visitPhotoId);}},
+                    onError
+                );
+        } else {
+            dbTools.tableNextIdGet(tx, "VisitPhoto", 
+                function(tx, visitPhotoId) {
+                    dbTools.sqlInsertUpdate(tx, "VisitPhoto", ["visitPhotoId"], ["visitId", "stageId", "skucatId", "fileId"], [visitPhotoId], [visitId, stageId, skucatId, fileId], 
+                        function() {if (onSuccess != undefined) {onSuccess(visitPhotoId);}},
+                        onError
+                    );
+                }, 
+                onError
+            );
+        }
     }, function(error) {if (onError != undefined) {onError("!!! SQLite transaction error, " + dbTools.errorMsg(error));}});
 }
 
