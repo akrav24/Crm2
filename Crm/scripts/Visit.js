@@ -205,4 +205,3 @@ function hrefByActivityIdGet(stageId, activityId) {
     //log("....hrefByActivityIdGet='" + result + "'");
     return result;
 }
-
