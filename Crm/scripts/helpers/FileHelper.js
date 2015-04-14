@@ -10,6 +10,7 @@ fileHelper.getFolder = function (fileSystem, folderName, onSuccess, onError) {
 }
 
 fileHelper.getFileEntry = function(folderName, fileName, onSuccess, onError) {
+    log("fileHelper.getFileEntry('" + folderName + "', '" + fileName + "')");
     var that = this;
     var onResolveSuccess = function(fileEntry) {if (onSuccess != undefined) {onSuccess(fileEntry);}}
     var onResolveError = function(error) {if (onError != undefined) {onError("error.code=" + error.code);}}
@@ -19,6 +20,7 @@ fileHelper.getFileEntry = function(folderName, fileName, onSuccess, onError) {
             that.getFolder(fileSystem, folderName,
                 function(folder) {
                     var filePath = folder.toURL() + "/" + fileName;
+log("====" + filePath);
                     window.resolveLocalFileSystemURL(filePath, onResolveSuccess, onResolveError)
                 },
                 function() {

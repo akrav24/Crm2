@@ -29,7 +29,10 @@ function renderVisitSkuPriceView(tx, rs) {
     var data = dbTools.rsToJson(rs);
     var dataSource = new kendo.data.DataSource({data: data});
     $("#visit-sku-price-list").data("kendoMobileListView").setDataSource(dataSource);
-    app.scroller().reset();
+    if (visitSkuPriceList.scrollerReset) {
+        app.scroller().reset();
+        visitSkuPriceList.scrollerReset = false;
+    }
 }
 
 function visitSkuPriceNavBackClick(e) {
@@ -154,6 +157,7 @@ function visitSkuPriceEditControlChange(id, value) {
 function visitSkuPriceObjInit() {
     visitSkuPriceList = {};
     visitSkuPriceList.navBackCount = 1;
+    visitSkuPriceList.scrollerReset = true;
     visitSkuPriceItem = {};
     visitSkuPriceItem.isEdited = false;
     visitSkuPriceItem.skuId = 0;

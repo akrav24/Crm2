@@ -149,7 +149,7 @@ dbTools.tableNextIdGet = function(tx, tableName, onSuccess, onError) {
 }
 
 dbTools.tableUpdateDateFieldExists = function(tableName) {
-    return !inArray(["parm", "visitpromo", "visitsku", "visitskucat", "visitpromophoto", "visitsurveyanswer", "visittask", "visitskuprice"], tableName.toLowerCase());
+    return !inArray(["parm", "visitpromo", "visitsku", "visitskucat", "visitpromophoto", "visitsurveyanswer", "visittask", "visitskuprice", "visitphoto", "visitplanogramanswer"], tableName.toLowerCase());
 }
 
 dbTools.sqlInsert = function(tx, tableName, keyFieldNameArray, fieldNameArray, keyFieldValueArray, fieldValueArray, onSuccess, onError) {

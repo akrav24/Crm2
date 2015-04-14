@@ -26,7 +26,7 @@
             <a class="list-item-header">
                 <p>
                     <table width="100%">
-                        <tr class="table-text-align#if (data.ext == 0) {# color-selected#}#">
+                        <tr class="table-text-align#if (data.ext != 0) {# color-ext#}#">
                             <td width="60px"><span style="margin-left: 10px">#:code#</span></td>
                             <td width="100%"><div>#:name#, #:suppName#</div></td>
                             <td width="100px"><div>#:price#</div></td>
@@ -64,7 +64,7 @@
                 </li>
                 <li>
                     <label>Цена
-                        <input id="visit-sku-price-edit-price" class="editable" type="number" onchange="visitSkuPriceEditControlChange(this.id, this.value)"/>
+                        <input id="visit-sku-price-edit-price" class="editable" type="number" onchange="visitSkuPriceEditControlChange(this.id, this.valueAsNumber)"/>
                     </label>
                 </li>
             </ul>

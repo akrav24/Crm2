@@ -51,6 +51,9 @@ body {
 .color-unselected {
     color: #4c5356;
 }
+.color-ext {
+    color: #645452/*#543D37*/;
+}
 
 .date {
     width: 100px;

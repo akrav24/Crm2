@@ -171,9 +171,12 @@ function hrefByActivityIdGet(stageId, activityId) {
         case 1:
             result = "views/VisitProducts.html?stageId=" + stageId;
             break;
-        /*case 2:
-            result = "views/VisitPlanogramList.html";
-            break;*/
+        case 2:
+            result = "views/VisitPlanogram.html?stageId=" + stageId;
+            break;
+        case 3:
+            result = "views/VisitPhoto.html?stageId=" + stageId;
+            break;
         case 4:
             result = "views/VisitShelfShare.html";
             break;
@@ -192,9 +195,6 @@ function hrefByActivityIdGet(stageId, activityId) {
         case 12:
             result = "views/VisitSurveyAnswer.html?surveyId=1";
             break;
-        /*case 13:
-            result = "views/VisitPlanogramList.html";
-            break;*/
         case 14:
             result = "views/VisitAnalysisResult.html";
             break;

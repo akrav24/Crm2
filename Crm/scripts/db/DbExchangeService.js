@@ -156,6 +156,7 @@ dbTools.exchangeDataFileByIdDownload = function(blockId, fileId, onSuccess, onEr
             fileHelper.getFolder(fileSystem, folderName,
                 function(folder) {
                     filePath = folder.toURL() + "/" + fileName;
+log("====" + folder.toURL());
                     
                     var options = new FileUploadOptions();
                     //options.headers = "";

@@ -853,3 +853,37 @@ dbTools.visitPhotoUpdate = function(visitPhotoId, visitId, stageId, skucatId, fi
     }, function(error) {if (onError != undefined) {onError("!!! SQLite transaction error, " + dbTools.errorMsg(error));}});
 }
 
+dbTools.visitPlanogramListGet = function(visitId, stageId, skuCatId, datasetGet) {
+    log("visitPlanogramListGet(" + visitId + ", " + stageId + ", " + skuCatId + ")");
+    dbTools.db.transaction(function(tx) {
+        var sql = "SELECT P.planogramId, P.name, P.code, P.fileId"
+            + "  FROM Planogram P"
+            + "  INNER JOIN Cust C ON P.chainId = C.chainId"
+            + "  INNER JOIN Visit V ON V.visitId = ? AND C.custId = V.custId"
+            + "  WHERE P.skuCatId = ?"
+            + " UNION ALL"
+            + " SELECT P.planogramId, P.name, P.code, P.fileId"
+            + "  FROM Planogram P"
+            + "  WHERE P.skuCatId = ? AND P.chainId IS NULL"
+            + "    AND NOT EXISTS"
+            + "      (SELECT 1"
+            + "        FROM Planogram P"
+            + "        INNER JOIN Cust C ON P.chainId = C.chainId"
+            + "        INNER JOIN Visit V ON V.visitId = ? AND C.custId = V.custId"
+            + "        WHERE P.skuCatId = ?)";
+        tx.executeSql(sql, [visitId, skuCatId, skuCatId, visitId, skuCatId], datasetGet, dbTools.onSqlError);
+    }, dbTools.onTransError);
+}
+
+dbTools.visitPlanogramAnswerListGet = function(visitId, planogramId, datasetGet) {
+    log("visitPlanogramAnswerListGet(" + planogramId + ")");
+    dbTools.db.transaction(function(tx) {
+        var sql = "SELECT PQ.planogramId, PQ.questionId, PQ.name, VPA.answer"
+            + "  FROM PlanogramQuestion PQ"
+            + "  LEFT JOIN VisitPlanogramAnswer VPA ON VPA.visitId = ? AND PQ.questionId = VPA.questionId"
+            + "  WHERE PQ.planogramId = ?"
+            + "  ORDER BY PQ.lvl, PQ.questionId";
+        tx.executeSql(sql, [visitId, planogramId], datasetGet, dbTools.onSqlError);
+    }, dbTools.onTransError);
+}
+
