@@ -26,8 +26,7 @@ function nodeIdGetOnClick() {
 }
 
 function getInfo() {
-    dbTools.getSQLiteInfo();
-    dbTools.getTablesInfo();
+    dbTools.getSQLiteInfo(dbTools.getTablesInfo());
 }
 
 function getImage() {
@@ -89,4 +88,31 @@ function getLocation() {
     geolocationOptions = { maximumAge: 30000, timeout: timeout.value() * 1000, enableHighAccuracy: true };
     
     navigator.geolocation.getCurrentPosition(onSuccess, onError, geolocationOptions);    
+}
+
+function createImage() {
+    log("..createImage()");
+    /*fileHelper.fileDataSave("FFD8FFE000104A464946", fileHelper.folderName(), "testt.txt",
+        function(fileEntry) {log("====success");},
+        function(errMsg) {log("====error: " + errMsg);}
+    );
+    */
+    dbTools.db.transaction(
+        function(tx) {
+            tx.executeSql("SELECT * FROM FileIn WHERE data IS NOT NULL", [], 
+                function(tx, rs) {
+                    for (var i = 0; i < rs.rows.length; i++) {
+                        for (var j = 0; j < 25; j++) {
+                            fileHelper.fileDataSave(rs.rows.item(i).data, fileHelper.folderName(), rs.rows.item(i).fileName + "_" + i + "_" + j + ".png",
+                                /*function(fileEntry) {log("====success");}*/undefined,
+                                function(errMsg) {log("====error: " + errMsg);}
+                            );
+                        }
+                    }
+                },
+                function(error) {log("!!! SQLite error: " + dbTools.errorMsg(error));}
+            );
+        }, 
+        function(error) {log("!!! SQLite error: " + dbTools.errorMsg(error));}
+    );
 }

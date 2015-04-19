@@ -43,7 +43,7 @@ function dataAdd(data, folderName, rows, i) {
     var name = rows.item(i)["name"];
     var fileId = rows.item(i)["fileId"];
     var fileName = fileHelper.fileName("plan", fileId);
-    fileHelper.getFileEntry(folderName, fileName, 
+    fileHelper.getFileEntry(folderName, fileName, false,
         function(fileEntry) {
             data.push({"name": name, "fileId": fileId, "filePath": fileEntry.toURL()});
             if (i < rows.length - 1) {
@@ -84,7 +84,7 @@ function imageSourceSet(i) {
     var fileId = data[i].fileId;
     var folderName = fileHelper.folderName();
     var fileName = fileHelper.fileName("plan", fileId);
-    fileHelper.getFileEntry(folderName, fileName, 
+    fileHelper.getFileEntry(folderName, fileName, false,
         function(fileEntry) {
             imageSrc = fileEntry.toURL();
             log("....imageSrc=" + imageSrc);

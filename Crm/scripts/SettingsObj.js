@@ -9,6 +9,9 @@ function settingsObjInit(onSuccess) {
     
     settings = {};
     
+    // признак выполнения приложения в симуляторе
+    settings.simulator = (window.navigator.simulator === true);
+    
     // http сервер
     settings.serverName = "93.190.44.9";
     settings.serverPort = 331;

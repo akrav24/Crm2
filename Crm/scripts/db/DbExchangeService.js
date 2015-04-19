@@ -139,7 +139,7 @@ dbTools.exchangeDataFileByIdDownload = function(blockId, fileId, onSuccess, onEr
     
     var uploadOnSuccess = function(fileEntry) {
         //log("..exchangeDataFileByIdDownload file received: " + fileEntry.fullPath);
-        fileHelper.getFileEntry(folderName, fileName, function(fileEntry) {log("..exchangeDataFileByIdDownload file received: " + fileEntry.toURL());}, onError);
+        fileHelper.getFileEntry(folderName, fileName, false, function(fileEntry) {log("..exchangeDataFileByIdDownload file received: " + fileEntry.toURL());}, onError);
         if (onSuccess != undefined) {
             onSuccess(blockId, fileId, fileEntry);
         }

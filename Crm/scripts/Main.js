@@ -94,26 +94,31 @@ function log(msg) {
     $("#console").append("<li>" + dateToStr(tm, "HH:NN:SS:ZZZ") + " " + msg + "</li>");
 }
 
-function logSqlResult(sql, rowCount, onSuccess, onError) {
-    dbTools.db.transaction(
-        function(tx) {
-            tx.executeSql(sql, [],
-                function(tx, rs) {
-                    log("sql: " + sql);
-                    log("..sql result: ");
-                    if (rowCount == undefined || rowCount === 0) {
-                        rowCount = rs.rows.length;
-                    }
-                    for (var i = 0; (i < rs.rows.length && i < rowCount); i++) {
-                        log(".." + JSON.stringify(rs.rows.item(i)));
-                    }
-                    if (onSuccess != undefined) {onSuccess(rs);}
-                },
-                dbTools.onSqlError
-            );
-        },
-        function(error) {if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error));}}
-    );
+function logSqlResult(tx, sql, rowCount, onSuccess, onError) {
+    var execSql = function(tx) {
+        tx.executeSql(sql, [],
+            function(tx, rs) {
+                log("sql: " + sql);
+                log("..sql result: ");
+                if (rowCount == undefined || rowCount === 0) {
+                    rowCount = rs.rows.length;
+                }
+                for (var i = 0; (i < rs.rows.length && i < rowCount); i++) {
+                    log(".." + JSON.stringify(rs.rows.item(i)));
+                }
+                if (onSuccess != undefined) {onSuccess(rs);}
+            },
+            dbTools.onSqlError
+        );
+    }
+    if (!tx) {
+        dbTools.db.transaction(
+            execSql,
+            function(error) {if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error));}}
+        );
+    } else {
+        execSql(tx);
+    }
 }
 
 function logClear() {

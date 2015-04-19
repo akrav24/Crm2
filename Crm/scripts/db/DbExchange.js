@@ -19,9 +19,14 @@ dbTools.exchange = function(onSuccess, onError, onProgress) {
                                 function(blockId) {
                                     dbTools.exchangeDelMailBlockData(blockId, 
                                         function(blockId) {
-                                            if (onProgress != undefined) {onProgress();}
-                                            if (onSuccess != undefined) {onSuccess(blockId);}
-                                            logSqlResult("select * from parm");
+                                            dbTools.exchangeFileImport(blockId,
+                                                function(blockId) {
+                                                    if (onProgress != undefined) {onProgress();}
+                                                    if (onSuccess != undefined) {onSuccess(blockId);}
+                                                    logSqlResult(undefined, "select * from parm");
+                                                },
+                                                onError
+                                            );
                                         }, 
                                         onError/*, 
                                         onProgress*/
@@ -114,7 +119,7 @@ dbTools.exchangeImport = function(blockId, onSuccess, onError, onProgress) {
                                         },
                                         onError
                                     );
-                                    dbTools.getAllImages(blockId, function() {log("----Get images success");}, function(errMsg) {log("----Get images error: " + errMsg);});
+                                    //dbTools.getAllImages(blockId, function() {log("----Get images success");}, function(errMsg) {log("----Get images error: " + errMsg);});
                                 }, 
                                 onError
                             );
@@ -454,7 +459,7 @@ dbTools.exchangeMailImport = function(blockId, onSuccess, onError) {
 
 dbTools.exchangeMailImportDelete = function(blockId, onSuccess, onError) {
     log("exchangeMailImportDelete(blockId=" + blockId + ")");
-    //logSqlResult("SELECT D.refTypeId, RT.name, COUNT(*) AS cnt FROM MailToDelete D LEFT JOIN RefType RT ON D.refTypeId = RT.refTypeId WHERE D.blockId=" + blockId + " GROUP BY D.refTypeId, RT.name");
+    //logSqlResult(undefined, "SELECT D.refTypeId, RT.name, COUNT(*) AS cnt FROM MailToDelete D LEFT JOIN RefType RT ON D.refTypeId = RT.refTypeId WHERE D.blockId=" + blockId + " GROUP BY D.refTypeId, RT.name");
     
     dbTools.db.transaction(
         function(tx) {
@@ -498,6 +503,37 @@ dbTools.getAllImages = function(blockId, onSuccess, onError) {
                     }
                 },
                 function(error) {if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error))}}
+            );
+        }, 
+        function(error) {if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error))}}
+    );
+}
+
+dbTools.exchangeFileImport = function(blockId, onSuccess, onError) {
+    log("exchangeFileImport(" + blockId + ")");
+    dbTools.db.transaction(
+        function(tx) {
+            tx.executeSql("SELECT fileInId, fileName, data FROM FileIn WHERE data IS NOT NULL", [], 
+                function(tx, rs) {
+                    for (var i = 0; i < rs.rows.length; i++) {
+                        var fileSave = function(fileInId, fileName, data) {
+                            fileHelper.fileDataSave(data, fileHelper.folderName(), fileName,
+                                function(fileEntry) {
+                                    dbTools.db.transaction(
+                                        function(tx) {
+                                            tx.executeSql("UPDATE FileIn SET data = NULL WHERE fileInId = ?", [fileInId]);
+                                        }, 
+                                        function(error) {if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error))}}
+                                    );
+                                },
+                                function(errMsg) {if (onError != undefined) {onError(errMsg)}}
+                            );
+                        }
+                        fileSave(rs.rows.item(i).fileInId, rs.rows.item(i).fileName, rs.rows.item(i).data);
+                    }
+                    if (onSuccess != undefined) {onSuccess()}
+                },
+                function(error) {log("!!! SQLite error: " + dbTools.errorMsg(error));}
             );
         }, 
         function(error) {if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error))}}

@@ -28,6 +28,8 @@ function photoGalleryInit() {
 function photoGalleryShow(e) {
     log("..photoGalleryShow()");
     
+    photoGallerySetDataSource([], 0);
+    
     if (!isNotDataReload) {
         renderPhotoGallery(0);
     } else {
@@ -63,7 +65,7 @@ function photoGalleryDataAdd(folderName, srcRs, dstData, index, scrollToPageNumb
     var title = srcRs.rows.item(index).title || " ";
     var fileId = srcRs.rows.item(index).fileId;
     var fileName = srcRs.rows.item(index).fileName;
-    fileHelper.getFileEntry(folderName, fileName, 
+    fileHelper.getFileEntry(folderName, fileName, false,
         function(fileEntry) {
             dstData.push({fileId: fileId, fileName: fileEntry.name, fileLocalPath: fileEntry.toURL(), title: title});
             if (index < srcRs.rows.length - 1) {

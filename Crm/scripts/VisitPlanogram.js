@@ -31,6 +31,7 @@ function visitPlanogramPhotoGalleryShow() {
     photoGallery.fileTableName = "FileIn";
     //photoGallery.onAdd = visitPlanogramPhotoGalleryPhotoAdd;
     photoGallery.addNewPhotoEnable = false;
+    photoGallery.fileIdLst = "";
     dbTools.visitPlanogramListGet(visit.visitId, visitPlanogramList.stageId, settings.skuCatId,
         function(tx, rs) {
 log("====" + kendo.stringify(rs.rows.length));

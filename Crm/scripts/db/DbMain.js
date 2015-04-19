@@ -24,7 +24,7 @@ dbTools.onLoadSettings = function() {
     log("settings.serverName=" + settings.serverName);
     log("settings.serverPort=" + settings.serverPort);
     log("settings.password=" + (settings.password != "" ? "Yes" : "No"));
-    logSqlResult("select * from parm");
+    logSqlResult(undefined, "select * from parm");
 }
 
 dbTools.openDB = function() {
@@ -397,7 +397,7 @@ dbTools.tableRowCount = function(tableName) {
     }, dbTools.onTransError);
 }
 
-dbTools.getTablesInfo = function() {
+dbTools.getTablesInfo = function(onSuccess) {
     log("----Tables info:");
     dbTools.tableCount();
     dbTools.db.transaction(function(tx) {
@@ -405,12 +405,13 @@ dbTools.getTablesInfo = function() {
             for (var i = 0; i < rs.rows.length; i++) {
                 dbTools.tableRowCount(rs.rows.item(i)["name"]);
             }
-            logSqlResult("select * from parm");
+            logSqlResult(tx, "select * from parm");
         }, dbTools.onSqlError);
-    }, dbTools.onTransError);
+    }, dbTools.onTransError, onSuccess);
 }
 
-dbTools.getSQLiteInfo = function() {
+dbTools.getSQLiteInfo = function(onSuccess) {
+    log("----SQLite info:");
     dbTools.db.transaction(function(tx) {
         tx.executeSql("SELECT sqlite_version() AS version, sqlite_source_id() AS sourceId", [], function(tx, rs) {
             if (rs.rows.length > 0) {
@@ -418,5 +419,7 @@ dbTools.getSQLiteInfo = function() {
                 log("SQLite sourceId: " + rs.rows.item(0)["sourceId"]);
             }
         }, dbTools.onSqlError);
-    }, dbTools.onTransError);
+        logSqlResult(tx, "PRAGMA auto_vacuum");
+        //logSqlResult(tx, "PRAGMA table_info(parm)");
+    }, dbTools.onTransError, onSuccess);
 }
