@@ -20,19 +20,25 @@ function exchangeOnShow(e) {
     
     exchangeProgress(1);
     
-    dbTools.exchange(
-        function() {
-            log("----Exchange SUCCSESS");
-            exchangeViewClose();
-        }, 
-        function(errMsg) {
-            log("----Exchange ERROR: " + errMsg);
-            $("#exchange-close-button").removeClass("hidden");
-            //$("#exchange-error-button").removeClass("hidden");
-            $("#exchange-error").text("Ошибка обмена: " + errMsg);
-        }, 
-        exchangeProgressNext
-    );
+    try {
+        dbTools.exchange(
+            function() {
+                log("----Exchange SUCCSESS");
+                exchangeViewClose();
+            }, 
+            function(errMsg) {
+                log("----Exchange ERROR: " + errMsg);
+                $("#exchange-close-button").removeClass("hidden");
+                //$("#exchange-error-button").removeClass("hidden");
+                $("#exchange-error").text("Ошибка обмена: " + errMsg);
+            }, 
+            exchangeProgressNext
+        );
+    } catch(e) {
+        log("----Exchange ERROR");
+        log(kendo.stringify(e));
+        $("#exchange-close-button").removeClass("hidden");
+    }
 }
 
 function exchangeViewClose() {
