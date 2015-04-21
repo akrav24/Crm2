@@ -190,15 +190,9 @@ fileHelper.dataStrToByteArray = function(dataStr) {
 }
 
 fileHelper.dataByteArrayToStr = function(data) {
-    var dataSize = "";
-    if (data.length < (1024)) {
-        dataSize = (data.length).toFixed(0) + "B";
-    } else {
-        dataSize = (data.length / 1024).toFixed(0) + "K";
-    }
-    log("fileHelper.dataByteArrayToStr('...(" + dataSize + ")')");
-    
     var dataView = new Uint8Array(data);
+    log("fileHelper.dataByteArrayToStr('...(" + (dataView.length < 1024 ? (dataView.length).toFixed(0) + "B" : dataSize = (dataView.length / 1024).toFixed(0) + "K") + ")')");
+    
     var dataStr = "";
     for (var i = 0; i < dataView.length; i++) {
         dataStr += dataView[i].toString(16);
