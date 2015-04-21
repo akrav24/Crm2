@@ -27,7 +27,7 @@ function photoGalleryInit() {
 function photoGalleryShow(e) {
     log("..photoGalleryShow()");
     
-    photoGallerySetDataSource([], 0);
+    //photoGallerySetDataSource([], 0);
     
     if (!isNotDataReload) {
         renderPhotoGallery(0);
