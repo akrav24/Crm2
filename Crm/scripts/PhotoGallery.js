@@ -1,4 +1,3 @@
-// photoGallery = {title, fileTableName, fileIdLst, addNewPhotoEnable, onAdd, onDelete, onExit}
 var photoGallery;
 
 var photoGalleryImageViewModel = kendo.observable({
@@ -120,7 +119,7 @@ function photoGalleryObjInit() {
     // можно ли делать фото
     photoGallery.addNewPhotoEnable = false;
     
-    // событие возникающее после добавления нового фото - photoGallery.onAdd(fileTableName, fileId)
+    // событие возникающее после добавления нового фото - photoGallery.onAdd(fileTableName, fileId, fileName)
     photoGallery.onAdd = undefined;
     // событие возникающее после удаления фото - photoGallery.onDelete(fileTableName, fileId)
     photoGallery.onDelete = undefined;
@@ -199,13 +198,18 @@ function photoGallerySaveNewPhoto(fileUri, fileId, fileName) {
     var title = null;
     fileHelper.fileCopy(fileUri, fileHelper.folderName(), fileName, 
         function(fileEntry) {
-            dbTools.fileUpdate(photoGallery.fileTableName, fileId, fileName, title, 
-                function() {
-                    photoGallery.data.push({fileId: fileId, fileName: fileName, fileLocalPath: fileEntry.toURL(), title: title || " "});
-                    photoGallery.fileIdLst = photoGalleryFileIdLstGet(photoGallery.data);
-                    photoGallerySetDataSource(photoGallery.data, photoGallery.data.length - 1);
-                    if (photoGallery.onAdd != undefined) {photoGallery.onAdd(photoGallery.fileTableName, fileId);}
-                }, 
+            fileHelper.fileDataRead(fileEntry, 
+                function(dataStr) {
+                    dbTools.fileUpdate(photoGallery.fileTableName, fileId, fileName, title, dataStr, 
+                        function() {
+                            photoGallery.data.push({fileId: fileId, fileName: fileName, fileLocalPath: fileEntry.toURL(), title: title || " "});
+                            photoGallery.fileIdLst = photoGalleryFileIdLstGet(photoGallery.data);
+                            photoGallerySetDataSource(photoGallery.data, photoGallery.data.length - 1);
+                            if (photoGallery.onAdd != undefined) {photoGallery.onAdd(photoGallery.fileTableName, fileId, fileName);}
+                        }, 
+                        function(errMsg) {log(errMsg);}
+                    );
+                },
                 function(errMsg) {log(errMsg);}
             );
             

@@ -29,7 +29,6 @@ function visitPlanogramPhotoGalleryShow() {
     photoGalleryObjInit();
     photoGallery.title = "Соблюдение планограммы";
     photoGallery.fileTableName = "FileIn";
-    //photoGallery.onAdd = visitPlanogramPhotoGalleryPhotoAdd;
     photoGallery.addNewPhotoEnable = false;
     photoGallery.fileIdLst = "";
     dbTools.visitPlanogramListGet(visit.visitId, visitPlanogramList.stageId, settings.skuCatId,
@@ -50,11 +49,6 @@ log("====" + kendo.stringify(rs.rows.item(i)));
     photoGallery.fileIdLst = fileIdArr.join(",");
 }
 
-/*function visitPlanogramPhotoGalleryPhotoAdd(fileTableName, fileId) {
-    log("..visitPlanogramPhotoGalleryPhotoAdd(" + fileTableName + ", " + fileId + ")");
-    dbTools.visitPhotoUpdate(null, visit.visitId, visitPlanogramList.stageId, settings.skuCatId, fileId);
-}
-*/
 //----------------------------------------
 // common
 //----------------------------------------

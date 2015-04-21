@@ -24,18 +24,18 @@ dbTools.fileListGet = function(fileTableName, fileIdLst, datasetGet) {
     }, dbTools.onTransError);
 }
 
-dbTools.fileUpdate = function(fileTableName, fileId, fileName, title, onSuccess, onError) {
-    log("fileUpdate('" + fileTableName + "', " + fileId + ", '" + fileName + "')");
+dbTools.fileUpdate = function(fileTableName, fileId, fileName, title, fileDataStr, onSuccess, onError) {
+    log("fileUpdate('" + fileTableName + "', " + fileId + ", '" + fileName + "', '" + title + ", '" + fileDataStr.substring(0, 10) + "...')");
     dbTools.db.transaction(function(tx) {
         if (fileId > 0) {
-                dbTools.sqlInsertUpdate(tx, fileTableName, [fileTableName.concat("Id")], ["fileName", "title"], [fileId], [fileName, title], 
+                dbTools.sqlInsertUpdate(tx, fileTableName, [fileTableName.concat("Id")], ["fileName", "title", "data"], [fileId], [fileName, title, fileDataStr], 
                     function() {if (onSuccess != undefined) {onSuccess(fileId);}},
                     onError
                 );
         } else {
-            dbTools.tableNextIdGet(tx, "fileTableName", 
+            dbTools.tableNextIdGet(tx, fileTableName, 
                 function(tx, fileId) {
-                    dbTools.sqlInsertUpdate(tx, fileTableName, [fileTableName.concat("Id")], ["fileName", "title"], [fileId], [fileName, title], 
+                    dbTools.sqlInsertUpdate(tx, fileTableName, [fileTableName.concat("Id")], ["fileName", "title", "data"], [fileId], [fileName, title, fileDataStr], 
                         function() {if (onSuccess != undefined) {onSuccess(fileId);}},
                         onError
                     );

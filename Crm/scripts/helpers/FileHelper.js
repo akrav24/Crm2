@@ -97,17 +97,24 @@ fileHelper.fileCopy = function(srcFullName, dstFolderName, dstFileName, onSucces
 }
 */
 
-fileHelper.fileDataSave = function(dataStr, folderName, fileName, onSuccess, onError) {
-    log("fileHelper.fileDataSave('" + dataStr.substring(0, 10) + "...', '" + folderName + "', '" + fileName + "')");
+fileHelper.fileDataWrite = function(dataStr, folderName, fileName, onSuccess, onError) {
+    var dataSize = "";
+    if (dataStr.length < (1024 * 2)) {
+        dataSize = (dataStr.length / 2).toFixed(0) + "B";
+    } else {
+        dataSize = (dataStr.length / 2 / 1024).toFixed(0) + "K";
+    }
+    log("fileHelper.fileDataWrite('" + dataStr.substring(0, 10) + "...(" + dataSize + ")', '" + folderName + "', '" + fileName + "')");
     
+    var onErrors = function(errMsg) {if (onError != undefined) {onError(errMsg);}}
     var onSaveError = function(writer) {if (onError != undefined) {onError("error.code=" + writer.error.code + ", file='" + writer.localURL + "'");}}
     
     var getFileWriterSuccess = function(writer) {
-        //log("..fileHelper.fileSave getFileWriterSuccess '" + writer.localURL + "'");
+        //log("..fileHelper.fileDataWrite getFileWriterSuccess '" + writer.localURL + "'");
         writer.onwrite = function(e) {
-            log("....fileHelper.fileSave truncate done '" + writer.localURL + "'");
+            log("....fileHelper.fileDataWrite truncate done '" + writer.localURL + "'");
             writer.onwrite = function(e) {
-                log("..fileHelper.fileSave succsess '" + this.localURL + "'");
+                log("..fileHelper.fileDataWrite succsess '" + this.localURL + "'");
                 if (onSuccess != undefined) {onSuccess(e.target);}
             };
             writer.write(fileHelper.dataStrToByteArray(dataStr));
@@ -120,18 +127,82 @@ fileHelper.fileDataSave = function(dataStr, folderName, fileName, onSuccess, onE
     }
     
     var getFileEntrySuccess = function(fileEntry) {
-        //log("..fileHelper.fileSave getFileEntrySuccess '" + fileEntry.fullPath + "'");
+        //log("..fileHelper.fileDataWrite getFileEntrySuccess '" + fileEntry.fullPath + "'");
         fileEntry.createWriter(getFileWriterSuccess, onSaveError);
     }
     
-    this.getFileEntry(folderName, fileName, true, getFileEntrySuccess, onSaveError);
+    this.getFileEntry(folderName, fileName, true, getFileEntrySuccess, onErrors);
+}
+
+fileHelper.fileDataRead = function(fileEntry, onSuccess, onError) {
+    log("fileHelper.fileDataRead('" + fileEntry.fullPath + "')");
+    
+    var onErrors = function(errMsg) {if (onError != undefined) {onError(errMsg);}}
+    var onLoadError = function(reader) {if (onError != undefined) {onError("error.code=" + reader.error.code + ", file='" + reader.localURL + "'");}}
+    
+    var getFileSuccess = function(file) {
+        //log("..fileHelper.fileDataRead getFileEntrySuccess '" + file.fullPath + "'");
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            log("..fileHelper.fileDataRead succsess '" + this._localURL + "'");
+            if (onSuccess != undefined) {onSuccess(fileHelper.dataByteArrayToStr(e.target.result));}
+        }
+        reader.onerror = function(e) {
+            onLoadError(e.target);
+        };
+        reader.readAsArrayBuffer(file);
+    }
+    
+    fileEntry.file(getFileSuccess, 
+        function(error) {onErrors("error.code=" + writer.error.code);}
+    );
+}
+
+fileHelper.fileDataReadByName = function(folderName, fileName, onSuccess, onError) {
+    log("fileHelper.fileDataReadByName('" + folderName + "', '" + fileName + "')");
+    
+    var onErrors = function(errMsg) {if (onError != undefined) {onError(errMsg);}}
+    
+    var getFileEntrySuccess = function(fileEntry) {
+        //log("..fileHelper.fileDataRead getFileEntrySuccess '" + fileEntry.fullPath + "'");
+        fileHelper.fileDataRead(fileEntry, onSuccess, onError);
+    }
+    
+    this.getFileEntry(folderName, fileName, false, getFileEntrySuccess, onErrors);
 }
 
 fileHelper.dataStrToByteArray = function(dataStr) {
+    var dataSize = "";
+    if (dataStr.length < (1024 * 2)) {
+        dataSize = (dataStr.length / 2).toFixed(0) + "B";
+    } else {
+        dataSize = (dataStr.length / 2 / 1024).toFixed(0) + "K";
+    }
+    log("fileHelper.dataStrToByteArray('" + dataStr.substring(0, 10) + "...(" + dataSize + ")')");
+    
     var data = new ArrayBuffer(dataStr.length / 2),
         dataView = new Int8Array(data);
     for (var i = 0; i < data.byteLength; i++) {
         dataView[i] = parseInt(dataStr.slice(i * 2, i * 2 + 2), 16);
     }
+    log("..fileHelper.dataStrToByteArray('" + dataStr.substring(0, 10) + "...(" + dataSize + ")') done");
     return data;
+}
+
+fileHelper.dataByteArrayToStr = function(data) {
+    var dataSize = "";
+    if (data.length < (1024)) {
+        dataSize = (data.length).toFixed(0) + "B";
+    } else {
+        dataSize = (data.length / 1024).toFixed(0) + "K";
+    }
+    log("fileHelper.dataByteArrayToStr('...(" + dataSize + ")')");
+    
+    var dataView = new Uint8Array(data);
+    var dataStr = "";
+    for (var i = 0; i < dataView.length; i++) {
+        dataStr += dataView[i].toString(16);
+    }
+    log("..fileHelper.dataByteArrayToStr('" + dataStr.substring(0, 10) + "...(" + dataSize + ")') done");
+    return dataStr;
 }

@@ -90,9 +90,9 @@ function getLocation() {
     navigator.geolocation.getCurrentPosition(onSuccess, onError, geolocationOptions);    
 }
 
-function createImage() {
-    log("..createImage()");
-    /*fileHelper.fileDataSave("FFD8FFE000104A464946", fileHelper.folderName(), "testt.txt",
+function saveImages() {
+    log("..saveImages()");
+    /*fileHelper.fileDataWrite("FFD8FFE000104A464946", fileHelper.folderName(), "testt.txt",
         function(fileEntry) {log("====success");},
         function(errMsg) {log("====error: " + errMsg);}
     );
@@ -103,7 +103,7 @@ function createImage() {
                 function(tx, rs) {
                     for (var i = 0; i < rs.rows.length; i++) {
                         for (var j = 0; j < 25; j++) {
-                            fileHelper.fileDataSave(rs.rows.item(i).data, fileHelper.folderName(), rs.rows.item(i).fileName + "_" + i + "_" + j + ".png",
+                            fileHelper.fileDataWrite(rs.rows.item(i).data, fileHelper.folderName(), rs.rows.item(i).fileName + "_" + i + "_" + j + ".png",
                                 /*function(fileEntry) {log("====success");}*/undefined,
                                 function(errMsg) {log("====error: " + errMsg);}
                             );
@@ -114,5 +114,13 @@ function createImage() {
             );
         }, 
         function(error) {log("!!! SQLite error: " + dbTools.errorMsg(error));}
+    );
+}
+
+function loadImage() {
+    log("..loadImage()");
+    fileHelper.fileDataReadByName(fileHelper.folderName(), "plan2.png",
+        function(fileEntry) {log("====success");}/*undefined*/,
+        function(errMsg) {log("====error: " + errMsg);}
     );
 }

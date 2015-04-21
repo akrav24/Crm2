@@ -48,8 +48,8 @@ function visitPhotoPhotoGalleryFileIdLstSet(rs) {
     photoGallery.fileIdLst = fileIdArr.join(",");
 }
 
-function visitPhotoPhotoGalleryPhotoAdd(fileTableName, fileId) {
-    log("..visitPhotoPhotoGalleryPhotoAdd(" + fileTableName + ", " + fileId + ")");
+function visitPhotoPhotoGalleryPhotoAdd(fileTableName, fileId, fileName) {
+    log("..visitPhotoPhotoGalleryPhotoAdd('" + fileTableName + "', " + fileId + ", '" + fileName + "')");
     dbTools.visitPhotoUpdate(null, visit.visitId, visitPhotoList.stageId, settings.skuCatId, fileId);
 }
 
