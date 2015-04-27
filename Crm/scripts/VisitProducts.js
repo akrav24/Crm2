@@ -3,15 +3,13 @@ var visitProduct;
 
 function visitProductsInit(e) {
     log("..visitProductsInit");
-    visitProducts = {};
-    visitProducts.stageId = 1;
-    visitProducts.navBackCount = 1;
-    visitProducts.rs = null;
+    visitProductsObjInit();
 }
 
 function visitProductsShow(e) {
-    log("..visitProductsShow stageId=" + e.view.params.stageId + ", navBackCount=" + e.view.params.navBackCount);
+    log("..visitProductsShow stageId=" + e.view.params.stageId + ", mode=" + e.view.params.mode + ", navBackCount=" + e.view.params.navBackCount);
     visitProducts.stageId = e.view.params.stageId;
+    visitProducts.mode = e.view.params.mode;
     visitProducts.navBackCount = e.view.params.navBackCount;
     if (visitProducts.navBackCount < 1) {
         visitProducts.navBackCount = 1;
@@ -31,7 +29,10 @@ function renderVisitProductsView(tx, rs) {
     var dataSource = new kendo.data.DataSource({data: data/*, group: "brandGrpName"*/});
     log("..renderVisitProductsView render beg");
     $("#visit-products-list").data("kendoMobileListView").setDataSource(dataSource);
-    app.scroller().reset();
+    if (visitProducts.resetScroller) {
+        app.scroller().reset();
+        visitProducts.resetScroller = false;
+    }
     $('.checkbox').on('ifChecked', visitProductEditOnCheck);
     $('.checkbox').on('ifUnchecked', visitProductEditOnUncheck);
     $(".checkbox").iCheck({
@@ -47,6 +48,15 @@ function renderVisitProductsView(tx, rs) {
     }
     //iCheck class="iradio icheckbox checked hover focus disabled"
     log("..renderVisitProductsView render end");
+}
+
+function visitProductsObjInit() {
+    visitProducts = {};
+    visitProducts.stageId = 1;
+    visitProducts.mode = 0;
+    visitProducts.navBackCount = 1;
+    visitProducts.rs = null;
+    visitProducts.resetScroller = true;
 }
 
 function visitProductEditInit(e) {
@@ -82,7 +92,12 @@ function renderVisitProductEditView(tx, rs) {
         visitProductClear();
     }
     $("#visit-product-edit-full-name").val(visitProduct.fullName);
-    if (visitProduct.sel == 1) {
+    var sel = visitProducts.stageId == 1 ? visitProduct.sel0 : visitProduct.sel;
+log("====stageId=" + visitProducts.stageId);
+log("====sel0=" + visitProduct.sel0);
+log("====sel=" + visitProduct.sel);
+log("====sel=" + sel);
+    if (sel == 1) {
         $("#visit-product-edit-sel").prop("checked", true);
     } else {
         $("#visit-product-edit-sel").prop("checked", false);
@@ -168,11 +183,22 @@ function visitProductEditOnUncheck(e) {
 }
 
 function visitProductSave() {
-    var sel = 0;
+    var sel0 = visitProduct.sel0,
+        sel = visitProduct.sel;
     if ($("#visit-product-edit-sel").prop("checked")) {
-        sel = 1;
+        if (visitProducts.stageId == 1) {
+            sel0 = 1;
+        } else {
+            sel = 1;
+        }
+    } else {
+        if (visitProducts.stageId == 1) {
+            sel0 = 0;
+        } else {
+            sel = 0;
+        }
     }
-    dbTools.visitProductUpdate(visit.visitId, visitProduct.skuId, sel, $("#visit-product-edit-qnt-rest").val(), $("#visit-product-edit-qnt-order").val(), undefined, dbTools.onSqlError);
+    dbTools.visitProductUpdate(visit.visitId, visitProduct.skuId, sel0, sel, $("#visit-product-edit-qnt-rest").val(), $("#visit-product-edit-qnt-order").val(), undefined, dbTools.onSqlError);
     dbTools.objectListItemSet("visit-list", true);
 }
 

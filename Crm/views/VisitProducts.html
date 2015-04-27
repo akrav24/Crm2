@@ -6,7 +6,6 @@
 </head>
 <body>
     <script src="scripts/VisitProducts.js"></script>
-    <script src="scripts/Visit.js"></script>
     
     <div id="visit-products-view"
         data-role="view" 
@@ -37,12 +36,14 @@
                     <p>
                         <table  width="100%">
                             <tr class="table-text-align#if (!!isNew) {# color-selected#}#">
+                                #if ((visitProducts.mode & 1) !== 0) {#
                                 <td><input type="checkbox" class="checkbox" data-sku-id="#:skuId#" #if ((visitProducts.stageId == 1 && sel0 == 1) || (visitProducts.stageId == 2 && sel == 1)) {# checked#}#/></td>
+                                #}#
                                 <td width="60px"><span style="margin-left: 10px">#:code#</span></td>
                                 <td width="100%">
                                     <div style="margin-left: 5px; width: 100%">#:name#</div>
                                 </td>
-                                #if (visitProducts.stageId == 2) {#
+                                #if ((visitProducts.mode & 2) !== 0) {#
                                 <td width="100px">
                                     <a class="list-item-details-button" data-role="button" data-icon="details" href="\\#visit-product-edit-view?skuId=#:skuId#"></a>
                                 </td>

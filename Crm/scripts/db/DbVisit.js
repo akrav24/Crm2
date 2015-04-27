@@ -267,12 +267,10 @@ dbTools.visitProductSelUpdate = function(visitId, skuId, stageId, sel, onSuccess
     }, function(error) {if (onError != undefined) {onError("!!! SQLite transaction error, " + dbTools.errorMsg(error));}});
 }
 
-dbTools.visitProductUpdate = function(visitId, skuId, sel, qntRest, qntOrder, onSuccess, onError) {
-    log("visitProductUpdate(" + visitId + ", " + skuId + ", " + sel + ", " + qntRest + ", " + qntOrder + ")");
+dbTools.visitProductUpdate = function(visitId, skuId, sel0, sel, qntRest, qntOrder, onSuccess, onError) {
+    log("visitProductUpdate(" + visitId + ", " + skuId + ", " + sel0 + ", " + sel + ", " + qntRest + ", " + qntOrder + ")");
     dbTools.db.transaction(function(tx) {
-        var flds = ["sel", "qntRest", "qntOrder"];
-        var vals = [sel, qntRest, qntOrder];
-        dbTools.sqlInsertUpdate(tx, "VisitSku", ["visitId", "skuId"], flds, [visitId, skuId], vals, 
+        dbTools.sqlInsertUpdate(tx, "VisitSku", ["visitId", "skuId"], ["sel0", "sel", "qntRest", "qntOrder"], [visitId, skuId], [sel0, sel, qntRest, qntOrder], 
             function() {if (onSuccess != undefined) {onSuccess(visitId, skuId);}},
             onError
         );
@@ -297,32 +295,32 @@ dbTools.visitActivityGet = function(visitPlanItemId, visitId, skuCatId, custId, 
     dbTools.db.transaction(function(tx) {
         var sql = "";
         if (visitPlanItemId > 0) {
-            sql = "SELECT VPI.visitPlanItemId AS visitPlanItemId, VSA.stageId AS stageId, VSA.activityId AS activityId, A.name AS name, 1 AS blk, A.lvl AS lvl"
+            sql = "SELECT VPI.visitPlanItemId AS visitPlanItemId, VSA.stageId AS stageId, VSA.activityId AS activityId, A.name AS name, VSA.mode, 1 AS blk, A.lvl AS lvl"
                 + "      FROM VisitPlanItem VPI"
                 + "      INNER JOIN VisitSchemaActivity VSA ON VPI.visitSchemaId = VSA.visitSchemaId"
                 + "      INNER JOIN Activity A ON VSA.activityId = A.activityId"
                 + "      WHERE VPI.visitPlanItemId = " + visitPlanItemId;
         } else if (visitId > 0) {
-            sql = "SELECT null AS visitPlanItemId, VSA.stageId AS stageId, VSA.activityId AS activityId, A.name AS name, 1 AS blk, A.lvl AS lvl"
+            sql = "SELECT null AS visitPlanItemId, VSA.stageId AS stageId, VSA.activityId AS activityId, A.name AS name, VSA.mode, 1 AS blk, A.lvl AS lvl"
                 + "      FROM Visit V"
                 + "      INNER JOIN Cust C ON V.custId = C.custId"
                 + "      INNER JOIN VisitSchemaActivity VSA ON C.visitSchemaId = VSA.visitSchemaId"
                 + "      INNER JOIN Activity A ON VSA.activityId = A.activityId"
                 + "      WHERE V.visitId = " + visitId;
         } else {
-            sql = "SELECT null AS visitPlanItemId, VSA.stageId AS stageId, VSA.activityId AS activityId, A.name AS name, 1 AS blk, A.lvl AS lvl"
+            sql = "SELECT null AS visitPlanItemId, VSA.stageId AS stageId, VSA.activityId AS activityId, A.name AS name, VSA.mode, 1 AS blk, A.lvl AS lvl"
                 + "      FROM Cust C"
                 + "      INNER JOIN VisitSchemaActivity VSA ON C.visitSchemaId = VSA.visitSchemaId"
                 + "      INNER JOIN Activity A ON VSA.activityId = A.activityId"
                 + "      WHERE C.custId = " + (custId > 0 ? custId : 0);
         }
-        sql = "SELECT A.visitPlanItemId, A.stageId, A.activityId, A.name, A.blk, COUNT(AC.skuCatId) AS skuCatCnt"
+        sql = "SELECT A.visitPlanItemId, A.stageId, A.activityId, A.name, A.mode, A.blk, COUNT(AC.skuCatId) AS skuCatCnt"
             + "  FROM"
             + "    (" + sql
             + "     UNION ALL"
-            + "     SELECT ? AS visitPlanItemId, 1 AS stageId, 0 AS activityId, 'Первичный анализ' AS name, 0 AS blk, 0 AS lvl"
+            + "     SELECT ? AS visitPlanItemId, 1 AS stageId, 0 AS activityId, 'Первичный анализ' AS name, 0 AS mode, 0 AS blk, 0 AS lvl"
             + "     UNION ALL"
-            + "     SELECT ? AS visitPlanItemId, 2 AS stageId, 0 AS activityId, 'Основной анализ' AS name, 0 AS blk, 0 AS lvl"
+            + "     SELECT ? AS visitPlanItemId, 2 AS stageId, 0 AS activityId, 'Основной анализ' AS name, 0 AS mode, 0 AS blk, 0 AS lvl"
             + "   ) A"
             + "  LEFT JOIN"
             + "    (SELECT 1 AS stageId, 1 AS activityId, S.skuCatId"

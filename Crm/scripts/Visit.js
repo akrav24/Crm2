@@ -7,6 +7,7 @@ function visitInit(e) {
  
 function visitShow(e) {
     log("..visitShow");
+    visitProductsObjInit();
     renderVisit(visit.visitPlanItemId, visit.visitId, visit.custId);
 }
 
@@ -155,16 +156,18 @@ function visitFinishOnClick(e) {
     );
 }
 
-function visitHrefGet(stageId, blk, activityId) {
+function visitHrefGet(stageId, blk, activityId, mode) {
     var result = "";
     if (blk > 0) {
         var href = hrefByActivityIdGet(stageId, activityId);
         if (href != "") {
-            if (href.indexOf("?") >= 0) {
+            /*if (href.indexOf("?") >= 0) {
                 href += "&navBackCount=";
             } else {
                 href += "?navBackCount=";
-            }
+            }*/
+            href += (href.indexOf("?") >= 0 ? "&" : "?") + "mode=" + mode;
+            href += "&navBackCount=";
             if (settings.skuCatId > 0 || inArray([11, 12, 14], activityId)) {
                 href += "1";
                 result = href;
