@@ -31,26 +31,50 @@ function visitPhotoAdd() {
     photoGallery.fileTableName = "FileOut";
     photoGallery.onAdd = visitPhotoPhotoGalleryPhotoAdd;
     photoGallery.addNewPhotoEnable = !visit.readonly;
+    photoGallery.showTagEnable = false;
+    photoGallery.editTagEnable = true;
+    photoGallery.fileIdLst = [];
     dbTools.visitPhotoListGet(visit.visitId, visitPhotoList.stageId, settings.skuCatId,
         function(tx, rs) {
-            visitPhotoPhotoGalleryFileIdLstSet(rs);
+            photoGallery.fileIdLst = visitPhotoPhotoGalleryFileIdLstGet(rs);
+            photoGallery.onTagListGet = visitPhotoPhotoGalleryOnTagListGet;
+            photoGallery.onTagChange = visitPhotoPhotoGalleryOnTagChange;
             app.navigate("views/PhotoGallery.html");
         }
     );
 }
 
-function visitPhotoPhotoGalleryFileIdLstSet(rs) {
-    var fileIdArr = [];
+function visitPhotoPhotoGalleryFileIdLstGet(rs) {
+    var res = [];
     for (var i = 0; i < rs.rows.length; i++) {
-        fileIdArr.push(rs.rows.item(i).fileId);
+        res.push({fileId: rs.rows.item(i).fileId, linkId: rs.rows.item(i).visitPhotoId});
     }
-    fileIdArr = fileIdArr.concat(visitPhotoList.newPhotoLst);
-    photoGallery.fileIdLst = fileIdArr.join(",");
+    res = res.concat(visitPhotoList.newPhotoLst);
+    return res;
 }
 
-function visitPhotoPhotoGalleryPhotoAdd(fileTableName, fileId, fileName) {
+function visitPhotoPhotoGalleryPhotoAdd(fileTableName, fileId, fileName, onSuccess, onError) {
     log("..visitPhotoPhotoGalleryPhotoAdd('" + fileTableName + "', " + fileId + ", '" + fileName + "')");
-    dbTools.visitPhotoUpdate(null, visit.visitId, visitPhotoList.stageId, settings.skuCatId, fileId);
+    dbTools.visitPhotoUpdate(null, visit.visitId, visitPhotoList.stageId, settings.skuCatId, fileId, onSuccess, onError);
+}
+
+function visitPhotoPhotoGalleryOnTagListGet(fileTableName, fileId, linkId, onSuccess, onError) {
+    dbTools.visitpPhotoTagListGet(linkId, 
+        function(tx, rs) {
+            var tagLst = [];
+            for (var i = 0; i < rs.rows.length; i++) {
+                tagLst.push({id: rs.rows.item(i).photoTagId, name: rs.rows.item(i).name, value: rs.rows.item(i).value});
+            }
+            if (!!onSuccess) {onSuccess(tagLst);}
+        }
+    );
+}
+
+function visitPhotoPhotoGalleryOnTagChange(fileTableName, fileId, linkId, tagId, value, onSuccess, onError) {
+    dbTools.visitPhotoTagUpdate(visit.visitId, linkId, tagId, value, 
+        function(visitId, questionId) {if (!!onSuccess) {onSuccess(questionId);}}, 
+        dbTools.onSqlError
+    );
 }
 
 //----------------------------------------

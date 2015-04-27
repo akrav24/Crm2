@@ -30,23 +30,44 @@ function visitPlanogramPhotoGalleryShow() {
     photoGallery.title = "Соблюдение планограммы";
     photoGallery.fileTableName = "FileIn";
     photoGallery.addNewPhotoEnable = false;
-    photoGallery.fileIdLst = "";
+    photoGallery.showTagEnable = false;
+    photoGallery.editTagEnable = true;
+    photoGallery.fileIdLst = [];
     dbTools.visitPlanogramListGet(visit.visitId, visitPlanogramList.stageId, settings.skuCatId,
         function(tx, rs) {
-log("====" + kendo.stringify(rs.rows.length));
-            visitPlanogramPhotoGalleryFileIdLstSet(rs);
+            photoGallery.fileIdLst = visitPlanogramPhotoGalleryFileIdLstGet(rs);
+            photoGallery.onTagListGet = visitPlanogramPhotoGalleryOnTagListGet;
+            photoGallery.onTagChange = visitPlanogramPhotoGalleryOnTagChange;
             app.navigate("views/PhotoGallery.html");
         }
     );
 }
 
-function visitPlanogramPhotoGalleryFileIdLstSet(rs) {
-    var fileIdArr = [];
+function visitPlanogramPhotoGalleryFileIdLstGet(rs) {
+    var res = [];
     for (var i = 0; i < rs.rows.length; i++) {
-log("====" + kendo.stringify(rs.rows.item(i)));
-        fileIdArr.push(rs.rows.item(i).fileId);
+        res.push({fileId: rs.rows.item(i).fileId, linkId: rs.rows.item(i).planogramId});
     }
-    photoGallery.fileIdLst = fileIdArr.join(",");
+    return res;
+}
+
+function visitPlanogramPhotoGalleryOnTagListGet(fileTableName, fileId, linkId, onSuccess, onError) {
+    dbTools.visitPlanogramAnswerListGet(visit.visitId, linkId, 
+        function(tx, rs) {
+            var tagLst = [];
+            for (var i = 0; i < rs.rows.length; i++) {
+                tagLst.push({id: rs.rows.item(i).questionId, name: rs.rows.item(i).name, value: rs.rows.item(i).answer});
+            }
+            if (!!onSuccess) {onSuccess(tagLst);}
+        }
+    );
+}
+
+function visitPlanogramPhotoGalleryOnTagChange(fileTableName, fileId, linkId, tagId, value, onSuccess, onError) {
+    dbTools.visitPlanogramAnswerUpdate(visit.visitId, tagId, value, 
+        function(visitPhotoId, photoTagId) {if (!!onSuccess) {onSuccess(photoTagId);}}, 
+        dbTools.onSqlError
+    );
 }
 
 //----------------------------------------

@@ -43,23 +43,48 @@
     </div>
     
     <div id="photo-gallery-image-view"
-        class="gallery-image-view"
         data-role="view"
         data-layout="main"
+        data-stretch="true"
+        data-title="Фотогалерея"
         data-model="photoGalleryImageViewModel"
-        data-zoom="true"
-        data-show="photoGalleryImageViewShow">
+        data-init="photoGalleryImageViewInit"
+        data-show="photoGalleryImageViewShow"
+        data-after-show="photoGalleryImageViewAfterShow">
         
         <header data-role="header">
-            <div data-role="navbar">
+            <div id="photo-gallery-image-navbar" data-role="navbar">
                 <a class="nav-button" data-align="left" data-role="button" data-icon="back" href="#:back"></a>
                 <span data-role="view-title"></span>
             </div>
         </header>
         
-        <div data-role="content">
-            <img data-bind="attr: {src: imageSrc}">
+        <div data-role="content" class="flex-container flex-container-vertical">
+            <!--<div class="gallery-tag-edit-image-flex-box gallery-tag-edit-image" data-bind="attr: {style: imageStyle}">
+            </div>-->
+            <div class="gallery-tag-edit-image-flex-box">
+                <!--<img class="gallery-tag-edit-image" width="100%" data-bind="attr: {src: imageSrc}">-->
+                <img class="gallery-tag-edit-image" data-bind="attr: {src: imageSrc}">
+            </div>
+            <div data-role="scroller" class="gallery-tag-edit-tag-list-flex-box">
+                <ul data-role="listview" id="gallery-tag-edit-tag-list" class="list" data-bind="source: tagLst" data-template="gallery-tag-edit-tag-list-tmpl"></ul>
+            </div>
         </div>
+        
+        <script id="gallery-tag-edit-tag-list-tmpl" type="text/x-kendo-template">
+            <div class="list-item-header">
+                <p>
+                    <table  width="100%">
+                        <tr class="table-text-align">
+                            <td><input type="checkbox" class="checkbox" data-tag-id="#:id#" #if ((value == 1)) {# checked#}#/></td>
+                            <td width="100%">
+                                <div style="margin-left: 5px; width: 100%">#:name#</div>
+                            </td>
+                        </tr>
+                    </table>
+                </p>
+            </div>
+        </script>
     </div>
 </body>
 </html>

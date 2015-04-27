@@ -163,6 +163,12 @@ dbTools.visitProductCategoryMatrixGet = function(visitId, isItemAllShow, dataset
                     + "        INNER JOIN Sku S ON VS.skuId = S.skuId"
                     + "        WHERE VS.visitId = @visitId"
                     + "      UNION ALL"
+                    + "      SELECT 2 AS activityId, P.skuCatId"
+                    + "        FROM VisitPlanogramAnswer VPA"
+                    + "        INNER JOIN PlanogramQuestion PQ ON VPA.questionId = PQ.questionId"
+                    + "        INNER JOIN Planogram P ON PQ.planogramId = P.planogramId"
+                    + "        WHERE VPA.visitId = @visitId"
+                    + "      UNION ALL"
                     + "      SELECT 3 AS activityId, VP.skuCatId"
                     + "        FROM VisitPhoto VP"
                     + "        WHERE VP.visitId = @visitId"
@@ -329,6 +335,7 @@ dbTools.visitActivityGet = function(visitPlanItemId, visitId, skuCatId, custId, 
             + "    SELECT 1 AS stageId, 3 AS activityId, VP.skuCatId"
             + "      FROM VisitPhoto VP"
             + "      WHERE VP.visitId = @visitId AND VP.stageId = 1"
+            + "      GROUP BY VP.skuCatId"
             + "    UNION ALL"
             /*+ "    SELECT 1 AS stageId, 14 AS activityId, S.skuCatId"
             + "      FROM VisitSku VS"
@@ -345,6 +352,13 @@ dbTools.visitActivityGet = function(visitPlanItemId, visitId, skuCatId, custId, 
             //+ "      WHERE VS.visitId = @visitId AND VS.sel = 1"
             + "      WHERE VS.visitId = @visitId AND VS.sel <> IFNULL(VS.sel0, 0)"
             + "      GROUP BY S.skuCatId"
+            + "    UNION ALL"
+            + "    SELECT 2 AS stageId, 2 AS activityId, P.skuCatId"
+            + "      FROM VisitPlanogramAnswer VPA"
+            + "      INNER JOIN PlanogramQuestion PQ ON VPA.questionId = PQ.questionId"
+            + "      INNER JOIN Planogram P ON PQ.planogramId = P.planogramId"
+            + "      WHERE VPA.visitId = @visitId"
+            + "      GROUP BY P.skuCatId"
             + "    UNION ALL"
             + "    SELECT 2 AS stageId, 3 AS activityId, VP.skuCatId"
             + "      FROM VisitPhoto VP"
@@ -876,7 +890,7 @@ dbTools.visitPlanogramListGet = function(visitId, stageId, skuCatId, datasetGet)
 }
 
 dbTools.visitPlanogramAnswerListGet = function(visitId, planogramId, datasetGet) {
-    log("visitPlanogramAnswerListGet(" + planogramId + ")");
+    log("visitPlanogramAnswerListGet(" + visitId + ", " + planogramId + ")");
     dbTools.db.transaction(function(tx) {
         var sql = "SELECT PQ.planogramId, PQ.questionId, PQ.name, VPA.answer"
             + "  FROM PlanogramQuestion PQ"
@@ -885,5 +899,36 @@ dbTools.visitPlanogramAnswerListGet = function(visitId, planogramId, datasetGet)
             + "  ORDER BY PQ.lvl, PQ.questionId";
         tx.executeSql(sql, [visitId, planogramId], datasetGet, dbTools.onSqlError);
     }, dbTools.onTransError);
+}
+
+dbTools.visitPlanogramAnswerUpdate = function(visitId, questionId, answer, onSuccess, onError) {
+    log("visitPlanogramAnswerUpdate(" + visitId + ", " + questionId + ", " + answer + ")");
+    dbTools.db.transaction(function(tx) {
+        dbTools.sqlInsertUpdate(tx, "VisitPlanogramAnswer", ["visitId", "questionId"], ["answer"], [visitId, questionId], [answer], 
+            function() {if (onSuccess != undefined) {onSuccess(visitId, questionId);}},
+            onError
+        );
+    }, function(error) {if (onError != undefined) {onError("!!! SQLite transaction error, " + dbTools.errorMsg(error));}});
+}
+
+dbTools.visitpPhotoTagListGet = function(visitPhotoId, datasetGet) {
+    log("visitpPhotoTagListGet(" + visitPhotoId + ")");
+    dbTools.db.transaction(function(tx) {
+        var sql = "SELECT PT.photoTagId, PT.name, VPT.value"
+            + "  FROM PhotoTag PT"
+            + "  LEFT JOIN VisitPhotoTag VPT ON VPT.visitPhotoId = ? AND PT.photoTagId = VPT.photoTagId"
+            + "  ORDER BY PT.name";
+        tx.executeSql(sql, [visitPhotoId], datasetGet, dbTools.onSqlError);
+    }, dbTools.onTransError);
+}
+
+dbTools.visitPhotoTagUpdate = function(visitId, visitPhotoId, photoTagId, value, onSuccess, onError) {
+    log("visitPhotoTagUpdate(" + visitId + ", " + visitPhotoId + ", " + photoTagId + ", " + value + ")");
+    dbTools.db.transaction(function(tx) {
+        dbTools.sqlInsertUpdate(tx, "VisitPhotoTag", ["visitPhotoId", "photoTagId"], ["visitId", "value"], [visitPhotoId, photoTagId], [visitId, value], 
+            function() {if (onSuccess != undefined) {onSuccess(visitPhotoId, photoTagId);}},
+            onError
+        );
+    }, function(error) {if (onError != undefined) {onError("!!! SQLite transaction error, " + dbTools.errorMsg(error));}});
 }
 

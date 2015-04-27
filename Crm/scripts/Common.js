@@ -70,20 +70,28 @@ function hrefToViewParam(value) {
 
 function navigateBack(backCount) {
     log("..navigateBack(" + backCount + ")");
-    var delayedBack = function(backCount, i) {
-        var delay;
-        if (window.sqlitePlugin != undefined) {
-            delay = 10;
-        } else {
-            delay = 100;
-        }
+    var delay;
+    if (!settings.simulator) {
+        delay = 51;
+    } else {
+        delay = 50;
+    }
+    var delayedBack = function(backCount, i, delay) {
         if (i < backCount) {
-            setTimeout(function() {app.navigate("#:back");  delayedBack(backCount, ++i);}, delay);
+            setTimeout(
+                function() {
+                    //log("....navigateBack view: '" + app.view().id + "'");
+                    app.navigate("#:back");
+                    delayedBack(backCount, ++i);
+                }, 
+                delay
+            );
         }
     }
     if (backCount > 0) {
+        //log("....navigateBack view: '" + app.view().id + "'");
         app.navigate("#:back");
-        delayedBack(backCount, 1);
+        setTimeout(function() {delayedBack(backCount, 1, delay);}, delay)
     }
 }
 
@@ -93,7 +101,7 @@ function navigateBackTo(viewId) {
     var initialViewId = "views/Login.html";
     var srcViewId = app.view().id;
     var delay;
-    if (window.sqlitePlugin != undefined) {
+    if (!settings.simulator) {
         delay = 51;
     } else {
         delay = 50;
@@ -204,4 +212,9 @@ function showControl(controlSelector, visible) {
 
 function viewTitleSet(view, title) {
     view.header.find(".km-navbar").data("kendoMobileNavBar").title(title);
+}
+
+function windowOrientation() {
+    log("....window.orientation=" + window.orientation);
+    return inArray([0, 180], window.orientation);
 }

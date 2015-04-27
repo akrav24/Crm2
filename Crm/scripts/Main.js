@@ -67,7 +67,12 @@ var app;
         //document.addEventListener("backbutton", function(e) {log("====BACK"); logObjectKeys(e);}, false);
         
         //settingsObjInit(function(settings) {dbInit();});
-
+        
+        // device orientation
+        /*window.addEventListener("orientationchange", function() {
+            alert("window.orientation: " + window.orientation);
+        }, false);        
+        */
     }, false);
 
 

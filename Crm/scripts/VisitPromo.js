@@ -348,7 +348,7 @@ function visitPromoEditSave(onSuccess) {
             visitPromoItem.promoId, visitPromoItem.extInfoVal, visitPromoItem.extInfoVal2, visitPromoItem.extInfoName, 
         function(visitPromoId) {
             for (; visitPromoItem.newPhotoLst.length > 0; ) {
-                dbTools.visitPromoPhotoUpdate(visit.visitId, visitPromoId, null, visitPromoItem.newPhotoLst[0], 
+                dbTools.visitPromoPhotoUpdate(visit.visitId, visitPromoId, null, visitPromoItem.newPhotoLst[0].fileId, 
                     function() {
                         visitPromoEditFillPhotoControls();
                     }
@@ -396,7 +396,7 @@ function visitPromoEditListClick(e) {
             photoGallery.addNewPhotoEnable = !visit.readonly;
             dbTools.visitPromoPhotoListGet(visitPromoItem.visitPromoId, 
                 function(tx, rs) {
-                    visitPromoEditPhotoGalleryFileIdLstSet(rs);
+                    photoGallery.fileIdLst = visitPromoEditPhotoGalleryFileIdLstSet(rs);
                     app.navigate("views/PhotoGallery.html");
                 }
             );
@@ -405,12 +405,12 @@ function visitPromoEditListClick(e) {
 }
 
 function visitPromoEditPhotoGalleryFileIdLstSet(rs) {
-    var fileIdArr = [];
+    var res = [];
     for (var i = 0; i < rs.rows.length; i++) {
-        fileIdArr.push(rs.rows.item(i).fileId);
+        res.push({fileId: rs.rows.item(i).fileId, linkId: rs.rows.item(i).visitPromoPhotoId});
     }
-    fileIdArr = fileIdArr.concat(visitPromoItem.newPhotoLst);
-    photoGallery.fileIdLst = fileIdArr.join(",");
+    res = res.concat(visitPromoItem.newPhotoLst);
+    return res;
 }
 
 function visitPromoEditPhotoGalleryPhotoAdd(fileTableName, fileId) {
@@ -424,7 +424,7 @@ function visitPromoEditPhotoGalleryPhotoAdd(fileTableName, fileId) {
     );*/
     visitPromoItem.isEdited = true;
     visitPromoItem.photoCount++;
-    visitPromoItem.newPhotoLst.push(fileId);
+    visitPromoItem.newPhotoLst.push({fileId: fileId, linkId: null});
     visitPromoEditFillPhotoControls();
     visitPromoEditEnableControls();
 }
