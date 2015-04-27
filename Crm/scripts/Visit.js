@@ -40,7 +40,10 @@ function renderVisitActivityList(tx, rs) {
     var data = dbTools.rsToJson(rs);
     visit.activityLst = data;
     $("#visit-activity-list").data("kendoMobileListView").dataSource.data(data);
-    app.scroller().reset();
+    if (visit.resetScroller) {
+        app.scroller().reset();
+        visit.resetScroller = false;
+    }
 }
 
 function visitObjInit() {
@@ -57,6 +60,7 @@ function visitObjInit() {
     visit.timeBgn = null;
     visit.timeEnd = null;
     visit.activityLst = [];
+    visit.resetScroller = true;
 }
 
 function visitCheckReadOnly() {

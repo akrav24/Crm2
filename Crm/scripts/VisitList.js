@@ -16,6 +16,8 @@ function visitListInit(e) {
 
 function visitListShow(e) {
     log("..visitListShow");
+    settings.skuCatId = -1;
+    settings.skuCatName = "Все";
     prdBgnOpened = false;
     renderVisitList();
     /* // select item

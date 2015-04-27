@@ -236,7 +236,6 @@ function photoGalleryImageViewShow(e) {
     if (!!photoGallery.onTagListGet) {
         photoGallery.onTagListGet(photoGallery.fileTableName, photoGalleryImageViewModel.get("fileId"), photoGalleryImageViewModel.get("linkId"), 
             function(tagLst) {
-log("====tagLst=" + kendo.stringify(tagLst));
                 photoGalleryImageViewModel.set("tagLst", tagLst);
                 // !!!
                 $("#gallery-tag-edit-tag-list").data("kendoMobileListView").setDataSource(photoGalleryImageViewModel.get("tagLst"));
