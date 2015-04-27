@@ -6,6 +6,7 @@
 </head>
 <body>
     <script src="scripts/Visit.js"></script>
+    <script src="scripts/Point.js"></script>
     
     <div id="visit-view" 
         data-role="view" 
@@ -23,7 +24,7 @@
             </div>
         </header>
         
-        <ul class="list list-item-header" data-role="listview">
+        <ul class="list list-item-header" data-role="listview" data-click="visitHeaderClick">
             <li>
                 <p>
                     <table class="list-item-table visit-item-table" cellspacing="0">
@@ -34,15 +35,17 @@
                     </table>
                 </p>
             </li>
-            <li>
-                <p>
-                    <table class="list-item-table visit-item-table" cellspacing="0">
-                        <tr class="table-text-align">
-                            <td class="visit-item-table-caption"><span>Точка</span></td>
-                            <td><span id="visit-point-name"></span></td>
-                        </tr>
-                    </table>
-                </p>
+            <li id="visit-point-name-item">
+                <a>
+                    <p>
+                        <table class="list-item-table visit-item-table" cellspacing="0">
+                            <tr class="table-text-align">
+                                <td class="visit-item-table-caption"><span>Точка</span></td>
+                                <td><span id="visit-point-name"></span></td>
+                            </tr>
+                        </table>
+                    </p>
+                </a>
             </li>
             <li>
                 <a href="views/VisitProdCategory.html?navigateTo=[|]:back&isItemAllShow=1">

@@ -46,6 +46,15 @@ function renderVisitActivityList(tx, rs) {
     }
 }
 
+function visitHeaderClick(e) {
+    log("..visitHeaderClick");
+    if (e.item.attr("id") == "visit-point-name-item") {
+        pointObjInit();
+        point.custId = visit.custId;
+        app.navigate("views/Point.html");
+    }
+}
+
 function visitObjInit() {
     visit = {};
     visit.visitPlanItemId = null;
