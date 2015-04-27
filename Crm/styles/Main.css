@@ -357,6 +357,15 @@ body {
     font-size: 200%;
 }
 
+div.visit-activity-show-all {
+    padding-left: 60px;
+    padding-right: 60px;
+}
+
+a.visit-activity-show-all {
+    width: 100%;
+}
+
 .visit-item-table {
      margin-left: 5px;
 }

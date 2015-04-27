@@ -8,13 +8,13 @@ function visitInit(e) {
 function visitShow(e) {
     log("..visitShow");
     visitProductsObjInit();
-    renderVisit(visit.visitPlanItemId, visit.visitId, visit.custId);
+    renderVisit(visit.visitPlanItemId, visit.visitId, visit.custId, visit.activityShowAll);
 }
 
-function renderVisit(visitPlanItemId, visitId, custId) {
+function renderVisit(visitPlanItemId, visitId, custId, activityShowAll) {
     log("..renderVisit(" + visitPlanItemId + ", " + visitId + ", " + custId + ")");
     dbTools.visitGet(visitPlanItemId, visitId, renderVisitView);
-    dbTools.visitActivityGet(visitPlanItemId, visitId, settings.skuCatId, custId, -1, -1, renderVisitActivityList);
+    dbTools.visitActivityGet(visitPlanItemId, visitId, settings.skuCatId, custId, -1, -1, activityShowAll, renderVisitActivityList);
 }
 
 function renderVisitView(tx, rs) {
@@ -69,6 +69,7 @@ function visitObjInit() {
     visit.fmtId = null;
     visit.timeBgn = null;
     visit.timeEnd = null;
+    visit.activityShowAll = 0;
     visit.activityLst = [];
     visit.resetScroller = true;
 }
@@ -154,6 +155,13 @@ function visitFinishOnClick(e) {
             );
         }
     );
+}
+
+function visitActivityShowAllClick(e) {
+    visit.activityShowAll = 1 - visit.activityShowAll;
+    visit.resetScroller = true;
+    renderVisit(visit.visitPlanItemId, visit.visitId, visit.custId, visit.activityShowAll);
+    $("#visit-activity-show-all-button").text(visit.activityShowAll === 1 ? "Скрыть" : "Показать все");
 }
 
 function visitHrefGet(stageId, blk, activityId, mode) {
