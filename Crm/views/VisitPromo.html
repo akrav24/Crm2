@@ -27,7 +27,22 @@
     
         <script id="visit-promo-promos-list-tmpl" type="text/x-kendo-template">
             <a class="list-item-header">
-                <p><div>#:brandName# (#:genderName#): #:promoName#</div></p>
+                <p>
+                    <div>#:brandName# (#:genderName#): #:promoName#</div>
+                    <div class="list-item-comment">
+                        #switch (extInfoKind) {
+                            case 1:
+                                #Скидка: #:(extInfoVal != null ? extInfoVal * 100 + "%" : "")##
+                                break;
+                            case 2:
+                                #Количество к оплате: #:(extInfoVal != null ? extInfoVal : "")#, количество к получению: #:(extInfoVal2 != null ? extInfoVal2 : "")##
+                                break;
+                            case 3:
+                                #Название: #:(extInfoName != null ? extInfoName : "")#, объем: #:(extInfoVal != null ? extInfoVal : "")##
+                                break;
+                        }#
+                    </div>
+                </p>
             </a>
         </script>
         
