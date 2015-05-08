@@ -93,10 +93,6 @@ function renderVisitProductEditView(tx, rs) {
     }
     $("#visit-product-edit-full-name").val(visitProduct.fullName);
     var sel = visitProducts.stageId == 1 ? visitProduct.sel0 : visitProduct.sel;
-log("====stageId=" + visitProducts.stageId);
-log("====sel0=" + visitProduct.sel0);
-log("====sel=" + visitProduct.sel);
-log("====sel=" + sel);
     if (sel == 1) {
         $("#visit-product-edit-sel").prop("checked", true);
     } else {

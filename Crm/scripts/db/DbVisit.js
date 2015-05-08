@@ -403,7 +403,6 @@ dbTools.visitActivityGet = function(visitPlanItemId, visitId, skuCatId, custId, 
             + "  GROUP BY A.visitPlanItemId, A.stageId, A.activityId, A.name, A.blk, A.lvl"
             + "  ORDER BY A.stageId, A.blk, A.lvl";
         sql = sql.replace(/@visitPlanItemId/g, visitPlanItemId).replace(/@visitId/g, visitId).replace(/@stageId/g, stageId).replace(/@activityId/g, activityId).replace(/@skuCatId/g, skuCatId);
-log("====SQL: " + sql);
         tx.executeSql(sql, [visitPlanItemId, visitPlanItemId], datasetGet, dbTools.onSqlError);
     }, dbTools.onTransError);
 }

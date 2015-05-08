@@ -49,7 +49,6 @@ function renderVisitSurveyAnswerView(tx, rs) {
 function visitSurveyAnswerCalcKpi(data) {
     var res = data;
     for (var i = 0; i < res.length; i++) {
-log("====res[i]" + kendo.stringify(res[i]));
         var kpi = 0;
         if (res[i].isShowKpi == 1 && res[i].treeLvl == 0) {
             for (var j = 0; j < res.length; j++) {

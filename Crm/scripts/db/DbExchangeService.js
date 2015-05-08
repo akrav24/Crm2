@@ -67,7 +67,7 @@ dbTools.exchangeDataPost = function(blockId, data, onSuccess, onError) {
                 onSuccess(blockId, data);
             }
         },
-        error: function (jqXHR, textStatus, errorThrown) {log("====error");/*if (onError != undefined) {onError("Ajax Post Error: " + url);}*/}
+        error: function (jqXHR, textStatus, errorThrown) {if (onError != undefined) {onError("Ajax Post Error: " + url);}}
     });
 }
 
@@ -156,7 +156,6 @@ dbTools.exchangeDataFileByIdDownload = function(blockId, fileId, onSuccess, onEr
             fileHelper.getFolder(fileSystem, folderName,
                 function(folder) {
                     filePath = folder.toURL() + "/" + fileName;
-log("====" + folder.toURL());
                     
                     var options = new FileUploadOptions();
                     //options.headers = "";
