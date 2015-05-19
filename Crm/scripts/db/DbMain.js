@@ -34,7 +34,7 @@ dbTools.openDB = function() {
     } else {
         // For debugging in simulator fallback to native SQL Lite
         log("==SIMULATOR");
-        dbTools.db = window.openDatabase("Crm", "1.0", "Cordova Demo", 200000);
+        dbTools.db = window.openDatabase("Crm", "1.0", "Cordova Demo", 5 * 1024 * 1024);
     }
 }
 
@@ -45,6 +45,7 @@ dbTools.createSystemTables = function(onSuccess) {
         tx.executeSql("CREATE TABLE IF NOT EXISTS MailBlockDataOut(blockId int, irow int, data varchar(8000), constraint pkMailBlockDataOut primary key(blockId, irow))", [], undefined, dbTools.onSqlError);
         tx.executeSql("CREATE TABLE IF NOT EXISTS MailExchParm(blockId int, nodeId int, exchDate datetime)", [], undefined, dbTools.onSqlError);
         tx.executeSql("CREATE TABLE IF NOT EXISTS MailToDelete(blockId int, refTypeId int, refId int)", [], undefined, dbTools.onSqlError);
+        tx.executeSql("CREATE TABLE IF NOT EXISTS ExtRef(refTypeId int, refId int, updateDate datetime, constraint pkExtRef primary key(refTypeId, refId))", [], undefined, dbTools.onSqlError);
         tx.executeSql("CREATE TABLE IF NOT EXISTS Parm(nodeId int, dataVersionId int, constraint pkParm primary key(nodeId))", [], undefined, dbTools.onSqlError);
         tx.executeSql("CREATE TABLE IF NOT EXISTS RefType(refTypeId int, name varchar(100), parentId int, test int, useNodeId int, dir int, updateDate datetime, sendAll int, lvl int, flds varchar(1000), constraint pkRefType primary key (refTypeId))", [], undefined, dbTools.onSqlError);
         tx.executeSql("CREATE TABLE IF NOT EXISTS Script(versionId int, sql varchar(8000), constraint pkScript primary key(versionId))", [], undefined, dbTools.onSqlError);
@@ -93,13 +94,14 @@ dbTools.loadSettings = function(tx, onSuccess) {
     );
 }
 
-dbTools.tableFieldListGet = function(tx, tableName, onSuccess, onError) {
-    log("tableFieldListGet(tx, '" + tableName + "')");
+dbTools.tableFieldListGet = function(tx, tableName, onSuccess/*(tx, tableName, fldLst, fldTypeLst)*/, onError) {
+    //log("tableFieldListGet(tx, '" + tableName + "')");
     var errMsg = "tableFieldListGet function error: ";
     if (tx != undefined) {
         tx.executeSql("SELECT * FROM sqlite_master WHERE name = ? COLLATE NOCASE", [tableName], 
             function(tx, rs) {
                 var fldLst = [];
+                var fldTypeLst = [];
                 if (rs.rows.length > 0) {
                     var table = rs.rows.item(0);
                     var s = table.sql.split(',');
@@ -108,10 +110,24 @@ dbTools.tableFieldListGet = function(tx, tableName, onSuccess, onError) {
                         return i.trim().split(/\s/).shift();
                     })
                     .filter(function(i){
-                        return (i.indexOf(')') === -1 && i !== "constraint")
+                        return (!!i && i.indexOf(')') === -1 && i !== "constraint")
+                    });
+                    fldTypeLst = s.map(function(i){
+                        var arr = i.trim().split(/\s/);
+                        if (arr[0] != "constraint") {
+                            arr.shift();
+                        }
+                        return arr.shift();
                     })
+                    .filter(function(i){
+                        return (!!i && i.indexOf("constraint") < 0)
+                    })
+                    .slice(0, fldLst.length);
+                    for (; fldTypeLst.length < fldLst.length;) {
+                        fldTypeLst.push("");
+                    }
                 }
-                if (onSuccess != undefined) {onSuccess(tx, tableName, fldLst);}
+                if (onSuccess != undefined) {onSuccess(tx, tableName, fldLst, fldTypeLst);}
             }, 
             function(tx, error) {if (onError != undefined) {onError(errMsg + dbTools.errorMsg(error));}}
         );
@@ -376,6 +392,69 @@ dbTools.dropAllTables = function() {
         }, dbTools.onSqlError);
     }, dbTools.onTransError);
 }
+
+dbTools.vacuum = function() {
+    dbTools.db.transaction(function(tx) {
+        tx.executeSql("DELETE FROM MailBlockDataIn", []);
+        tx.executeSql("DELETE FROM MailBlockDataOut", []);
+        tx.executeSql("DELETE FROM MailToDelete", []);
+    }, dbTools.onTransError);
+    dbTools.db.transaction(function(tx) {
+        tx.executeSql("VACUUM", []);
+    }, dbTools.onTransError);
+}
+
+dbTools.tableFieldValueListSqlGet = function(tx, tableName, alias, onSuccess/*(tx, tableName, fieldValueListSql)*/, onError) {
+    //log("tableFieldValueListSqlGet(tx, '" + tableName + "')");
+    var errMsg = "tableFieldValueListSqlGet function error: ";
+    if (!!tx) {
+        tx.executeSql("SELECT flds FROM RefType WHERE name = ? COLLATE NOCASE", [tableName], 
+            function(tx, rs) {
+                if (rs.rows.length > 0) {
+                    var tblFlds = rs.rows.item(0).flds;
+                    dbTools.tableFieldListGet(tx, tableName,
+                        function(tx, tableName, fieldList, fieldTypeList) {
+                            var res = [];
+                            var tblFldsList = tblFlds.split(",");
+                            for (var i = 0; i < tblFldsList.length; i++) {
+                                var tblFld = tblFldsList[i];
+                                var tblFldType = "";
+                                for (var j = 0; j < fieldList.length; j++) {
+                                    if (fieldList[j].toLowerCase() == tblFld.toLowerCase()) {
+                                        tblFldType = fieldTypeList[j];
+                                        break;
+                                    }
+                                }
+                                tblFld = alias + tblFld;
+                                var fldValSql = "'NULL'";
+                                if (tblFldType.length !== 0) {
+                                    if (tblFldType.toLowerCase().indexOf("char") >= 0) {
+                                        fldValSql = "''''||replace(" + tblFld + ",'''','''''')||''''";
+                                    } else if (tblFldType.toLowerCase().indexOf("date") >= 0) {
+                                        fldValSql = "''''||" + tblFld + "||''''";
+                                    } else {
+                                        fldValSql = "CAST(CASE WHEN " + tblFld + " = '' THEN NULL ELSE " + tblFld + " END AS varchar)";
+                                    }
+                                }
+                                fldValSql = "IFNULL(" + fldValSql + ",'NULL')";
+                                res.push(fldValSql);
+                            }
+                            if (!!onSuccess) {onSuccess(tx, tableName, res.join("||','||"));}
+                        },
+                        onError
+                    );
+                } else {
+                    if (!!onError) {onError(errMsg + dbTools.errorMsg(error));}
+                }
+            }, 
+            function(tx, error) {if (!!onError) {onError(errMsg + dbTools.errorMsg(error));}}
+        );
+    } else {
+        if (!!onError) {onError(errMsg + "parameter 'tx' undefined");}
+    }
+}
+
+
 
 
 

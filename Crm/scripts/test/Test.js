@@ -124,3 +124,26 @@ function loadImage() {
         function(errMsg) {log("====error: " + errMsg);}
     );
 }
+
+function getTableFieldList() {
+    dbTools.db.transaction(
+        function(tx) {
+            dbTools.tableFieldListGet(tx, "Activity", 
+                function(tx, tableName, fieldList, fieldTypeList) {
+                    log("====tableName: '" + tableName + "'");
+                    log("======fieldList: " + kendo.stringify(fieldList) + "");
+                    log("======fieldTypeList: " + kendo.stringify(fieldTypeList) + "");
+                }, 
+                function(errMsg) {log(errMsg);}
+            );
+            
+            dbTools.tableFieldValueListSqlGet(tx, "Activity", "", 
+                function(tx, tableName, fieldValueListSql) {
+                    log("====tableName: '" + tableName + "', fieldValueListSql: <" + fieldValueListSql + ">");
+                }, 
+                function(errMsg) {log(errMsg);}
+            );
+        }, 
+        dbTools.onTransError
+    );
+}

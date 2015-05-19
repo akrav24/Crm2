@@ -218,3 +218,17 @@ function windowOrientation() {
     log("....window.orientation=" + window.orientation);
     return inArray([0, 180], window.orientation);
 }
+
+function translit(str, v) {
+    log("..translit('" + str + "', " + v + ")");
+    str=str.toLowerCase().replace(/ /g,'-');
+    v = v || 0;
+    var tr='a b v g d e ["zh","j"] z i y k l m n o p r s t u f h c ch sh ["shh","shch"] ~ y ~ e yu ya ~ ["jo","e"] ~ g e ~ i ji'.split(' ');
+    var ww=''; 
+    for(i=0; i<str.length; ++i) {
+        var cc=str.charCodeAt(i); 
+        var ch=(cc>=1072?tr[cc-1072]:str[i]);
+        if(ch.length<3) ww+=ch; else ww+=eval(ch)[v];
+    }
+    return(ww.replace(/~/g,''));
+}

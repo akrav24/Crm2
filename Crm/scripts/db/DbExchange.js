@@ -64,9 +64,19 @@ dbTools.exchangeExport = function(blockId, onSuccess, onError, onProgress) {
             var dataOut = [];
             dbTools.db.transaction(
                 function(tx) {
-                    tx.executeSql("SELECT irow, data FROM MailBlockDataOut WHERE blockId = ?", [blockId], function(tx, rs) {
+                    tx.executeSql("SELECT rowid AS irow, data FROM MailBlockDataOut WHERE blockId = ? ORDER BY rowid", [blockId], function(tx, rs) {
+var tmpIsPopData = false;
                         for (var i = 0; i < rs.rows.length; i++) {
                             dataOut.push({"blockId":blockId, "irow":rs.rows.item(i)["irow"], "data":rs.rows.item(i)["data"]});
+// TODO: remove debug code
+//log("====" + kendo.stringify(dataOut[dataOut.length - 1]));
+/*if (rs.rows.item(i).data.charAt(0) == "@") {
+var tmpData = rs.rows.item(i).data;
+var tmpJ = tmpData.indexOf(":");
+var tmpTblName = tmpData.substring(1, tmpJ);
+if (tmpTblName == "ExchParm" || tmpTblName == "ExtRef") {tmpIsPopData = false;} else {tmpIsPopData = true;}
+}
+if (tmpIsPopData) dataOut.pop();*/
                         }
                         /*log("exchangeExport dataOut: " + JSON.stringify(dataOut).substring(0, 500));*/
                         dbTools.exchangeDataPost(blockId, dataOut, 
@@ -147,7 +157,11 @@ dbTools.exchangeDelMailBlockData = function(blockId, onSuccess, onError, onProgr
                 function(tx, rs) {
                     tx.executeSql("DELETE FROM MailBlockDataIn", [], 
                         function(tx, rs) {
-                            if (onSuccess != undefined) {onSuccess(blockId);}
+                            tx.executeSql("DELETE FROM MailToDelete", [], 
+                                function(tx, rs) {
+                                    if (onSuccess != undefined) {onSuccess(blockId);}
+                                }
+                            );
                         }
                     );
                 }
@@ -162,11 +176,22 @@ dbTools.exchangeMailExport = function(blockId, onSuccess, onError) {
     
     dbTools.db.transaction(
         function(tx) {
-            var sql = "INSERT INTO MailBlockDataOut(blockId, irow, data) VALUES(?, ?, ?)";
-            tx.executeSql(sql, [blockId, 1, "@ExchParm:nodeId, exchDate"]);
-            tx.executeSql(sql, [blockId, 2, settings.nodeId + ", '" + dateToStr(new Date(), "YYYYMMDD HH:NN:SS:ZZZ") + "'"]);
-            tx.executeSql(sql, [blockId, 3, "@ExtRef:refTypeId,refId,updateDate"]);
-            var irow = 3;
+            var sql = "INSERT INTO MailBlockDataOut(blockId, data) VALUES(?, ?)";
+            tx.executeSql(sql, [blockId, "@ExchParm:nodeId, exchDate"]);
+            tx.executeSql(sql, [blockId, settings.nodeId + ", '" + dateToStr(new Date(), "YYYYMMDD HH:NN:SS:ZZZ") + "'"]);
+        },
+        function(error) {if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error));}},
+        function() {dbTools.exchangeMailExportExtRef(blockId, onSuccess, onError);}
+    );
+}
+ 
+dbTools.exchangeMailExportExtRef = function(blockId, onSuccess, onError) {
+    log("exchangeMailExportExtRef(blockId=" + blockId + ")");
+    
+    dbTools.db.transaction(
+        function(tx) {
+            var sql = "INSERT INTO MailBlockDataOut(blockId, data) VALUES(?, ?)";
+            tx.executeSql(sql, [blockId, "@ExtRef:refTypeId,refId,updateDate"]);
             tx.executeSql("SELECT refTypeId, name FROM RefType WHERE dir < 0 AND parentId IS NULL AND IFNULL(sendAll, 0) = 0", [],
                 function(tx, rs) {
                     for (var i = 0; i < rs.rows.length; i++) {
@@ -178,15 +203,14 @@ dbTools.exchangeMailExport = function(blockId, onSuccess, onError) {
                             tx.executeSql(sql, [],
                                 function(tx, rs) {
                                     for (var i = 0; i < rs.rows.length; i++) {
-                                        irow++;
-                                        var sql = "INSERT INTO MailBlockDataOut(blockId, irow, data) VALUES(?, ?, ?)";
+                                        var sql = "INSERT INTO MailBlockDataOut(blockId, data) VALUES(?, ?)";
                                         var data = "" + refTypeId + "," + rs.rows.item(i)["id"] + ",";
-                                        if (rs.rows.item(i)["updateDate"] == null){
+                                        if (rs.rows.item(i)["updateDate"] == null) {
                                             data += "null";
                                         } else {
                                             data += "'" + rs.rows.item(i)["updateDate"] + "'"
                                         }
-                                        tx.executeSql(sql, [blockId, irow, data]);
+                                        tx.executeSql(sql, [blockId, data]);
                                     }
                                 }
                             );
@@ -197,7 +221,108 @@ dbTools.exchangeMailExport = function(blockId, onSuccess, onError) {
             );
         },
         function(error) {if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error));}},
-        function() {if (onSuccess != undefined) {onSuccess(blockId);}}
+        function() {dbTools.exchangeMailExportLocalData(blockId, onSuccess, onError);}
+    );
+}
+
+dbTools.exchangeMailExportLocalData = function(blockId, onSuccess, onError) {
+    log("exchangeMailExportLocalData(blockId=" + blockId + ")");
+    dbTools.db.transaction(
+        function(tx) {
+            var sqlMain = "INSERT INTO MailBlockDataOut(blockId, data) VALUES(?, ?)";
+            // список таблиц верхнего уровня
+            tx.executeSql("SELECT refTypeId, name, IFNULL(sendAll, 0) AS sendAll, flds FROM RefType WHERE dir > 0 AND parentId IS NULL", [],
+                function(tx, tblRs) {
+                    // обработка таблицы верхнего уровня и подчиненных ей таблиц
+                    var exportTbl = function(blockId, tx, tblRs, tblIndex) {
+                        if (tblIndex < tblRs.rows.length) {
+                            var tblRefTypeId = tblRs.rows.item(tblIndex).refTypeId, 
+                                tblName = tblRs.rows.item(tblIndex).name, 
+                                tblSendAll = tblRs.rows.item(tblIndex).sendAll,
+                                tblFlds = tblRs.rows.item(tblIndex).flds
+                            // формирование данных из таблицы верхнего уровня
+                            tx.executeSql(sqlMain, [blockId, "@" + tblName + ":" + tblFlds]);
+                            var tblSql = "";
+                            if (tblSendAll != 0) {
+                                tblSql = "INSERT INTO MailBlockDataOut(blockId, data)"
+                                    + "  SELECT @blockId AS blockId, data"
+                                    + "  FROM"
+                                    + "    (SELECT @vals AS data "
+                                    + "      FROM @tblName A"
+                                    + "    ) A";
+                            } else {
+                                tblSql = "INSERT INTO MailBlockDataOut(blockId, data)"
+                                    + "  SELECT @blockId AS blockId, data"
+                                    + "  FROM"
+                                    + "    (SELECT @vals AS data"
+                                    + "      FROM @tblName A"
+                                    + "      LEFT JOIN ExtRef B ON B.refTypeId = @refTypeId AND B.refId = A.@tblNameId"
+                                    + "      WHERE (B.refId IS NULL OR A.updateDate > B.updateDate) @filter"
+                                    + "    ) A";
+                            }
+                            var sqlFilter = "";
+                            if (tblName.toLowerCase() == "visit") {
+                                sqlFilter += " AND A.timeEnd IS NOT NULL"
+                            }
+                            tblSql = tblSql.replace(/@tblName/g, tblName).replace(/@refTypeId/g, tblRefTypeId).replace(/@blockId/g, blockId).replace(/@filter/g, sqlFilter);
+                            dbTools.tableFieldValueListSqlGet(tx, tblName, "A.", 
+                                function(tx, tableName, fieldValueListSql) {
+                                    tblSql = tblSql.replace(/@vals/g, fieldValueListSql);
+                                    tx.executeSql(tblSql, [], 
+                                        function(tx) {
+                                            // список подчиненных таблиц
+                                            tx.executeSql("SELECT name, flds FROM RefType WHERE dir > 0 AND parentId = ? ORDER BY lvl", [tblRefTypeId], 
+                                                function(tx, dtlRs) {
+                                                    // обработка подчиненной таблицы
+                                                    var exportDtlTbl = function(blockId, tx, dtlRs, dtlIndex, tblName, tblRefTypeId, sqlFilter) {
+                                                        if (dtlIndex < dtlRs.rows.length) {
+                                                            var dtlName = dtlRs.rows.item(dtlIndex).name, 
+                                                                dtlFlds = dtlRs.rows.item(dtlIndex).flds
+                                                            // формирование данных из подчиненной таблицы
+                                                            tx.executeSql(sqlMain, [blockId, "@" + dtlName + ":" + dtlFlds]);
+                                                            var dtlSql = "INSERT INTO MailBlockDataOut(blockId, data)"
+                                                                + "  SELECT @blockId AS blockId, data"
+                                                                + "  FROM"
+                                                                + "    (SELECT @vals AS data"
+                                                                + "      FROM @tblName A"
+                                                                + "      INNER JOIN @dtlName D ON D.@tblNameId = A.@tblNameId"
+                                                                + "      LEFT JOIN ExtRef B ON B.refTypeId = @refTypeId AND B.refId = A.@tblNameId"
+                                                                + "      WHERE (B.refId IS NULL OR A.updateDate > B.updateDate) @filter"
+                                                                + "    ) A";
+                                                            dtlSql = dtlSql.replace(/@tblName/g, tblName).replace(/@dtlName/g, dtlName).replace(/@refTypeId/g, tblRefTypeId).replace(/@blockId/g, blockId).replace(/@filter/g, sqlFilter);
+                                                            dbTools.tableFieldValueListSqlGet(tx, dtlName, "D.", 
+                                                                function(tx, tableName, fieldValueListSql) {
+                                                                    dtlSql = dtlSql.replace(/@vals/g, fieldValueListSql);
+                                                                    tx.executeSql(dtlSql, [], 
+                                                                        function(tx) {
+                                                                            exportDtlTbl(blockId, tx, dtlRs, ++dtlIndex, tblName, tblRefTypeId, sqlFilter);
+                                                                        }
+                                                                    );
+                                                                    
+                                                                }
+                                                            );
+                                                        } else {
+                                                            exportTbl(blockId, tx, tblRs, ++tblIndex);
+                                                        }
+                                                    }
+                                                    
+                                                    exportDtlTbl(blockId, tx, dtlRs, 0, tblName, tblRefTypeId, sqlFilter);
+                                                }
+                                            );
+                                        }
+                                    );
+                                }
+                            );
+                            
+                        }
+                    }
+                    
+                    exportTbl(blockId, tx, tblRs, 0);
+                }
+            );
+        },
+        function(error) {if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error));}},
+        function() {if (!!onSuccess) {onSuccess(blockId);}}
     );
 }
 
@@ -575,7 +700,7 @@ dbTools.exchangeFileImport = function(blockId, onSuccess, onError) {
 
 
 //-------------------------------------------------
-// test exhcange
+// test exchange
 //-------------------------------------------------
 
 function testGetBlockId() {

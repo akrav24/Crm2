@@ -13,14 +13,15 @@ fileHelper.getFileEntry = function(folderName, fileName, createIfNotExist, onSuc
     //log("fileHelper.getFileEntry('" + folderName + "', '" + fileName + "', " + createIfNotExist + ")");
     var that = this;
     var onResolveSuccess = function(fileEntry) {if (onSuccess != undefined) {onSuccess(fileEntry);}}
-    var onResolveError = function(error) {if (onError != undefined) {onError("error.code=" + error.code);}}
+    var onResolveError = function(error) {if (onError != undefined) {onError(that.fileErrMsg(error) + ", folderName=" + folderName + ", fileName=" + fileName);}}
     var onErrors = function(errMsg) {if (onError != undefined) {onError(errMsg);}}
     that.getFilesystem(
         function(fileSystem) {
             that.getFolder(fileSystem, folderName,
                 function(folder) {
-                    var filePath = folder.toURL() + "/" + fileName;
+                    //var filePath = folder.toURL() + "/" + fileName;
                     //window.resolveLocalFileSystemURL(filePath, onResolveSuccess, onResolveError)
+                    // TODO: если fileName на кириллице, то возникает ошибка code=5 (ENCODING_ERR)
                     folder.getFile(fileName, {create: false, exclusive: false}, 
                         onResolveSuccess, 
                         function(error) {
@@ -52,10 +53,11 @@ fileHelper.folderName = function() {
 }
 
 fileHelper.fileCopy = function(srcFullName, dstFolderName, dstFileName, onSuccess, onError) {
+    var that = this;
     var onResolveSuccess = function(fileEntry) {
         var onErrors = function(errMsg) {if (onError != undefined) {onError(errMsg);}}
         var onCopySuccess = function (fileEntry) {if (onSuccess != undefined) {onSuccess(fileEntry);}}
-        var onCopyError = function(error) {if (onError != undefined) {onError("error.code=" + error.code);}}
+        var onCopyError = function(error) {if (onError != undefined) {onError(that.fileErrMsg(error));}}
         
         fileHelper.getFilesystem(
             function(fileSystem) {
@@ -74,30 +76,32 @@ fileHelper.fileCopy = function(srcFullName, dstFolderName, dstFileName, onSucces
         );
     }
     
-    var onResolveError = function(error) {if (onError != undefined) {onError("error.code=" + error.code);}}
+    var onResolveError = function(error) {if (onError != undefined) {onError(that.fileErrMsg(error));}}
     
     window.resolveLocalFileSystemURL(srcFullName, onResolveSuccess, onResolveError);
 }
 
-/*fileHelper.errMsg = function(fileError) {
+fileHelper.fileErrMsg = function(fileError) {
+    var errMsg = "code=" + fileError.code;
     switch (fileError.code) {
-        case FileError.NOT_FOUND_ERR:
-        case FileError.SECURITY_ERR:
-        case FileError.ABORT_ERR:
-        case FileError.NOT_READABLE_ERR:
-        case FileError.ENCODING_ERR:
-        case FileError.NO_MODIFICATION_ALLOWED_ERR:
-        case FileError.INVALID_STATE_ERR:
-        case FileError.SYNTAX_ERR:
-        case FileError.INVALID_MODIFICATION_ERR:
-        case FileError.QUOTA_EXCEEDED_ERR:
-        case FileError.TYPE_MISMATCH_ERR:
-        case FileError.PATH_EXISTS_ERR:
+        case FileError.NOT_FOUND_ERR: errMsg += " (NOT_FOUND_ERR)"; break;
+        case FileError.SECURITY_ERR: errMsg += " (SECURITY_ERR)"; break;
+        case FileError.ABORT_ERR: errMsg += " (ABORT_ERR)"; break;
+        case FileError.NOT_READABLE_ERR: errMsg += " (NOT_READABLE_ERR)"; break;
+        case FileError.ENCODING_ERR: errMsg += " (ENCODING_ERR)"; break;
+        case FileError.NO_MODIFICATION_ALLOWED_ERR: errMsg += " (NO_MODIFICATION_ALLOWED_ERR)"; break;
+        case FileError.INVALID_STATE_ERR: errMsg += " (INVALID_STATE_ERR)"; break;
+        case FileError.SYNTAX_ERR: errMsg += " (SYNTAX_ERR)"; break;
+        case FileError.INVALID_MODIFICATION_ERR: errMsg += " (INVALID_MODIFICATION_ERR)"; break;
+        case FileError.QUOTA_EXCEEDED_ERR: errMsg += " (QUOTA_EXCEEDED_ERR)"; break;
+        case FileError.TYPE_MISMATCH_ERR: errMsg += " (TYPE_MISMATCH_ERR)"; break;
+        case FileError.PATH_EXISTS_ERR: errMsg += " (PATH_EXISTS_ERR)"; break;
     }
+    return errMsg;
 }
-*/
 
 fileHelper.fileDataWrite = function(dataStr, folderName, fileName, onSuccess, onError) {
+    var that = this;
     var dataSize = "";
     if (dataStr.length < (1024 * 2)) {
         dataSize = (dataStr.length / 2).toFixed(0) + "B";
@@ -107,7 +111,7 @@ fileHelper.fileDataWrite = function(dataStr, folderName, fileName, onSuccess, on
     log("fileHelper.fileDataWrite('" + dataStr.substring(0, 10) + "...(" + dataSize + ")', '" + folderName + "', '" + fileName + "')");
     
     var onErrors = function(errMsg) {if (onError != undefined) {onError(errMsg);}}
-    var onSaveError = function(writer) {if (onError != undefined) {onError("error.code=" + writer.error.code + ", file='" + writer.localURL + "'");}}
+    var onSaveError = function(writer) {if (onError != undefined) {onError(that.fileErrMsg(writer.error) + ", file='" + writer.localURL + "'");}}
     
     var getFileWriterSuccess = function(writer) {
         //log("..fileHelper.fileDataWrite getFileWriterSuccess '" + writer.localURL + "'");
@@ -137,8 +141,9 @@ fileHelper.fileDataWrite = function(dataStr, folderName, fileName, onSuccess, on
 fileHelper.fileDataRead = function(fileEntry, onSuccess, onError) {
     log("fileHelper.fileDataRead('" + fileEntry.fullPath + "')");
     
+    var that = this;
     var onErrors = function(errMsg) {if (onError != undefined) {onError(errMsg);}}
-    var onLoadError = function(reader) {if (onError != undefined) {onError("error.code=" + reader.error.code + ", file='" + reader.localURL + "'");}}
+    var onLoadError = function(reader) {if (onError != undefined) {onError(that.fileErrMsg(reader.error) + ", file='" + reader.localURL + "'");}}
     
     var getFileSuccess = function(file) {
         //log("..fileHelper.fileDataRead getFileEntrySuccess '" + file.fullPath + "'");
@@ -154,7 +159,7 @@ fileHelper.fileDataRead = function(fileEntry, onSuccess, onError) {
     }
     
     fileEntry.file(getFileSuccess, 
-        function(error) {onErrors("error.code=" + writer.error.code);}
+        function(error) {onErrors(that.fileErrMsg(error));}
     );
 }
 
