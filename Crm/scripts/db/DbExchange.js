@@ -217,6 +217,9 @@ dbTools.exchangeMailExportExtRef = function(blockId, onSuccess, onError) {
 
 dbTools.exchangeMailExportLocalData = function(blockId, onSuccess, onError) {
     log("exchangeMailExportLocalData(blockId=" + blockId + ")");
+    
+    // TODO: заполнить данные для таблицы mail.ToDelete (пример в ХП mail.Export)
+    
     dbTools.db.transaction(
         function(tx) {
             var sqlMain = "INSERT INTO MailBlockDataOut(blockId, data) VALUES(?, ?)";
