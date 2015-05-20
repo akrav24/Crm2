@@ -65,18 +65,8 @@ dbTools.exchangeExport = function(blockId, onSuccess, onError, onProgress) {
             dbTools.db.transaction(
                 function(tx) {
                     tx.executeSql("SELECT rowid AS irow, data FROM MailBlockDataOut WHERE blockId = ? ORDER BY rowid", [blockId], function(tx, rs) {
-var tmpIsPopData = false;
                         for (var i = 0; i < rs.rows.length; i++) {
                             dataOut.push({"blockId":blockId, "irow":rs.rows.item(i)["irow"], "data":rs.rows.item(i)["data"]});
-// TODO: remove debug code
-//log("====" + kendo.stringify(dataOut[dataOut.length - 1]));
-/*if (rs.rows.item(i).data.charAt(0) == "@") {
-var tmpData = rs.rows.item(i).data;
-var tmpJ = tmpData.indexOf(":");
-var tmpTblName = tmpData.substring(1, tmpJ);
-if (tmpTblName == "ExchParm" || tmpTblName == "ExtRef") {tmpIsPopData = false;} else {tmpIsPopData = true;}
-}
-if (tmpIsPopData) dataOut.pop();*/
                         }
                         /*log("exchangeExport dataOut: " + JSON.stringify(dataOut).substring(0, 500));*/
                         dbTools.exchangeDataPost(blockId, dataOut, 
@@ -233,7 +223,7 @@ dbTools.exchangeMailExportLocalData = function(blockId, onSuccess, onError) {
             // список таблиц верхнего уровня
             tx.executeSql("SELECT refTypeId, name, IFNULL(sendAll, 0) AS sendAll, flds FROM RefType WHERE dir > 0 AND parentId IS NULL", [],
                 function(tx, tblRs) {
-                    // обработка таблицы верхнего уровня и подчиненных ей таблиц
+                    // функция обработки таблицы верхнего уровня и подчиненных ей таблиц
                     var exportTbl = function(blockId, tx, tblRs, tblIndex) {
                         if (tblIndex < tblRs.rows.length) {
                             var tblRefTypeId = tblRs.rows.item(tblIndex).refTypeId, 
@@ -273,7 +263,7 @@ dbTools.exchangeMailExportLocalData = function(blockId, onSuccess, onError) {
                                             // список подчиненных таблиц
                                             tx.executeSql("SELECT name, flds FROM RefType WHERE dir > 0 AND parentId = ? ORDER BY lvl", [tblRefTypeId], 
                                                 function(tx, dtlRs) {
-                                                    // обработка подчиненной таблицы
+                                                    // функция обработки подчиненной таблицы
                                                     var exportDtlTbl = function(blockId, tx, dtlRs, dtlIndex, tblName, tblRefTypeId, sqlFilter) {
                                                         if (dtlIndex < dtlRs.rows.length) {
                                                             var dtlName = dtlRs.rows.item(dtlIndex).name, 
@@ -295,6 +285,7 @@ dbTools.exchangeMailExportLocalData = function(blockId, onSuccess, onError) {
                                                                     dtlSql = dtlSql.replace(/@vals/g, fieldValueListSql);
                                                                     tx.executeSql(dtlSql, [], 
                                                                         function(tx) {
+                                                                            // обработка следующей подчиненной таблицы
                                                                             exportDtlTbl(blockId, tx, dtlRs, ++dtlIndex, tblName, tblRefTypeId, sqlFilter);
                                                                         }
                                                                     );
@@ -302,10 +293,12 @@ dbTools.exchangeMailExportLocalData = function(blockId, onSuccess, onError) {
                                                                 }
                                                             );
                                                         } else {
+                                                            // обработка следующей таблицы верхнего уровня и подчиненных ей таблиц
                                                             exportTbl(blockId, tx, tblRs, ++tblIndex);
                                                         }
                                                     }
                                                     
+                                                    // обработка первой подчиненной таблицы
                                                     exportDtlTbl(blockId, tx, dtlRs, 0, tblName, tblRefTypeId, sqlFilter);
                                                 }
                                             );
@@ -317,6 +310,7 @@ dbTools.exchangeMailExportLocalData = function(blockId, onSuccess, onError) {
                         }
                     }
                     
+                    // обработка первой таблицы верхнего уровня и подчиненных ей таблиц
                     exportTbl(blockId, tx, tblRs, 0);
                 }
             );
@@ -471,20 +465,20 @@ dbTools.exchangeMailBlockDataInProcMailAdd = function(blockId, onSuccess, onErro
                             for (var i = begIndex; i < endIndex; i++) {
                                 var data = rs.rows.item(i)["data"];
                                 var j;
-                                if (data.charAt(0) === "@") {
-                                    j = data.indexOf(":");
-                                    var tblName = data.substring(1, j);
-                                    var tblFlds = data.substring(j + 1);
-                                    sql = "INSERT INTO Mail" + tblName + "(blockId," + tblFlds + ") VALUES(@1, @2)";
+                                // TODO: На Lenovo A5500-F при получении из таблицы MailBlockDataIn записей FileIn у каждой второй записи данные = null
+                                // TODO: На симуляторе все Ок
+                                // TODO: Проверить на Samsung
+                                if (data != null) {
+                                    if (data.charAt(0) === "@") {
+                                        j = data.indexOf(":");
+                                        var tblName = data.substring(1, j);
+                                        var tblFlds = data.substring(j + 1);
+                                        sql = "INSERT INTO Mail" + tblName + "(blockId," + tblFlds + ") VALUES(@1, @2)";
+                                    } else {
+                                        tx.executeSql(sql.replace("@1", blockId).replace("@2", data), []);
+                                    }
                                 } else {
-                                    tx.executeSql(sql.replace("@1", blockId).replace("@2", data), []/*,
-                                        function() {
-                                            recInsertedCnt++;
-                                            if ((recInsertedCnt % settings.bulkRecordCount === 0) || (recInsertedCnt === recCnt)) {
-                                                log("....exchangeMailBlockDataInProcMailAdd records inserted: " + recInsertedCnt);
-                                            }
-                                        }*/
-                                    );
+                                    log("......data is null! i=" + i);
                                 }
                                 
                             }

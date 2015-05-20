@@ -109,7 +109,7 @@ function logSqlResult(tx, sql, rowCount, onSuccess, onError) {
                     rowCount = rs.rows.length;
                 }
                 for (var i = 0; (i < rs.rows.length && i < rowCount); i++) {
-                    log(".." + JSON.stringify(rs.rows.item(i)));
+                    log(".." + i + ":" + kendo.stringify(rs.rows.item(i)));
                 }
                 if (onSuccess != undefined) {onSuccess(rs);}
             },

@@ -517,7 +517,7 @@ dbTools.visitShelfShareUpdate = function(visitId, skuCatId, shelfShare, shelfWid
 }
 
 dbTools.visitPromoGenderListGet = function(datasetGet) {
-    log("visitPromoGenderListGet");
+    log("visitPromoGenderListGet()");
     dbTools.db.transaction(function(tx) {
         var sql = "SELECT G.genderId, G.name FROM Gender G ORDER BY G.name";
         tx.executeSql(sql, [], datasetGet, dbTools.onSqlError);
@@ -525,7 +525,7 @@ dbTools.visitPromoGenderListGet = function(datasetGet) {
 }
 
 dbTools.visitPromoBrandListGet = function(skuCatId, datasetGet) {
-    log("visitPromoBrandListGet");
+    log("visitPromoBrandListGet(" + skuCatId + ")");
     dbTools.db.transaction(function(tx) {
         var sql = "SELECT B.brandId, B.name"
             + "  FROM Brand B "
@@ -537,7 +537,7 @@ dbTools.visitPromoBrandListGet = function(skuCatId, datasetGet) {
 }
 
 dbTools.visitPromoPromoGrpListGet = function(datasetGet) {
-    log("visitPromoPromoGrpListGet");
+    log("visitPromoPromoGrpListGet()");
     dbTools.db.transaction(function(tx) {
         var sql = "SELECT PG.promoGrpId, PG.name FROM PromoGrp PG ORDER BY PG.lvl";
         tx.executeSql(sql, [], datasetGet, dbTools.onSqlError);
@@ -545,7 +545,7 @@ dbTools.visitPromoPromoGrpListGet = function(datasetGet) {
 }
 
 dbTools.visitPromoPromoListGet = function(promoGrpId, datasetGet) {
-    log("visitPromoPromoListGet");
+    log("visitPromoPromoListGet(" + promoGrpId + ")");
     dbTools.db.transaction(function(tx) {
         var sql = "SELECT P.promoId, P.name, P.extInfoKind"
             + "  FROM Promo P"
@@ -556,7 +556,7 @@ dbTools.visitPromoPromoListGet = function(promoGrpId, datasetGet) {
 }
 
 dbTools.visitPromoListGet = function(visitId, skuCatId, datasetGet) {
-    log("visitPromoPromoListGet");
+    log("visitPromoPromoListGet(" + visitId + ", " + skuCatId + ")");
     dbTools.db.transaction(function(tx) {
         var sql = "SELECT VP.visitId, VP.visitPromoId, VP.skuCatId, SC.name AS skuCatName, VP.genderId, G.name AS genderName,"
             + "    VP.brandId, B.name AS brandName, P.promoGrpId, PG.name AS promoGrpName, VP.promoId, P.name AS promoName,"
@@ -574,7 +574,7 @@ dbTools.visitPromoListGet = function(visitId, skuCatId, datasetGet) {
 }
 
 dbTools.visitPromoGet = function(visitPromoId, visitId, skuCatId, genderId, brandId, promoId, datasetGet) {
-    log("visitPromoGet");
+    log("visitPromoGet(" + visitPromoId + ", " + visitId + ", " + skuCatId + ", " + genderId + ", " + brandId + ", " + promoId + ")");
     dbTools.db.transaction(function(tx) {
         var sql = "";
         var params = [];

@@ -21,7 +21,9 @@ fileHelper.getFileEntry = function(folderName, fileName, createIfNotExist, onSuc
                 function(folder) {
                     //var filePath = folder.toURL() + "/" + fileName;
                     //window.resolveLocalFileSystemURL(filePath, onResolveSuccess, onResolveError)
-                    // TODO: если fileName на кириллице, то возникает ошибка code=5 (ENCODING_ERR)
+                    // TODO: В симуляторе, если fileName на кириллице, то возникает ошибка code=5 (ENCODING_ERR)
+                    // TODO: На Lenovo A5500-F все Ок
+                    // TODO: Проверить на Samsung
                     folder.getFile(fileName, {create: false, exclusive: false}, 
                         onResolveSuccess, 
                         function(error) {
