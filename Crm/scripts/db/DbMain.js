@@ -394,14 +394,14 @@ dbTools.dropAllTables = function() {
 }
 
 dbTools.vacuum = function() {
-    dbTools.db.transaction(function(tx) {
-        tx.executeSql("DELETE FROM MailBlockDataIn", []);
-        tx.executeSql("DELETE FROM MailBlockDataOut", []);
-        tx.executeSql("DELETE FROM MailToDelete", []);
-    }, dbTools.onTransError);
-    dbTools.db.transaction(function(tx) {
-        tx.executeSql("VACUUM", []);
-    }, dbTools.onTransError);
+    dbTools.db.transaction(
+        function(tx) {
+            tx.executeSql("DELETE FROM MailBlockDataIn", []);
+            tx.executeSql("DELETE FROM MailBlockDataOut", []);
+            tx.executeSql("DELETE FROM MailToDelete", []);
+        }, 
+        dbTools.onTransError
+    );
 }
 
 dbTools.tableFieldValueListSqlGet = function(tx, tableName, alias, onSuccess/*(tx, tableName, fieldValueListSql)*/, onError) {

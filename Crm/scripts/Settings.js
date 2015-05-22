@@ -25,6 +25,10 @@ function settingsNavBackClick(e) {
     navigateBack(1);
 }
 
+function settingsVacuum(e) {
+    dbTools.vacuum();
+}
+
 //----------------------------------------
 // settings-node-id-edit-view
 //----------------------------------------
