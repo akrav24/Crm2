@@ -51,5 +51,5 @@ function settingsObjInit(onSuccess) {
     settings.skuCatId = -1;
     settings.skuCatName = "Все";
     
-    if (onSuccess != undefined) {onSuccess(settings)}
+    if (onSuccess != undefined) {onSuccess(settings);}
 }

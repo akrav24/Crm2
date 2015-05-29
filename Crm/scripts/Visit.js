@@ -32,6 +32,7 @@ function renderVisitView(tx, rs) {
     $("#visit-point-name").text(visit.name + ', ' + visit.addr);
     visitTimeCaptionSet(visit.timeBgn, visit.timeEnd);
     $("#visit-cat-name").text(settings.skuCatName);
+    $("#visit-activity-show-all-button").text(visit.activityShowAll === 1 ? "Скрыть" : "Показать все");
     visitCheckReadOnly();
     visitEnableButtons();
 }

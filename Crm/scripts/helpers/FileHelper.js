@@ -202,7 +202,7 @@ fileHelper.dataByteArrayToStr = function(data) {
     
     var dataStr = "";
     for (var i = 0; i < dataView.length; i++) {
-        dataStr += dataView[i].toString(16);
+        dataStr += (dataView[i].toString(16).length < 2 ? "0" : "") + dataView[i].toString(16);
     }
     log("..fileHelper.dataByteArrayToStr('" + dataStr.substring(0, 10) + "...(" + dataSize + ")') done");
     return dataStr;

@@ -232,3 +232,14 @@ function translit(str, v) {
     }
     return(ww.replace(/~/g,''));
 }
+
+function copyObjValues(srcObj, dstObj) {
+    if (!!srcObj && !!dstObj) {
+        for (var propertyName in srcObj) {
+            if (dstObj[propertyName] !== undefined) {
+                dstObj[propertyName] = srcObj[propertyName];
+            }
+        }
+    }
+}
+
