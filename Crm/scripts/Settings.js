@@ -13,6 +13,12 @@ function settingsShow() {
  
 function renderSettings() {
     log("..renderSettings");
+    $("#settings-app-version").val(appVersionToStr(settings.appVersion));
+    if (settings.exchange.appVersion > 0 && settings.appVersion < settings.exchange.appVersion) {
+        $("#settings-app-version").addClass("color-old-app-version");
+    } else {
+        $("#settings-app-version").removeClass("color-old-app-version");
+    }
     $("#settings-date-in-send").val(dateToStr(settings.exchange.dataInDateSend, "DD.MM.YYYY HH:NN"));
     $("#settings-date-in-receive").val(dateToStr(settings.exchange.dataInDateReceive, "DD.MM.YYYY HH:NN"));
     $("#settings-date-out-send").val(dateToStr(settings.exchange.dataOutDateSend, "DD.MM.YYYY HH:NN"));

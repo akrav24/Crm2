@@ -46,13 +46,13 @@ body {
 /*-user defined--------------------------------*/
 
 .color-selected {
-    color: #2eb3a6;
-}
-.color-unselected {
-    color: #4c5356;
+    color: #2eb3a6 !important;
 }
 .color-ext {
     color: #754719/*#645452*/;
+}
+.color-old-app-version {
+    color: Red !important;
 }
 
 .date {
@@ -89,9 +89,9 @@ body {
 .form-list label {
     width: 100%;
 }
-.km-root .km-pane .km-view .form-list input:not([type = checkbox]),
-.km-root .km-pane .form-list input:not([type = checkbox]),
-.km-root .km-pane .km-view .form-list .k-dropdown {
+.km-root .km-pane .km-view .form-list label>input:not([type = checkbox]),
+.km-root .km-pane .form-list label>input:not([type = checkbox]),
+.km-root .km-pane .km-view .form-list label .k-dropdown {
     position: relative;
     width: 100%;
     right: 0;
@@ -108,7 +108,7 @@ body {
     top: 0;
     font-size: large;
 }*/
-.km-root .km-pane .km-view .form-list div {
+.km-root .km-pane .km-view .form-list label>div {
     position: relative;
     width: 100%;
     right: 0;
@@ -313,6 +313,9 @@ body {
     width: 100%;
 }
 
+.rating-container {
+    vertical-align: middle;
+}
 .rating-symbol {
     border: 2px solid;
     border-radius: 100em;
@@ -388,6 +391,24 @@ a.visit-activity-show-all {
 }
 .visit-sku-cat-list-item-table-activity {
     width: 1.5em;
+}
+
+.visit-survey-answer-list-item-tree-lvl2 {
+    margin-left: 50px;
+}
+.visit-survey-answer-list-item-switch-container {
+    margin-left: 5px;
+    width: 80px;
+}
+.visit-survey-answer-list-item-switch-container .km-switch {
+    margin-right: 75px;
+}
+.visit-survey-answer-list-item-details-button {
+    margin-left: 15px;
+}
+
+.visit-survey-answer-edit-rating {
+    margin-right: 25px;
 }
 
 .visit-task-done {

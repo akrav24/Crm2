@@ -47,7 +47,7 @@ fileHelper.getFileEntry = function(folderName, fileName, createIfNotExist, onSuc
 }
 
 fileHelper.fileName = function(filePrefix, fileId) {
-    return filePrefix + fileId.toString() + ".png";
+    return filePrefix + fileId.toString() + ".jpg";
 }
 
 fileHelper.folderName = function() {

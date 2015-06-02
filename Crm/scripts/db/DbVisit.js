@@ -165,7 +165,7 @@ dbTools.visitProductCategoryMatrixGet = function(visitId, isItemAllShow, dataset
                     + "      UNION ALL"
                     + "      SELECT 2 AS activityId, P.skuCatId"
                     + "        FROM VisitPlanogramAnswer VPA"
-                    + "        INNER JOIN PlanogramQuestion PQ ON VPA.questionId = PQ.questionId"
+                    + "        INNER JOIN PlanogramQuestion PQ ON VPA.planogramId = PQ.planogramId AND VPA.questionId = PQ.questionId"
                     + "        INNER JOIN Planogram P ON PQ.planogramId = P.planogramId"
                     + "        WHERE VPA.visitId = @visitId"
                     + "      UNION ALL"
@@ -362,7 +362,7 @@ dbTools.visitActivityGet = function(visitPlanItemId, visitId, skuCatId, custId, 
             + "    UNION ALL"
             + "    SELECT 2 AS stageId, 2 AS activityId, P.skuCatId"
             + "      FROM VisitPlanogramAnswer VPA"
-            + "      INNER JOIN PlanogramQuestion PQ ON VPA.questionId = PQ.questionId"
+            + "      INNER JOIN PlanogramQuestion PQ ON VPA.planogramId = PQ.planogramId AND VPA.questionId = PQ.questionId"
             + "      INNER JOIN Planogram P ON PQ.planogramId = P.planogramId"
             + "      WHERE VPA.visitId = @visitId"
             + "      GROUP BY P.skuCatId"
@@ -689,10 +689,10 @@ dbTools.visitPromoPhotoUpdate = function(visitId, visitPromoId, visitPromoPhotoI
 dbTools.visitSurveyAnswerListGet = function(visitId, surveyId, datasetGet) {
     log("visitSurveyAnswerListGet(" + visitId + ", " + surveyId + ")");
     dbTools.db.transaction(function(tx) {
-        var sql = "SELECT A.surveyId, A.questionId, A.name, A.answerType, A.parentId, A.treeLvl, A.answer, A.isShowKpi, A.kpi, A.k, A.answerMax"
+        var sql = "SELECT A.surveyId, A.questionId, A.name, A.answerType, A.parentId, A.treeLvl, A.answer, IFNULL(A.note, '') AS note, A.isShowKpi, A.kpi, A.k, A.answerMax"
             + "  FROM"
             + "    (SELECT SQ.surveyId, SQ.questionId, SQ.name, SQ.answerType, SQ.parentId, "
-            + "        CASE WHEN SQ.parentId IS NULL THEN 1 ELSE 2 END AS treeLvl, VSA.answer,"
+            + "        CASE WHEN SQ.parentId IS NULL THEN 1 ELSE 2 END AS treeLvl, VSA.answer, VSA.note,"
             + "        CASE WHEN SQ.surveyId = 1 THEN 1 ELSE 0 END AS isShowKpi,"
             + "        CASE WHEN SQ.surveyId = 1 AND SQ.parentId IS NOT NULL "
             + "          THEN SQ.weight / SQP.ttlWeight * SQP.weight / SQT.ttlParentWeight * VSA.answer / CASE WHEN SQ.answerType = 1 THEN 1 "
@@ -717,23 +717,35 @@ dbTools.visitSurveyAnswerListGet = function(visitId, surveyId, datasetGet) {
             + "        ) SQT ON SQ.surveyId = SQT.surveyId"
             + "      WHERE SQ.surveyId = ?"
             + "    UNION ALL"
-            + "    SELECT ? AS surveyId, 0 AS questionId, 'KPI' AS name, NULL AS answerType, NULL AS parentId, "
-            + "        0 AS treeLvl, NULL AS answer, "
-            + "        CASE WHEN ? = 1 THEN 1 ELSE 0 END AS isShowKpi,"
-            + "        NULL AS kpi, "
+            + "    SELECT @surveyId AS surveyId, 0 AS questionId, 'KPI' AS name, NULL AS answerType, NULL AS parentId,"
+            + "        0 AS treeLvl, NULL AS answer, NULL AS note,"
+            + "        1 AS isShowKpi,"
+            + "        NULL AS kpi,"
             + "        NULL AS k, NULL AS answerMax, 0 AS lvlParent, 0 AS lvl"
-            + "      WHERE " + surveyId + " = 1"
+            + "      WHERE @surveyId = 1"
             + "        AND 1 <> 1"
             + "  ) A"
             + "  ORDER BY IFNULL(A.lvlParent, A.lvl), A.lvl, A.questionId";
-        tx.executeSql(sql, [visitId, surveyId, surveyId, surveyId], datasetGet, dbTools.onSqlError);
+        sql = sql.replace(/@surveyId/g, surveyId);
+        tx.executeSql(sql, [visitId, surveyId], datasetGet, dbTools.onSqlError);
     }, dbTools.onTransError);
 }
 
-dbTools.visitSurveyAnswerUpdate = function(visitId, questionId, answer, onSuccess, onError) {
-    log("visitSurveyAnswerUpdate(" + visitId + ", " + questionId + ", " + answer + ")");
+dbTools.visitSurveyAnswerGet = function(visitId, questionId, datasetGet) {
+    log("visitSurveyAnswerGet(" + visitId + ", " + questionId + ")");
     dbTools.db.transaction(function(tx) {
-        dbTools.sqlInsertUpdate(tx, "VisitSurveyAnswer", ["visitId", "questionId"], ["answer"], [visitId, questionId], [answer], 
+        var sql = "SELECT SQ.surveyId, SQ.questionId, SQ.name, SQ.answerType, VSA.answer, VSA.note"
+            + "  FROM SurveyQuestion SQ"
+            + "  LEFT JOIN VisitSurveyAnswer VSA ON VSA.visitId = ? AND SQ.questionId = VSA.questionId"
+            + "  WHERE SQ.questionId = ?";
+        tx.executeSql(sql, [visitId, questionId], datasetGet, dbTools.onSqlError);
+    }, dbTools.onTransError);
+}
+
+dbTools.visitSurveyAnswerUpdate = function(visitId, questionId, fieldNames, fieldValues, onSuccess, onError) {
+    log("visitSurveyAnswerUpdate(" + visitId + ", " + questionId + ", " + kendo.stringify(fieldNames) + ", " + kendo.stringify(fieldValues) + ")");
+    dbTools.db.transaction(function(tx) {
+        dbTools.sqlInsertUpdate(tx, "VisitSurveyAnswer", ["visitId", "questionId"], fieldNames, [visitId, questionId], fieldValues, 
             function() {if (onSuccess != undefined) {onSuccess(visitId, questionId);}},
             onError
         );
@@ -756,6 +768,7 @@ dbTools.visitTaskListGet = function(dateBgn, custId, skuCatId, datasetGet) {
             + "      GROUP BY VT.taskId, V.custId, VT.skuCatId"
             + "    ) VTT ON TL.taskId = VTT.taskId AND TL.custId = VTT.custId AND TL.skuCatId = VTT.skuCatId"
             + "  WHERE T.dateBgn <= ? AND T.dateEnd >= ?"
+            + "    AND IFNULL(T.activityId, 0) = 0"
             + "    AND TL.custId = ?"
             + "    AND TL.skuCatId = ?"
             + "  ORDER BY T.descr";
@@ -901,18 +914,18 @@ dbTools.visitPlanogramAnswerListGet = function(visitId, planogramId, datasetGet)
     dbTools.db.transaction(function(tx) {
         var sql = "SELECT PQ.planogramId, PQ.questionId, PQ.name, VPA.answer"
             + "  FROM PlanogramQuestion PQ"
-            + "  LEFT JOIN VisitPlanogramAnswer VPA ON VPA.visitId = ? AND PQ.questionId = VPA.questionId"
+            + "  LEFT JOIN VisitPlanogramAnswer VPA ON VPA.visitId = ? AND PQ.planogramId = VPA.planogramId AND PQ.questionId = VPA.questionId"
             + "  WHERE PQ.planogramId = ?"
             + "  ORDER BY PQ.lvl, PQ.questionId";
         tx.executeSql(sql, [visitId, planogramId], datasetGet, dbTools.onSqlError);
     }, dbTools.onTransError);
 }
 
-dbTools.visitPlanogramAnswerUpdate = function(visitId, questionId, answer, onSuccess, onError) {
-    log("visitPlanogramAnswerUpdate(" + visitId + ", " + questionId + ", " + answer + ")");
+dbTools.visitPlanogramAnswerUpdate = function(visitId, planogramId, questionId, answer, onSuccess, onError) {
+    log("visitPlanogramAnswerUpdate(" + visitId + ", " + planogramId + ", " + questionId + ", " + answer + ")");
     dbTools.db.transaction(function(tx) {
-        dbTools.sqlInsertUpdate(tx, "VisitPlanogramAnswer", ["visitId", "questionId"], ["answer"], [visitId, questionId], [answer], 
-            function() {if (onSuccess != undefined) {onSuccess(visitId, questionId);}},
+        dbTools.sqlInsertUpdate(tx, "VisitPlanogramAnswer", ["visitId", "planogramId", "questionId"], ["answer"], [visitId, planogramId, questionId], [answer], 
+            function() {if (onSuccess != undefined) {onSuccess(visitId, planogramId, questionId);}},
             onError
         );
     }, function(error) {if (onError != undefined) {onError("!!! SQLite transaction error, " + dbTools.errorMsg(error));}});

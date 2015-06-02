@@ -250,7 +250,7 @@ dbTools.exchangeMailExportLocalData = function(blockId, onSuccess, onError) {
                                     + "    (SELECT @vals AS data"
                                     + "      FROM @tblName A"
                                     + "      LEFT JOIN ExtRef B ON B.refTypeId = @refTypeId AND B.refId = A.@tblNameId"
-                                    + "      WHERE (B.refId IS NULL OR A.updateDate > B.updateDate) @filter"
+                                    + "      WHERE (B.refId IS NULL OR SUBSTR(A.updateDate,1, 17) > SUBSTR(B.updateDate, 1, 17)) @filter"
                                     + "    ) A";
                             }
                             var sqlFilter = "";
@@ -280,7 +280,7 @@ dbTools.exchangeMailExportLocalData = function(blockId, onSuccess, onError) {
                                                                 + "      FROM @tblName A"
                                                                 + "      INNER JOIN @dtlName D ON D.@tblNameId = A.@tblNameId"
                                                                 + "      LEFT JOIN ExtRef B ON B.refTypeId = @refTypeId AND B.refId = A.@tblNameId"
-                                                                + "      WHERE (B.refId IS NULL OR A.updateDate > B.updateDate) @filter"
+                                                                + "      WHERE (B.refId IS NULL OR SUBSTR(A.updateDate,1, 17) > SUBSTR(B.updateDate, 1, 17)) @filter"
                                                                 + "    ) A";
                                                             dtlSql = dtlSql.replace(/@tblName/g, tblName).replace(/@dtlName/g, dtlName).replace(/@refTypeId/g, tblRefTypeId).replace(/@blockId/g, blockId).replace(/@filter/g, sqlFilter);
                                                             dbTools.tableFieldValueListSqlGet(tx, dtlName, "D.", 
@@ -508,18 +508,23 @@ dbTools.exchangeMailBlockDataInProcMailAdd = function(blockId, onSuccess, onErro
 dbTools.exchangeMailImportParm = function(blockId, onSuccess, onError) {
     log("exchangeMailImportParm(blockId=" + blockId + ")");
     
-    var exchDate = null;
     dbTools.db.transaction(
         function(tx) {
-            var sql = "SELECT exchDate FROM MailExchParm WHERE blockId=?";
+            var sql = "SELECT exchDate, appVersion FROM MailExchParm WHERE blockId=?";
             tx.executeSql(sql, [blockId], function(tx, rs) {
                 if (rs.rows.length > 0) {
-                    exchDate = rs.rows.item(0).exchDate;
-                    var sql = "UPDATE Parm SET exchDataFromOfficeSent = ?";
-                    tx.executeSql(sql, [exchDate]);
+                    var exchDate = rs.rows.item(0).exchDate;
+                    var appVersion = rs.rows.item(0).appVersion;
+                    var sql = "UPDATE Parm SET exchDataFromOfficeSent = ?, appVersion = ?";
+                    tx.executeSql(sql, [exchDate, appVersion]);
                     settings.exchange.dataInDateSend = sqlDateToDate(exchDate);
+                    settings.exchange.appVersion = appVersion;
                 }
             });
+            sql = "DELETE FROM ExtRef";
+            tx.executeSql(sql, []);
+            sql = "INSERT INTO ExtRef (refTypeId, refId, updateDate) SELECT refTypeId, refId, updateDate FROM MailExtRef WHERE blockId=?";
+            tx.executeSql(sql, [blockId]);
         },
         function(error) {if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error));}},
         function() {if (onSuccess != undefined) {onSuccess(blockId);}}

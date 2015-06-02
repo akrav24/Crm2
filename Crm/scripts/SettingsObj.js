@@ -9,6 +9,9 @@ function settingsObjInit(onSuccess) {
     
     settings = {};
     
+    // версия приложения
+    settings.appVersion = 1011;
+    
     // признак выполнения приложения в симуляторе
     settings.simulator = (window.navigator.simulator === true);
     
@@ -29,6 +32,7 @@ function settingsObjInit(onSuccess) {
     
     // даты последнего обмена информацией с сервером
     settings.exchange = {};
+    settings.exchange.appVersion = null;
     settings.exchange.dataInDateSend = null;
     settings.exchange.dataInDateReceive = null;
     settings.exchange.dataOutDateSend = null;

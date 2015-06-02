@@ -50,6 +50,10 @@ dbTools.createSystemTables = function(onSuccess) {
         tx.executeSql("CREATE TABLE IF NOT EXISTS RefType(refTypeId int, name varchar(100), parentId int, test int, useNodeId int, dir int, updateDate datetime, sendAll int, lvl int, flds varchar(1000), constraint pkRefType primary key (refTypeId))", [], undefined, dbTools.onSqlError);
         tx.executeSql("CREATE TABLE IF NOT EXISTS Script(versionId int, sql varchar(8000), constraint pkScript primary key(versionId))", [], undefined, dbTools.onSqlError);
         
+        dbTools.tableFieldListGet(tx, "MailExchParm", function(tx, tableName, fieldList) {
+            if (!inArray(fieldList, "appVersion")) {tx.executeSql("ALTER TABLE MailExchParm ADD appVersion int", [], undefined, dbTools.onSqlError);}
+         }, function(errMsg) {log(errMsg);});
+        
         dbTools.tableFieldListGet(tx, "parm", function(tx, tableName, fieldList) {
             if (!inArray(fieldList, "password")) {tx.executeSql("ALTER TABLE Parm ADD password varchar(250)", [], undefined, dbTools.onSqlError);}
             if (!inArray(fieldList, "exchDataFromOfficeSent")) {tx.executeSql("ALTER TABLE Parm ADD exchDataFromOfficeSent datetime", [], undefined, dbTools.onSqlError);}
@@ -57,6 +61,7 @@ dbTools.createSystemTables = function(onSuccess) {
             if (!inArray(fieldList, "exchDataToOfficeSent")) {tx.executeSql("ALTER TABLE Parm ADD exchDataToOfficeSent datetime", [], undefined, dbTools.onSqlError);}
             if (!inArray(fieldList, "serverName")) {tx.executeSql("ALTER TABLE Parm ADD serverName varchar(250)", [], undefined, dbTools.onSqlError);}
             if (!inArray(fieldList, "serverPort")) {tx.executeSql("ALTER TABLE Parm ADD serverPort int", [], undefined, dbTools.onSqlError);}
+            if (!inArray(fieldList, "appVersion")) {tx.executeSql("ALTER TABLE Parm ADD appVersion int", [], undefined, dbTools.onSqlError);}
             
             if (settings.nodeId > 0) {
                 tx.executeSql("INSERT INTO Parm(nodeId, dataVersionId, password, serverName, serverPort) SELECT ?, 0, ?, ?, ? WHERE NOT EXISTS(SELECT 1 FROM Parm WHERE nodeId = ?)", 
@@ -82,6 +87,7 @@ dbTools.loadSettings = function(tx, onSuccess) {
             if (rs.rows.length > 0) {
                 settings.nodeId = rs.rows.item(0).nodeId;
                 settings.password = rs.rows.item(0).password != null ? rs.rows.item(0).password : "";
+                settings.exchange.appVersion = rs.rows.item(0).appVersion;
                 settings.exchange.dataInDateSend = sqlDateToDate(rs.rows.item(0).exchDataFromOfficeSent);
                 settings.exchange.dataInDateReceive = sqlDateToDate(rs.rows.item(0).exchDataFromOfficeReceived);
                 settings.exchange.dataOutDateSend = sqlDateToDate(rs.rows.item(0).exchDataToOfficeSent);

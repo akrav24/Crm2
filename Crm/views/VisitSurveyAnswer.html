@@ -23,50 +23,116 @@
             </div>
         </header>
         
-        <form>
-            <ul data-role="listview" id="visit-survey-answer-list" class="list" data-template="visit-survey-answer-tmpl">
-            </ul>
-            
-            <script id="visit-survey-answer-tmpl" type="text/x-kendo-template">
-                <div class="list-item-header #if (visitSurveyAnswer.surveyId == 1 && treeLvl <= 1) {#list-item-group-header#}#">
-                    <p>
-                        <table class="list-item-table-del">
-                            <tr class="table-text-align">
-                                <td width="100%">
-                                    <div #if (treeLvl == 2) {#style="margin-left: 50px;"#}#>#:name#</div>
-                                </td>
-                                #if (visitSurveyAnswer.surveyId == 2) {#
-                                <td>
-                                    <table class="list-item-table-del">
+        <ul data-role="listview" id="visit-survey-answer-list" class="list" data-template="visit-survey-answer-tmpl" data-click="visitSurveyAnswerListClick">
+        </ul>
+        
+        <script id="visit-survey-answer-tmpl" type="text/x-kendo-template">
+            <div class="list-item-header #if (visitSurveyAnswerList.surveyId == 1 && treeLvl <= 1) {#list-item-group-header#}#">
+                <p>
+                    <table width="100%">
+                        <tr class="table-text-align">
+                            <td width="100%">
+                                <div #if (treeLvl == 2) {#class="visit-survey-answer-list-item-tree-lvl2"#}#>#:name#</div>
+                                <div class="list-item-comment#if (treeLvl == 2) {# visit-survey-answer-list-item-tree-lvl2#}#">#:note#</div>
+                            </td>
+                            #if (answerType == 2) {#
+                            <td class="rating-container">
+                                #if (visitSurveyAnswerList.surveyId == 2 || treeLvl == 2) {#
+                                    <table>
                                         <tr class="table-text-align">
-                                            <td><div align="center" class="rating-symbol #if (answer == 1) {#color-selected#} else {#color-unselected#}#" data-question-id="#:questionId#" data-answer-id="1" onclick="visitSurveyAnswerStarClick(this, #:questionId#, 1)">1</div></td>
-                                            <td><div align="center" class="rating-symbol #if (answer == 2) {#color-selected#} else {#color-unselected#}#" data-question-id="#:questionId#" data-answer-id="2" onclick="visitSurveyAnswerStarClick(this, #:questionId#, 2)">2</div></td>
-                                            <td><div align="center" class="rating-symbol #if (answer == 3) {#color-selected#} else {#color-unselected#}#" data-question-id="#:questionId#" data-answer-id="3" onclick="visitSurveyAnswerStarClick(this, #:questionId#, 3)">3</div></td>
-                                            <td><div align="center" class="rating-symbol #if (answer == 4) {#color-selected#} else {#color-unselected#}#" data-question-id="#:questionId#" data-answer-id="4" onclick="visitSurveyAnswerStarClick(this, #:questionId#, 4)">4</div></td>
-                                            <td><div align="center" class="rating-symbol #if (answer == 5) {#color-selected#} else {#color-unselected#}#" data-question-id="#:questionId#" data-answer-id="5" onclick="visitSurveyAnswerStarClick(this, #:questionId#, 5)">5</div></td>
+                                            <td><div align="center" class="rating-symbol #if (answer == 1) {#color-selected#}#" data-question-id="#:questionId#" data-answer-id="1" onclick="visitSurveyAnswerStarClick(this, #:questionId#, 1)">1</div></td>
+                                            <td><div align="center" class="rating-symbol #if (answer == 2) {#color-selected#}#" data-question-id="#:questionId#" data-answer-id="2" onclick="visitSurveyAnswerStarClick(this, #:questionId#, 2)">2</div></td>
+                                            <td><div align="center" class="rating-symbol #if (answer == 3) {#color-selected#}#" data-question-id="#:questionId#" data-answer-id="3" onclick="visitSurveyAnswerStarClick(this, #:questionId#, 3)">3</div></td>
+                                            <td><div align="center" class="rating-symbol #if (answer == 4) {#color-selected#}#" data-question-id="#:questionId#" data-answer-id="4" onclick="visitSurveyAnswerStarClick(this, #:questionId#, 4)">4</div></td>
+                                            <td><div align="center" class="rating-symbol #if (answer == 5) {#color-selected#}#" data-question-id="#:questionId#" data-answer-id="5" onclick="visitSurveyAnswerStarClick(this, #:questionId#, 5)">5</div></td>
                                         </tr>
                                     </table>
-                                </td>
-                                #} else {#
-                                <td width="100px">
-                                    <div>
-                                        #if (treeLvl == 2) {#
+                                #}#
+                            </td>
+                            #} else {#
+                            <td>
+                                #if (visitSurveyAnswerList.surveyId == 2 || treeLvl == 2) {#
+                                    <div class="visit-survey-answer-list-item-switch-container">
                                         <input class="editable" type="checkbox" data-role="switch" data-off-label="Нет" data-on-label="Да"
                                             data-checked="#if (answer == 1) {#true#} else {#false#}#"
                                             data-question-id="#:questionId#"
                                             data-change="visitSurveyAnswerSwitchChange"
                                         />
-                                        #} else if (treeLvl == 0) {#
-                                        <div>#:Math.round(kpi * 100)#%</div>
-                                        #}#
                                     </div>
-                                </td>
                                 #}#
-                            </tr>
-                        </table>
-                    </p>
-                </div>
-            </script>
+                            </td>
+                            #}#
+                            #if (visitSurveyAnswerList.surveyId == 2 || treeLvl == 2) {#
+                            <td>
+                                <a class="list-item-details-button visit-survey-answer-list-item-details-button" data-role="button" data-align="right" data-icon="details" href="\\#visit-survey-answer-edit-view"></a>
+                            </td>
+                            #}#
+                        </tr>
+                    </table>
+                </p>
+            </div>
+        </script>
+    </div>
+    
+    <div id="visit-survey-answer-edit-view"
+        data-role="view" 
+        data-title="Контроль работы" 
+        data-layout="main" 
+        data-init="visitSurveyAnswerEditInit" 
+        data-show="visitSurveyAnswerEditShow"
+        data-after-show="visitSurveyAnswerEditAfterShow">
+        
+        <header data-role="header">
+            <div data-role="navbar">
+                <a class="nav-button" data-align="left" data-role="button" data-icon="back" data-click="visitSurveyAnswerEditNavBackClick"></a>
+                <span data-role="view-title"></span>
+                <a id="visit-survey-answer-edit-save-button" class="nav-button edit-save-button hidden" data-align="right" data-role="button" data-click="visitSurveyAnswerEditSaveClick">Сохранить</a>
+                <a id="visit-survey-answer-edit-del-button" class="nav-button edit-delete-button hidden" data-align="right" data-role="button" data-click="visitSurveyAnswerEditDelClick">Удалить</a>
+            </div>
+        </header>
+        
+        <form>
+            <ul id="visit-survey-answer-edit-list" class="list form-list" data-role="listview">
+                <li data-answer-type="1">
+                    <label>Вопрос
+                        <div>
+                            <span class="visit-survey-answer-edit-name"></span>
+                            <input id="visit-survey-answer-edit-answer-switch" class="editable" type="checkbox" data-role="switch" data-off-label="Нет" data-on-label="Да"
+                                data-change="visitSurveyAnswerEditSwitchChange"
+                            />
+                        </div>
+                    </label>
+                </li>
+                <li data-answer-type="2">
+                    <label>Вопрос
+                        <div>
+                            <table width="100%">
+                                <tr class="table-text-align">
+                                    <td width="100%">
+                                        <span class="visit-survey-answer-edit-name"></span>
+                                    </td>
+                                    <td class="rating-container">
+                                        <table class="visit-survey-answer-edit-rating">
+                                            <tr class="table-text-align">
+                                                <td><div id="aa1" align="center" class="rating-symbol" data-answer-id="1" onclick="visitSurveyAnswerEditStarClick(this, 1)">1</div></td>
+                                                <td><div id="aa2" align="center" class="rating-symbol" data-answer-id="2" onclick="visitSurveyAnswerEditStarClick(this, 2)">2</div></td>
+                                                <td><div id="aa3" align="center" class="rating-symbol" data-answer-id="3" onclick="visitSurveyAnswerEditStarClick(this, 3)">3</div></td>
+                                                <td><div id="aa4" align="center" class="rating-symbol" data-answer-id="4" onclick="visitSurveyAnswerEditStarClick(this, 4)">4</div></td>
+                                                <td><div id="aa5" align="center" class="rating-symbol" data-answer-id="5" onclick="visitSurveyAnswerEditStarClick(this, 5)">5</div></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </label>
+                </li>
+                <li>
+                    <label>Примечание
+                        <input id="visit-survey-answer-edit-note" class="editable" type="text" onchange="visitSurveyAnswerEditControlChange(this.id, this.value)"/>
+                    </label>
+                </li>
+            </ul>
         </form>
     </div>
     

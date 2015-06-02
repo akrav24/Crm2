@@ -90,7 +90,7 @@ function getLocation() {
     navigator.geolocation.getCurrentPosition(onSuccess, onError, geolocationOptions);    
 }
 
-function saveImages() {
+function saveImages(e) {
     log("..saveImages()");
     /*fileHelper.fileDataWrite("FFD8FFE000104A464946", fileHelper.folderName(), "testt.txt",
         function(fileEntry) {log("====success");},
@@ -99,15 +99,14 @@ function saveImages() {
     */
     dbTools.db.transaction(
         function(tx) {
-            tx.executeSql("SELECT * FROM FileIn WHERE data IS NOT NULL", [], 
+            tx.executeSql("SELECT * FROM File" + e.target.data("type") + " WHERE data IS NOT NULL", [], 
                 function(tx, rs) {
                     for (var i = 0; i < rs.rows.length; i++) {
-                        for (var j = 0; j < 25; j++) {
-                            fileHelper.fileDataWrite(rs.rows.item(i).data, fileHelper.folderName(), rs.rows.item(i).fileName + "_" + i + "_" + j + ".png",
-                                /*function(fileEntry) {log("====success");}*/undefined,
-                                function(errMsg) {log("====error: " + errMsg);}
-                            );
-                        }
+                        fileHelper.fileDataWrite(rs.rows.item(i).data, fileHelper.folderName(), rs.rows.item(i).fileName + "_" + i + ".jpg",
+                            //function(fileEntry) {log("====success");},
+                            undefined,
+                            function(errMsg) {log("====error: " + errMsg);}
+                        );
                     }
                 },
                 function(error) {log("!!! SQLite error: " + dbTools.errorMsg(error));}
@@ -146,4 +145,7 @@ function getTableFieldList() {
         }, 
         dbTools.onTransError
     );
+}
+
+function test() {
 }

@@ -243,3 +243,17 @@ function copyObjValues(srcObj, dstObj) {
     }
 }
 
+function appVersionToStr(appVersion) {
+    var res = "";
+    if (appVersion != undefined) {
+        var appVer = appVersion.toString();
+        res = appVer.substring(0, 1);
+        if (appVer.length > 1) {
+            res += "." + appVer.substring(1, 2);
+            if (appVer.length > 2) {
+                res += "." + appVer.substring(2, 10);
+            }
+        }
+    }
+    return res;
+}

@@ -64,8 +64,8 @@ function visitPlanogramPhotoGalleryOnTagListGet(fileTableName, fileId, linkId, o
 }
 
 function visitPlanogramPhotoGalleryOnTagChange(fileTableName, fileId, linkId, tagId, value, onSuccess, onError) {
-    dbTools.visitPlanogramAnswerUpdate(visit.visitId, tagId, value, 
-        function(visitPhotoId, photoTagId) {if (!!onSuccess) {onSuccess(photoTagId);}}, 
+    dbTools.visitPlanogramAnswerUpdate(visit.visitId, linkId, tagId, value, 
+        function(visitId, photoLinkId, photoTagId) {if (!!onSuccess) {onSuccess(photoTagId);}},
         dbTools.onSqlError
     );
 }
