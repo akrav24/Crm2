@@ -245,6 +245,7 @@ body {
 }
 .list-item-header {
     font-size: large;
+    line-height: inherit !important;
 }
 .list-item-header p {
     margin: 10px;
