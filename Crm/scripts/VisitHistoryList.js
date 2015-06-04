@@ -2,6 +2,9 @@ var visitHistory;
 
 function visitHistoryListInit(e) {
     log("..visitHistoryListInit");
+    if (visit == undefined) {
+        visitObjInit();
+    }
     visitHistoryObjInit();
 }
 

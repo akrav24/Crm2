@@ -126,6 +126,17 @@ function logSqlResult(tx, sql, rowCount, onSuccess, onError) {
     }
 }
 
+function logRs(rs, rowCount, onSuccess) {
+    log("..rs: ");
+    if (rowCount == undefined || rowCount === 0) {
+        rowCount = rs.rows.length;
+    }
+    for (var i = 0; (i < rs.rows.length && i < rowCount); i++) {
+        log(".." + i + ":" + kendo.stringify(rs.rows.item(i)));
+    }
+    if (!!onSuccess) {onSuccess(rs);}
+}
+
 function logClear() {
     $("#console").empty();
 }

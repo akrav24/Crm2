@@ -30,7 +30,7 @@ dbTools.onLoadSettings = function() {
 dbTools.openDB = function() {
     log("openDB()");
     if (window.sqlitePlugin != undefined) {
-        dbTools.db = window.sqlitePlugin.openDatabase("Crm", function() {log("====1");}, function() {log("====2");});
+        dbTools.db = window.sqlitePlugin.openDatabase("Crm");
     } else {
         // For debugging in simulator fallback to native SQL Lite
         log("==SIMULATOR");
