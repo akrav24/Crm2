@@ -91,8 +91,13 @@ function navigateBack(backCount) {
     if (backCount > 0) {
         //log("....navigateBack view: '" + app.view().id + "'");
         app.navigate("#:back");
-        setTimeout(function() {delayedBack(backCount, 1, delay);}, delay)
+        setTimeout(function() {delayedBack(backCount, 1, delay);}, delay);
     }
+}
+
+function navigateTo(viewId) {
+    log("..navigateTo(" + viewId + ")");
+    app.navigate(viewId);
 }
 
 function navigateBackTo(viewId) {

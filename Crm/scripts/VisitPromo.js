@@ -17,19 +17,19 @@ function visitPromoPromosShow(e) {
     if (visitPromos.navBackCount < 1) {
         visitPromos.navBackCount = 1;
     }
-    dbTools.visitPromoListGet(visit.visitId, settings.skuCatId, renderVisitPromoPromosView);
+    goToNextViewIfEmpty = visitPromos.goToNextViewIfEmpty;
+    dbTools.visitPromoListGet(visit.visitId, settings.skuCatId, function(tx, rs) {renderVisitPromoPromosView(tx, rs, goToNextViewIfEmpty);});
 }
 
-function renderVisitPromoPromosView(tx, rs) {
-    log("..renderVisitPromoPromosView");
+function renderVisitPromoPromosView(tx, rs, goToNextViewIfEmpty) {
+    log("..renderVisitPromoPromosView(tx, rs, " + goToNextViewIfEmpty + ")");
     renderListView(rs, "#visit-promo-promos-list");
     visitPromos.Count = rs.rows.length;
     if (visitPromos.Count === 0) {
-        if (visitPromos.goToNextViewIfEmpty) {
-            app.navigate("#visit-promo-brand-view");
+        if (goToNextViewIfEmpty) {
+            navigateTo("#visit-promo-sub-cat-view");
         }
     }
-    visitPromos.goToNextViewIfEmpty = true;
 }
 
 function visitPromoPromosNavBackClick(e) {
@@ -39,13 +39,13 @@ function visitPromoPromosNavBackClick(e) {
 
 function visitPromoAddClick(e) {
     log("..visitPromoAddClick");
-    app.navigate("#visit-promo-brand-view");
+    navigateTo("#visit-promo-sub-cat-view");
 }
 
 function visitPromoPromosListClick(e) {
     log("..visitPromoPromosListClick");
-    visitPromoItem.visitPromoId = e.dataItem.visitPromoId;
-    visitPromoItem.genderId = e.dataItem.genderId;
+    /*visitPromoItem.visitPromoId = e.dataItem.visitPromoId;
+    visitPromoItem.skuSubCatId = e.dataItem.skuSubCatId;
     visitPromoItem.genderName = e.dataItem.genderName;
     visitPromoItem.brandId = e.dataItem.brandId;
     visitPromoItem.brandName = e.dataItem.brandName;
@@ -56,8 +56,47 @@ function visitPromoPromosListClick(e) {
     visitPromoItem.extInfoKind = e.dataItem.extInfoKind;
     visitPromoItem.extInfoVal = e.dataItem.extInfoVal;
     visitPromoItem.extInfoVal2 = e.dataItem.extInfoVal2;
-    visitPromoItem.extInfoName = e.dataItem.extInfoName;
-    app.navigate("#visit-promo-edit-view");
+    visitPromoItem.extInfoName = e.dataItem.extInfoName;*/
+    copyObjValues(e.dataItem, visitPromoItem);
+    navigateTo("#visit-promo-edit-view");
+}
+
+//----------------------------------------
+// visit-promo-sub-cat-view
+//----------------------------------------
+
+function visitPromoSubCatShow(e) {
+    log("..visitPromoSubCatShow");
+    visitPromoItemClear(1);
+    goToNextViewIfEmpty = visitPromoItem.subCatGoToNextViewIfEmpty
+    dbTools.visitPromoSubCatListGet(settings.skuCatId, function(tx, rs) {renderVisitPromoSubCatView(tx, rs, goToNextViewIfEmpty);});
+}
+
+function renderVisitPromoSubCatView(tx, rs, goToNextViewIfEmpty) {
+    log("..renderVisitPromoSubCatView(tx, rs, " + goToNextViewIfEmpty + ")");
+    renderListView(rs, "#visit-promo-sub-cat-list");
+    visitPromoItem.skuSubCatCount = rs.rows.length;
+    if (visitPromoItem.skuSubCatCount === 0) {
+        if (goToNextViewIfEmpty) {
+            navigateTo("#visit-promo-brand-view");
+        }
+    }
+}
+ 
+function visitPromoSubCatNavBackClick(e) {
+    log("..visitPromoSubCatNavBackClick");
+    if (visitPromos.Count > 0) {
+        navigateBackTo("views/VisitPromo.html");
+    } else {
+        navigateBackTo("views/Visit.html");
+    }
+}
+
+function visitPromoSubCatListClick(e) {
+    log("..visitPromoSubCatListClick");
+    visitPromoItem.skuSubCatId = e.dataItem.skuSubCatId;
+    visitPromoItem.skuSubCatName = e.dataItem.name;
+    navigateTo("#visit-promo-brand-view");
 }
 
 //----------------------------------------
@@ -66,7 +105,7 @@ function visitPromoPromosListClick(e) {
 
 function visitPromoBrandShow(e) {
     log("..visitPromoBrandShow");
-    visitPromoItemClear(1);
+    visitPromoItemClear(2);
     dbTools.visitPromoBrandListGet(settings.skuCatId, renderVisitPromoBrandView);
 }
 
@@ -77,46 +116,22 @@ function renderVisitPromoBrandView(tx, rs) {
  
 function visitPromoBrandNavBackClick(e) {
     log("..visitPromoBrandNavBackClick");
-    visitPromos.goToNextViewIfEmpty = false;
-    if (visitPromos.Count > 0) {
-        navigateBackTo("views/VisitPromo.html");
+    if (visitPromoItem.skuSubCatCount > 0) {
+        navigateBackTo("#visit-promo-sub-cat-view");
     } else {
-        navigateBackTo("views/Visit.html");
+        if (visitPromos.Count > 0) {
+            navigateBackTo("views/VisitPromo.html");
+        } else {
+            navigateBackTo("views/Visit.html");
+        }
     }
 }
 
-function visitPromoBrandListClick(e) {
+function visitPromoBrandListClick(e) { 
     log("..visitPromoBrandListClick");
     visitPromoItem.brandId = e.dataItem.brandId;
     visitPromoItem.brandName = e.dataItem.name;
-    app.navigate("#visit-promo-gender-view");
-}
-
-//----------------------------------------
-// visit-promo-gender-view
-//----------------------------------------
-
-function visitPromoGenderShow(e) {
-    log("..visitPromoGenderShow");
-    visitPromoItemClear(2);
-    dbTools.visitPromoGenderListGet(renderVisitPromoGenderView);
-}
-
-function renderVisitPromoGenderView(tx, rs) {
-    log("..renderVisitPromoGenderView");
-    renderListView(rs, "#visit-promo-gender-list");
-}
-
-function visitPromoGenderNavBackClick(e) {
-    log("..visitPromoGenderNavBackClick");
-    navigateBackTo("#visit-promo-brand-view");
-}
-
-function visitPromoGenderListClick(e) {
-    log("..visitPromoGenderListClick");
-    visitPromoItem.genderId = e.dataItem.genderId;
-    visitPromoItem.genderName = e.dataItem.name;
-    app.navigate("#visit-promo-promo-grp-view");
+    navigateTo("#visit-promo-promo-grp-view");
 }
 
 //----------------------------------------
@@ -143,7 +158,7 @@ function visitPromoPromoGrpListClick(e) {
     log("..visitPromoPromoGrpListClick");
     visitPromoItem.promoGrpId = e.dataItem.promoGrpId;
     visitPromoItem.promoGrpName = e.dataItem.name;
-    app.navigate("#visit-promo-promo-view");
+    navigateTo("#visit-promo-promo-view");
 }
 
 //----------------------------------------
@@ -172,7 +187,7 @@ function visitPromoPromoListClick(e) {
     visitPromoItem.promoName = e.dataItem.name;
     visitPromoItem.extInfoKind = e.dataItem.extInfoKind;
     /*if (visitPromoItem.extInfoKind > 0) {*/
-        app.navigate("#visit-promo-edit-view");
+        navigateTo("#visit-promo-edit-view");
     /*} else {
         visitPromoSave(function() {navigateBackTo("views/VisitPromo.html");});
     }*/
@@ -180,7 +195,7 @@ function visitPromoPromoListClick(e) {
 
 function visitPromoSave(onSuccess) {
     dbTools.objectListItemSet("visit-list", true);
-    dbTools.visitPromoUpdate(visit.visitId, visitPromoItem.visitPromoId, settings.skuCatId, visitPromoItem.genderId, visitPromoItem.brandId, 
+    dbTools.visitPromoUpdate(visit.visitId, visitPromoItem.visitPromoId, settings.skuCatId, visitPromoItem.skuSubCatId, visitPromoItem.brandId, 
             visitPromoItem.promoId, visitPromoItem.extInfoVal, visitPromoItem.extInfoVal2, visitPromoItem.extInfoName, 
         function(visitPromoId) {if (onSuccess != undefined) {onSuccess(visitPromoId);}}, 
         dbTools.onSqlError
@@ -199,7 +214,7 @@ function visitPromoEditShow(e) {
     log("..visitPromoEditShow");
     if (!visitPromoItem.isNotDataReload) {
         visitPromoItemClear(5);
-        dbTools.visitPromoGet(visitPromoItem.visitPromoId, visit.visitId, settings.skuCatId, visitPromoItem.genderId, visitPromoItem.brandId, 
+        dbTools.visitPromoGet(visitPromoItem.visitPromoId, visit.visitId, settings.skuCatId, visitPromoItem.skuSubCatId, visitPromoItem.brandId, 
             visitPromoItem.promoId, renderVisitPromoEditView);
     }
     visitPromoItem.isNotDataReload = false;
@@ -207,11 +222,10 @@ function visitPromoEditShow(e) {
 
 function renderVisitPromoEditView(tx, rs) {
     log("..renderVisitPromoEditView");
-    visitPromoItem.isEdited = false;
     if (rs.rows.length > 0) {
-        visitPromoItem.visitPromoId = rs.rows.item(0).visitPromoId;
+        /*visitPromoItem.visitPromoId = rs.rows.item(0).visitPromoId;
         
-        visitPromoItem.genderId = rs.rows.item(0).genderId;
+        visitPromoItem.skuSubCatId = rs.rows.item(0).genderId;
         visitPromoItem.genderName = rs.rows.item(0).genderName;
         visitPromoItem.brandId = rs.rows.item(0).brandId;
         visitPromoItem.brandName = rs.rows.item(0).brandName;
@@ -223,6 +237,8 @@ function renderVisitPromoEditView(tx, rs) {
         visitPromoItem.extInfoVal = rs.rows.item(0).extInfoVal;
         visitPromoItem.extInfoVal2 = rs.rows.item(0).extInfoVal2;
         visitPromoItem.extInfoName = rs.rows.item(0).extInfoName;
+        */
+        copyObjValues(rs.rows.item(0), visitPromoItem);
         if (rs.rows.item(0).visitPromoPhotoCnt != undefined) {
             visitPromoItem.photoCount = rs.rows.item(0).visitPromoPhotoCnt;
         } else {
@@ -232,16 +248,28 @@ function renderVisitPromoEditView(tx, rs) {
     visitPromoEditFillControls();
     visitPromoEditEnableControls();
     //app.scroller().reset();
+    visitPromoItem.isEdited = false;
 }
 
 function visitPromoEditNavBackClick() {
-    navigateBack(1);
+    if (visitPromoItem.isEdited) {
+        dialogHelper.confirm(false, "Сохранить?", 
+            function() {
+                visitPromoEditSave(function() {navigateBackTo("views/VisitPromo.html");});
+            }, 
+            function() {
+                navigateBack(1);
+            }
+        );
+    } else {
+        navigateBack(1);
+    }
 }
 
 function visitPromoEditFillControls() {
     log("..visitPromoEditFillControls");
-    $("#visit-promo-edit-gender-name").text(visitPromoItem.genderName);
     $("#visit-promo-edit-brand-name").text(visitPromoItem.brandName);
+    $("#visit-promo-edit-sub-cat-name").text(visitPromoItem.skuSubCatName != null ? (" (" + visitPromoItem.skuSubCatName + ")") : "");
     $("#visit-promo-edit-promo-name").text(visitPromoItem.promoName);
     $("#visit-promo-edit-ext-discount").val(null);
     $("#visit-promo-edit-ext-qty-pay").val(null);
@@ -329,6 +357,12 @@ function visitPromoEditControlChange(id, value) {
     visitPromoEditEnableControls();
 }
 
+function visitPromoEditControlKeyUp(sender) {
+    log("..visitPromoEditControlKeyUp(sender)");
+    visitPromoItem.isEdited = true;
+    visitPromoEditEnableControls();
+}
+
 function visitPromoEditSaveClick() {
     log("..visitPromoEditSaveClick");
     visitPromoEditSave(function() {navigateBackTo("views/VisitPromo.html");});
@@ -344,7 +378,7 @@ function visitPromoEditSave(onSuccess) {
     if (visitPromoItem.visitPromoId == null) {
         visitPromos.Count++;
     }
-    dbTools.visitPromoUpdate(visit.visitId, visitPromoItem.visitPromoId, settings.skuCatId, visitPromoItem.genderId, visitPromoItem.brandId, 
+    dbTools.visitPromoUpdate(visit.visitId, visitPromoItem.visitPromoId, settings.skuCatId, visitPromoItem.skuSubCatId, visitPromoItem.brandId, 
             visitPromoItem.promoId, visitPromoItem.extInfoVal, visitPromoItem.extInfoVal2, visitPromoItem.extInfoName, 
         function(visitPromoId) {
             for (; visitPromoItem.newPhotoLst.length > 0; ) {
@@ -387,7 +421,7 @@ function visitPromoEditListClick(e) {
                     dbTools.visitPromoPhotoListGet(visitPromoItem.visitPromoId, 
                         function(tx, rs) {
                             visitPromoEditPhotoGalleryFileIdLstSet(rs);
-                            app.navigate("views/PhotoGallery.html");
+                            navigateTo("views/PhotoGallery.html");
                         }
                     );
                 }
@@ -397,7 +431,7 @@ function visitPromoEditListClick(e) {
             dbTools.visitPromoPhotoListGet(visitPromoItem.visitPromoId, 
                 function(tx, rs) {
                     photoGallery.fileIdLst = visitPromoEditPhotoGalleryFileIdLstSet(rs);
-                    app.navigate("views/PhotoGallery.html");
+                    navigateTo("views/PhotoGallery.html");
                 }
             );
         }
@@ -434,6 +468,7 @@ function visitPromoEditPhotoGalleryPhotoAdd(fileTableName, fileId) {
 //----------------------------------------
 
 function visitPromoObjInit() {
+    log("..visitPromoObjInit");
     visitPromos = {};
     visitPromos.navBackCount = 1;
     visitPromos.Count = 0;
@@ -452,14 +487,16 @@ function visitPromoItemClear(step) {
         visitPromoItem.visitPromoId = null;
         visitPromoItem.isNotDataReload = false;
         visitPromoItem.isEdited = false;
+        visitPromoItem.subCatGoToNextViewIfEmpty = true;
     }
     if (step <= 1) {
-        visitPromoItem.brandId = null;
-        visitPromoItem.brandName = null;
+        visitPromoItem.skuSubCatCount = 0;
+        visitPromoItem.skuSubCatId = null;
+        visitPromoItem.skuSubCatName = null;
     }
     if (step <= 2) {
-        visitPromoItem.genderId = null;
-        visitPromoItem.genderName = null;
+        visitPromoItem.brandId = null;
+        visitPromoItem.brandName = null;
     }
     if (step <= 3) {
         visitPromoItem.promoGrpId = null;
@@ -476,6 +513,12 @@ function visitPromoItemClear(step) {
         visitPromoItem.extInfoName = null;
         visitPromoItem.photoCount = 0;
         visitPromoItem.newPhotoLst = [];
+    }
+    if (step >= 1) {
+        visitPromos.goToNextViewIfEmpty = false;
+    }
+    if (step >= 2) {
+        visitPromoItem.subCatGoToNextViewIfEmpty = false;
     }
 }
 

@@ -296,40 +296,40 @@ dbTools.visitActivityGet = function(visitPlanItemId, visitId, skuCatId, custId, 
         var actSql = "";
         var sql = "";
         if (visitPlanItemId > 0) {
-            actSql = "SELECT VPI.visitPlanItemId AS visitPlanItemId, VSA.stageId AS stageId, VSA.activityId AS activityId, A.name AS name, VSA.mode, 1 AS blk, A.lvl AS lvl"
+            actSql = "SELECT VSA.stageId AS stageId, VSA.activityId AS activityId, A.name AS name, VSA.mode, 1 AS blk, A.lvl AS lvl"
                 + "      FROM VisitPlanItem VPI"
                 + "      INNER JOIN VisitSchemaActivity VSA ON VPI.visitSchemaId = VSA.visitSchemaId"
                 + "      INNER JOIN Activity A ON VSA.activityId = A.activityId"
-                + "      WHERE VPI.visitPlanItemId = " + visitPlanItemId;
+                + "      WHERE VPI.visitPlanItemId = @visitPlanItemId";
         } else if (visitId > 0) {
-            actSql = "SELECT null AS visitPlanItemId, VSA.stageId AS stageId, VSA.activityId AS activityId, A.name AS name, VSA.mode, 1 AS blk, A.lvl AS lvl"
+            actSql = "SELECT VSA.stageId AS stageId, VSA.activityId AS activityId, A.name AS name, VSA.mode, 1 AS blk, A.lvl AS lvl"
                 + "      FROM Visit V"
                 + "      INNER JOIN Cust C ON V.custId = C.custId"
                 + "      INNER JOIN VisitSchemaActivity VSA ON C.visitSchemaId = VSA.visitSchemaId"
                 + "      INNER JOIN Activity A ON VSA.activityId = A.activityId"
-                + "      WHERE V.visitId = " + visitId;
+                + "      WHERE V.visitId = @visitId";
         } else {
-            actSql = "SELECT null AS visitPlanItemId, VSA.stageId AS stageId, VSA.activityId AS activityId, A.name AS name, VSA.mode, 1 AS blk, A.lvl AS lvl"
+            actSql = "SELECT VSA.stageId AS stageId, VSA.activityId AS activityId, A.name AS name, VSA.mode, 1 AS blk, A.lvl AS lvl"
                 + "      FROM Cust C"
                 + "      INNER JOIN VisitSchemaActivity VSA ON C.visitSchemaId = VSA.visitSchemaId"
                 + "      INNER JOIN Activity A ON VSA.activityId = A.activityId"
-                + "      WHERE C.custId = " + (custId > 0 ? custId : 0);
+                + "      WHERE C.custId = @custId";
         }
-        sql = "SELECT A.visitPlanItemId, A.stageId, A.activityId, A.name, A.mode, A.blk, COUNT(AC.skuCatId) AS skuCatCnt"
+        sql = "SELECT A.stageId, A.activityId, A.name, A.mode, A.blk, COUNT(AC.skuCatId) AS skuCatCnt"
             + "  FROM"
             + "    (" + actSql;
         if (activityShowAll != 0) {
             sql += "    UNION ALL"
-                + "      SELECT @visitPlanItemId AS visitPlanItemId, VSA0.stageId AS stageId, VSA0.activityId AS activityId, A.name AS name, VSA0.mode, 1 AS blk, A.lvl AS lvl"
+                + "      SELECT VSA0.stageId AS stageId, VSA0.activityId AS activityId, A.name AS name, VSA0.mode, 1 AS blk, A.lvl AS lvl"
                 + "      FROM VisitSchemaActivity VSA0"
                 + "      INNER JOIN Activity A ON VSA0.activityId = A.activityId"
                 + "      LEFT JOIN (" + actSql + ") VSA ON VSA0.activityId = VSA.activityId AND VSA0.stageId = VSA.stageId"
                 + "      WHERE VSA0.visitSchemaId = 0 AND VSA.activityId IS NULL";
         }
         sql += "    UNION ALL"
-            + "     SELECT ? AS visitPlanItemId, 1 AS stageId, 0 AS activityId, 'Первичный анализ' AS name, 0 AS mode, 0 AS blk, 0 AS lvl"
+            + "     SELECT 1 AS stageId, 0 AS activityId, 'Первичный анализ' AS name, 0 AS mode, 0 AS blk, 0 AS lvl"
             + "     UNION ALL"
-            + "     SELECT ? AS visitPlanItemId, 2 AS stageId, 0 AS activityId, 'Основной анализ' AS name, 0 AS mode, 0 AS blk, 0 AS lvl"
+            + "     SELECT 2 AS stageId, 0 AS activityId, 'Основной анализ' AS name, 0 AS mode, 0 AS blk, 0 AS lvl"
             + "   ) A"
             + "  LEFT JOIN"
             + "    (SELECT 1 AS stageId, 1 AS activityId, S.skuCatId"
@@ -400,10 +400,130 @@ dbTools.visitActivityGet = function(visitPlanItemId, visitId, skuCatId, custId, 
             + "      WHERE EXISTS(SELECT 1 FROM VisitSurveyAnswer VSA INNER JOIN SurveyQuestion SQ ON VSA.questionId = SQ.questionId WHERE VSA.visitId = @visitId AND SQ.surveyId = 1)"
             + "    ) AC ON A.stageId = AC.stageId AND A.activityId = AC.activityId AND (@skuCatId = -1 OR AC.skuCatId = @skuCatId)"
             + "  WHERE (@stageId = -1 OR A.stageId = @stageId) AND (@activityId = -1 OR A.activityId = @activityId)"
-            + "  GROUP BY A.visitPlanItemId, A.stageId, A.activityId, A.name, A.blk, A.lvl"
+            + "  GROUP BY A.stageId, A.activityId, A.name, A.blk, A.lvl"
             + "  ORDER BY A.stageId, A.blk, A.lvl";
-        sql = sql.replace(/@visitPlanItemId/g, visitPlanItemId).replace(/@visitId/g, visitId).replace(/@stageId/g, stageId).replace(/@activityId/g, activityId).replace(/@skuCatId/g, skuCatId);
-        tx.executeSql(sql, [visitPlanItemId, visitPlanItemId], datasetGet, dbTools.onSqlError);
+        sql = sql.replace(/@visitPlanItemId/g, visitPlanItemId).replace(/@visitId/g, visitId).replace(/@custId/g, (custId > 0 ? custId : 0)).replace(/@stageId/g, stageId)
+            .replace(/@activityId/g, activityId).replace(/@skuCatId/g, skuCatId);
+        tx.executeSql(sql, [], datasetGet, dbTools.onSqlError);
+    }, dbTools.onTransError);
+}
+
+dbTools.visitActivityGet2 = function(visitPlanItemId, visitId, skuCatId, custId, stageId, activityId, activityShowAll, datasetGet) {
+    log("visitActivityGet2(" + visitPlanItemId + ", " + visitId + ", " + skuCatId + ", " + custId + ", " + stageId + ", " + activityId + ", " + activityShowAll + ")");
+    if (visitId == null) {visitId = 0;}
+    dbTools.db.transaction(function(tx) {
+        var actSql = "";
+        var sql = "";
+        if (visitPlanItemId > 0) {
+            actSql = "SELECT VSA.stageId AS stageId, VSA.activityId AS activityId, A.name AS name, VSA.mode, 1 AS blk, A.lvl AS lvl"
+                + "      FROM VisitPlanItem VPI"
+                + "      INNER JOIN VisitSchemaActivity VSA ON VPI.visitSchemaId = VSA.visitSchemaId"
+                + "      INNER JOIN Activity A ON VSA.activityId = A.activityId"
+                + "      WHERE VPI.visitPlanItemId = @visitPlanItemId";
+        } else if (visitId > 0) {
+            actSql = "SELECT VSA.stageId AS stageId, VSA.activityId AS activityId, A.name AS name, VSA.mode, 1 AS blk, A.lvl AS lvl"
+                + "      FROM Visit V"
+                + "      INNER JOIN Cust C ON V.custId = C.custId"
+                + "      INNER JOIN VisitSchemaActivity VSA ON C.visitSchemaId = VSA.visitSchemaId"
+                + "      INNER JOIN Activity A ON VSA.activityId = A.activityId"
+                + "      WHERE V.visitId = @visitId";
+        } else {
+            actSql = "SELECT VSA.stageId AS stageId, VSA.activityId AS activityId, A.name AS name, VSA.mode, 1 AS blk, A.lvl AS lvl"
+                + "      FROM Cust C"
+                + "      INNER JOIN VisitSchemaActivity VSA ON C.visitSchemaId = VSA.visitSchemaId"
+                + "      INNER JOIN Activity A ON VSA.activityId = A.activityId"
+                + "      WHERE C.custId = @custId";
+        }
+        sql = "SELECT A.stageId, A.activityId, A.name, A.mode, A.blk, COUNT(AC.skuCatId) AS skuCatCnt"
+            + "  FROM"
+            + "    (" + actSql;
+        if (activityShowAll != 0) {
+            sql += "    UNION ALL"
+                + "      SELECT VSA0.stageId AS stageId, VSA0.activityId AS activityId, A.name AS name, VSA0.mode, 1 AS blk, A.lvl AS lvl"
+                + "      FROM VisitSchemaActivity VSA0"
+                + "      INNER JOIN Activity A ON VSA0.activityId = A.activityId"
+                + "      LEFT JOIN (" + actSql + ") VSA ON VSA0.activityId = VSA.activityId AND VSA0.stageId = VSA.stageId"
+                + "      WHERE VSA0.visitSchemaId = 0 AND VSA.activityId IS NULL";
+        }
+        sql += "    UNION ALL"
+            + "     SELECT 1 AS stageId, 0 AS activityId, 'Первичный анализ' AS name, 0 AS mode, 0 AS blk, 0 AS lvl"
+            + "     UNION ALL"
+            + "     SELECT 2 AS stageId, 0 AS activityId, 'Основной анализ' AS name, 0 AS mode, 0 AS blk, 0 AS lvl"
+            + "   ) A"
+            + "  LEFT JOIN"
+            + "    (SELECT 1 AS stageId, 1 AS activityId, S.skuCatId"
+            + "      FROM VisitSku VS"
+            + "      INNER JOIN Sku S ON VS.skuId = S.skuId"
+            //+ "      WHERE VS.visitId = @visitId AND VS.sel0 = 1"
+            + "      WHERE VS.visitId = @visitId"
+            + "      GROUP BY S.skuCatId"
+            + "    UNION ALL"
+            + "    SELECT 1 AS stageId, 3 AS activityId, VP.skuCatId"
+            + "      FROM VisitPhoto VP"
+            + "      WHERE VP.visitId = @visitId AND VP.stageId = 1"
+            + "      GROUP BY VP.skuCatId"
+            + "    UNION ALL"
+            /*+ "    SELECT 1 AS stageId, 14 AS activityId, S.skuCatId"
+            + "      FROM VisitSku VS"
+            + "      INNER JOIN Sku S ON VS.skuId = S.skuId"
+            + "      WHERE VS.visitId = @visitId AND VS.reasonId IS NOT NULL"
+            + "      GROUP BY S.skuCatId"*/
+            + "    SELECT 1 AS stageId, 14 AS activityId, SC.skuCatId"
+            + "      FROM SkuCat SC"
+            + "      WHERE EXISTS(SELECT 1 FROM VisitSku VS WHERE VS.visitId = @visitId AND VS.reasonId IS NOT NULL)"
+            + "    UNION ALL"
+            + "    SELECT 2 AS stageId, 1 AS activityId, S.skuCatId"
+            + "      FROM VisitSku VS"
+            + "      INNER JOIN Sku S ON VS.skuId = S.skuId"
+            //+ "      WHERE VS.visitId = @visitId AND VS.sel = 1"
+            + "      WHERE VS.visitId = @visitId AND VS.sel <> IFNULL(VS.sel0, 0)"
+            + "      GROUP BY S.skuCatId"
+            + "    UNION ALL"
+            + "    SELECT 2 AS stageId, 2 AS activityId, P.skuCatId"
+            + "      FROM VisitPlanogramAnswer VPA"
+            + "      INNER JOIN PlanogramQuestion PQ ON VPA.planogramId = PQ.planogramId AND VPA.questionId = PQ.questionId"
+            + "      INNER JOIN Planogram P ON PQ.planogramId = P.planogramId"
+            + "      WHERE VPA.visitId = @visitId"
+            + "      GROUP BY P.skuCatId"
+            + "    UNION ALL"
+            + "    SELECT 2 AS stageId, 3 AS activityId, VP.skuCatId"
+            + "      FROM VisitPhoto VP"
+            + "      WHERE VP.visitId = @visitId AND VP.stageId = 2"
+            + "    UNION ALL"
+            + "    SELECT 2 AS stageId, 4 AS activityId, VSC.skuCatId"
+            + "      FROM VisitSkuCat VSC"
+            + "      WHERE VSC.visitId = @visitId"
+            + "    UNION ALL"
+            + "    SELECT 2 AS stageId, 5 AS activityId, VT.skuCatId"
+            + "      FROM VisitTask VT"
+            + "      WHERE VT.visitId = @visitId"
+            + "      GROUP BY VT.skuCatId"
+            + "    UNION ALL"
+            + "    SELECT 2 AS stageId, 6 AS activityId, VP.skuCatId"
+            + "      FROM VisitPromo VP"
+            + "      WHERE VP.visitId = @visitId"
+            + "      GROUP BY VP.skuCatId"
+            + "    UNION ALL"
+            + "    SELECT 2 AS stageId, 8 AS activityId, S.skuCatId"
+            + "      FROM VisitSkuPrice VSP"
+            + "      INNER JOIN Sku S ON VSP.skuId = S.skuId"
+            + "      WHERE VSP.visitId = @visitId"
+            + "      GROUP BY S.skuCatId"
+            + "    UNION ALL"
+            + "    SELECT 2 AS stageId, 11 AS activityId, SC.skuCatId"
+            + "      FROM SkuCat SC"
+            + "      WHERE EXISTS(SELECT 1 FROM VisitSurveyAnswer VSA INNER JOIN SurveyQuestion SQ ON VSA.questionId = SQ.questionId WHERE VSA.visitId = @visitId AND SQ.surveyId = 2)"
+            + "    UNION ALL"
+            + "    SELECT 2 AS stageId, 12 AS activityId, SC.skuCatId"
+            + "      FROM SkuCat SC"
+            + "      WHERE EXISTS(SELECT 1 FROM VisitSurveyAnswer VSA INNER JOIN SurveyQuestion SQ ON VSA.questionId = SQ.questionId WHERE VSA.visitId = @visitId AND SQ.surveyId = 1)"
+            + "    ) AC ON A.stageId = AC.stageId AND A.activityId = AC.activityId AND (@skuCatId = -1 OR AC.skuCatId = @skuCatId)"
+            + "  WHERE (@stageId = -1 OR A.stageId = @stageId) AND (@activityId = -1 OR A.activityId = @activityId)"
+            + "  GROUP BY A.stageId, A.activityId, A.name, A.blk, A.lvl"
+            + "  ORDER BY A.stageId, A.blk, A.lvl";
+        sql = sql.replace(/@visitPlanItemId/g, visitPlanItemId).replace(/@visitId/g, visitId).replace(/@custId/g, (custId > 0 ? custId : 0)).replace(/@stageId/g, stageId)
+            .replace(/@activityId/g, activityId).replace(/@skuCatId/g, skuCatId);
+        tx.executeSql(sql, [], datasetGet, dbTools.onSqlError);
     }, dbTools.onTransError);
 }
 
@@ -516,11 +636,14 @@ dbTools.visitShelfShareUpdate = function(visitId, skuCatId, shelfShare, shelfWid
     }, function(error) {if (onError != undefined) {onError("!!! SQLite transaction error, " + dbTools.errorMsg(error));}});
 }
 
-dbTools.visitPromoGenderListGet = function(datasetGet) {
-    log("visitPromoGenderListGet()");
+dbTools.visitPromoSubCatListGet = function(skuCatId, datasetGet) {
+    log("visitPromoSubCatListGet(" + skuCatId + ")");
     dbTools.db.transaction(function(tx) {
-        var sql = "SELECT G.genderId, G.name FROM Gender G ORDER BY G.name";
-        tx.executeSql(sql, [], datasetGet, dbTools.onSqlError);
+        var sql = "SELECT SSC.skuSubCatId, SSC.name"
+            + "  FROM SkuSubCat SSC"
+            + "  WHERE SSC.skuCatId = ?"
+            + "  ORDER BY SSC.lvl, SSC.name";
+        tx.executeSql(sql, [skuCatId], datasetGet, dbTools.onSqlError);
     }, dbTools.onTransError);
 }
 
@@ -558,12 +681,12 @@ dbTools.visitPromoPromoListGet = function(promoGrpId, datasetGet) {
 dbTools.visitPromoListGet = function(visitId, skuCatId, datasetGet) {
     log("visitPromoPromoListGet(" + visitId + ", " + skuCatId + ")");
     dbTools.db.transaction(function(tx) {
-        var sql = "SELECT VP.visitId, VP.visitPromoId, VP.skuCatId, SC.name AS skuCatName, VP.genderId, G.name AS genderName,"
+        var sql = "SELECT VP.visitId, VP.visitPromoId, VP.skuCatId, SC.name AS skuCatName, VP.skuSubCatId, SSC.name AS skuSubCatName,"
             + "    VP.brandId, B.name AS brandName, P.promoGrpId, PG.name AS promoGrpName, VP.promoId, P.name AS promoName,"
             + "    P.extInfoKind, VP.extInfoVal, VP.extInfoVal2, VP.extInfoName"
             + "  FROM VisitPromo VP"
             + "  LEFT JOIN SkuCat SC ON VP.skuCatId = SC.skuCatId"
-            + "  LEFT JOIN Gender G ON VP.genderId = G.genderId"
+            + "  LEFT JOIN SkuSubCat SSC ON VP.skuSubCatId = SSC.skuSubCatId"
             + "  LEFT JOIN Brand B ON VP.brandId = B.brandId"
             + "  LEFT JOIN Promo P ON VP.promoId = P.promoId"
             + "  LEFT JOIN PromoGrp PG ON P.promoGrpId = PG.promoGrpId"
@@ -573,18 +696,18 @@ dbTools.visitPromoListGet = function(visitId, skuCatId, datasetGet) {
     }, dbTools.onTransError);
 }
 
-dbTools.visitPromoGet = function(visitPromoId, visitId, skuCatId, genderId, brandId, promoId, datasetGet) {
-    log("visitPromoGet(" + visitPromoId + ", " + visitId + ", " + skuCatId + ", " + genderId + ", " + brandId + ", " + promoId + ")");
+dbTools.visitPromoGet = function(visitPromoId, visitId, skuCatId, skuSubCatId, brandId, promoId, datasetGet) {
+    log("visitPromoGet(" + visitPromoId + ", " + visitId + ", " + skuCatId + ", " + skuSubCatId + ", " + brandId + ", " + promoId + ")");
     dbTools.db.transaction(function(tx) {
         var sql = "";
         var params = [];
         if (visitPromoId > 0) {
-            sql = "SELECT VP.visitId, VP.visitPromoId, VP.skuCatId, SC.name AS skuCatName, VP.genderId, G.name AS genderName,"
+            sql = "SELECT VP.visitId, VP.visitPromoId, VP.skuCatId, SC.name AS skuCatName, VP.skuSubCatId, SSC.name AS skuSubCatName,"
                 + "    VP.brandId, B.name AS brandName, P.promoGrpId, PG.name AS promoGrpName, VP.promoId, P.name AS promoName,"
                 + "    P.extInfoKind, VP.extInfoVal, VP.extInfoVal2, VP.extInfoName, VPP.visitPromoPhotoCnt"
                 + "  FROM VisitPromo VP"
                 + "  LEFT JOIN SkuCat SC ON VP.skuCatId = SC.skuCatId"
-                + "  LEFT JOIN Gender G ON VP.genderId = G.genderId"
+                + "  LEFT JOIN SkuSubCat SSC ON VP.skuSubCatId = SSC.skuSubCatId"
                 + "  LEFT JOIN Brand B ON VP.brandId = B.brandId"
                 + "  LEFT JOIN Promo P ON VP.promoId = P.promoId"
                 + "  LEFT JOIN PromoGrp PG ON P.promoGrpId = PG.promoGrpId"
@@ -592,31 +715,31 @@ dbTools.visitPromoGet = function(visitPromoId, visitId, skuCatId, genderId, bran
                 + "  WHERE VP.visitPromoId = ?";
             params = [visitPromoId];
         } else {
-            sql = "SELECT VP.visitId, VP.visitPromoId, VP.skuCatId, SC.name AS skuCatName, VP.genderId, G.name AS genderName,"
+            sql = "SELECT VP.visitId, VP.visitPromoId, VP.skuCatId, SC.name AS skuCatName, VP.skuSubCatId, SSC.name AS skuSubCatName,"
                 + "    VP.brandId, B.name AS brandName, P.promoGrpId, PG.name AS promoGrpName, VP.promoId, P.name AS promoName,"
                 + "    P.extInfoKind, VP.extInfoVal, VP.extInfoVal2, VP.extInfoName, VPP.visitPromoPhotoCnt"
                 + "  FROM VisitPromo VP"
                 + "  LEFT JOIN SkuCat SC ON VP.skuCatId = SC.skuCatId"
-                + "  LEFT JOIN Gender G ON VP.genderId = G.genderId"
+                + "  LEFT JOIN SkuSubCat SSC ON VP.skuSubCatId = SSC.skuSubCatId"
                 + "  LEFT JOIN Brand B ON VP.brandId = B.brandId"
                 + "  LEFT JOIN Promo P ON VP.promoId = P.promoId"
                 + "  LEFT JOIN PromoGrp PG ON P.promoGrpId = PG.promoGrpId"
                 + "  LEFT JOIN (SELECT visitPromoId, COUNT(*) AS visitPromoPhotoCnt FROM VisitPromoPhoto WHERE fileId IS NOT NULL GROUP BY visitPromoId) VPP ON VP.visitPromoId = VPP.visitPromoId"
-                + "  WHERE VP.visitId = ? AND VP.skuCatId = ? AND VP.genderId = ? AND VP.brandId = ? AND VP.promoId = ?";
-            params = [visitId, skuCatId, genderId, brandId, promoId];
+                + "  WHERE VP.visitId = ? AND VP.skuCatId = ? AND VP.skuSubCatId = ? AND VP.brandId = ? AND VP.promoId = ?";
+            params = [visitId, skuCatId, skuSubCatId, brandId, promoId];
         }
         tx.executeSql(sql, params, datasetGet, dbTools.onSqlError);
     }, dbTools.onTransError);
 }
 
-dbTools.visitPromoUpdate = function(visitId, visitPromoId, skuCatId, genderId, brandId, promoId, extInfoVal, extInfoVal2, extInfoName, onSuccess, onError) {
-    log("visitPromoUpdate(" + visitId + ", " + visitPromoId + ", " + skuCatId + ", " + genderId + ", " + promoId + ", " + extInfoVal + ", " + extInfoVal2 + ", " + extInfoName + ")");
+dbTools.visitPromoUpdate = function(visitId, visitPromoId, skuCatId, skuSubCatId, brandId, promoId, extInfoVal, extInfoVal2, extInfoName, onSuccess, onError) {
+    log("visitPromoUpdate(" + visitId + ", " + visitPromoId + ", " + skuCatId + ", " + skuSubCatId + ", " + promoId + ", " + extInfoVal + ", " + extInfoVal2 + ", " + extInfoName + ")");
     dbTools.db.transaction(function(tx) {
         if (visitPromoId > 0) {
-            if (visitId != null || skuCatId != null || genderId != null || brandId != null 
+            if (visitId != null || skuCatId != null || skuSubCatId != null || brandId != null 
                     || promoId != null || extInfoVal != null || extInfoVal2 != null || extInfoName != null) {
-                dbTools.sqlInsertUpdate(tx, "VisitPromo", ["visitPromoId"], ["visitId", "skuCatId", "genderId", "brandId", "promoId", "extInfoVal", "extInfoVal2", "extInfoName"], 
-                        [visitPromoId], [visitId, skuCatId, genderId, brandId, promoId, extInfoVal, extInfoVal2, extInfoName], 
+                dbTools.sqlInsertUpdate(tx, "VisitPromo", ["visitPromoId"], ["visitId", "skuCatId", "skuSubCatId", "brandId", "promoId", "extInfoVal", "extInfoVal2", "extInfoName"], 
+                        [visitPromoId], [visitId, skuCatId, skuSubCatId, brandId, promoId, extInfoVal, extInfoVal2, extInfoName], 
                     function() {if (onSuccess != undefined) {onSuccess(visitPromoId);}},
                     onError
                 );
@@ -627,20 +750,20 @@ dbTools.visitPromoUpdate = function(visitId, visitPromoId, skuCatId, genderId, b
                 );
             }
         } else {
-            dbTools.visitPromoGet(visitPromoId, visitId, skuCatId, genderId, brandId, promoId, 
+            dbTools.visitPromoGet(visitPromoId, visitId, skuCatId, skuSubCatId, brandId, promoId, 
                 function(tx, rs) {
                     if (rs.rows.length > 0) {
                         visitPromoId = rs.rows.item(0).visitPromoId;
-                        dbTools.sqlInsertUpdate(tx, "VisitPromo", ["visitPromoId"], ["visitId", "skuCatId", "genderId", "brandId", "promoId", "extInfoVal", "extInfoVal2", "extInfoName"], 
-                                [visitPromoId], [visitId, skuCatId, genderId, brandId, promoId, extInfoVal, extInfoVal2, extInfoName], 
+                        dbTools.sqlInsertUpdate(tx, "VisitPromo", ["visitPromoId"], ["visitId", "skuCatId", "skuSubCatId", "brandId", "promoId", "extInfoVal", "extInfoVal2", "extInfoName"], 
+                                [visitPromoId], [visitId, skuCatId, skuSubCatId, brandId, promoId, extInfoVal, extInfoVal2, extInfoName], 
                             function() {if (onSuccess != undefined) {onSuccess(visitPromoId);}},
                             onError
                         );
                     } else {
                         dbTools.tableNextIdGet(tx, "VisitPromo", 
                             function(tx, visitPromoId) {
-                                dbTools.sqlInsertUpdate(tx, "VisitPromo", ["visitPromoId"], ["visitId", "skuCatId", "genderId", "brandId", "promoId", "extInfoVal", "extInfoVal2", "extInfoName"], 
-                                        [visitPromoId], [visitId, skuCatId, genderId, brandId, promoId, extInfoVal, extInfoVal2, extInfoName], 
+                                dbTools.sqlInsertUpdate(tx, "VisitPromo", ["visitPromoId"], ["visitId", "skuCatId", "skuSubCatId", "brandId", "promoId", "extInfoVal", "extInfoVal2", "extInfoName"], 
+                                        [visitPromoId], [visitId, skuCatId, skuSubCatId, brandId, promoId, extInfoVal, extInfoVal2, extInfoName], 
                                     function() {if (onSuccess != undefined) {onSuccess(visitPromoId);}},
                                     onError
                                 );

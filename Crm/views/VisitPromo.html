@@ -28,7 +28,7 @@
         <script id="visit-promo-promos-list-tmpl" type="text/x-kendo-template">
             <a class="list-item-header">
                 <p>
-                    <div>#:brandName# (#:genderName#): #:promoName#</div>
+                    <div>#:brandName##if (skuSubCatName != null) {# (#:skuSubCatName#)#}#: #:promoName#</div>
                     <div class="list-item-comment">
                         #switch (extInfoKind) {
                             case 1:
@@ -70,22 +70,22 @@
         </script>
     </div>
     
-    <div id="visit-promo-gender-view"
+    <div id="visit-promo-sub-cat-view"
         data-role="view" 
-        data-title="Вид продукта" 
+        data-title="Подкатегория" 
         data-layout="main" 
-        data-show="visitPromoGenderShow">
+        data-show="visitPromoSubCatShow">
         
         <header data-role="header">
             <div data-role="navbar">
-                <a class="nav-button" data-align="left" data-role="button" data-icon="back" href="#:back"></a>
+                <a class="nav-button" data-align="left" data-role="button" data-icon="back" data-click="visitPromoSubCatNavBackClick"></a>
                 <span data-role="view-title"></span>
             </div>
         </header>
         
-        <ul id="visit-promo-gender-list" class="list list-item-header" data-role="listview" data-template="visit-promo-gender-list-tmpl" data-click="visitPromoGenderListClick"></ul>
+        <ul id="visit-promo-sub-cat-list" class="list list-item-header" data-role="listview" data-template="visit-promo-sub-cat-list-tmpl" data-click="visitPromoSubCatListClick"></ul>
     
-        <script id="visit-promo-gender-list-tmpl" type="text/x-kendo-template">
+        <script id="visit-promo-sub-cat-list-tmpl" type="text/x-kendo-template">
             <a class="list-item-header">
                 <p><div>#:name#</div></p>
             </a>
@@ -157,32 +157,32 @@
             <ul id="visit-promo-edit-list" class="list form-list" data-role="listview" data-click="visitPromoEditListClick">
                 <li>
                     <label>Описание
-                        <div><span id="visit-promo-edit-brand-name"></span> (<span id="visit-promo-edit-gender-name"></span>): <span id="visit-promo-edit-promo-name"></span></div>
+                        <div><span id="visit-promo-edit-brand-name"></span><span id="visit-promo-edit-sub-cat-name"></span>: <span id="visit-promo-edit-promo-name"></span></div>
                     </label>
                 </li>
                 <li class="visit-promo-edit-ext-kind1">
                     <label class="visit-promo-edit-ext-kind1">% скидки
-                        <input id="visit-promo-edit-ext-discount" class="editable" type="number" onchange="visitPromoEditControlChange(this.id, this.value)"/>
+                        <input id="visit-promo-edit-ext-discount" class="editable" type="number" onchange="visitPromoEditControlChange(this.id, this.value)" onkeyup="visitPromoEditControlKeyUp(this)"/>
                     </label>
                 </li>
                 <li class="visit-promo-edit-ext-kind2">
                     <label class="visit-promo-edit-ext-kind2">Количество к оплате
-                        <input id="visit-promo-edit-ext-qty-pay" class="editable" type="number" onchange="visitPromoEditControlChange(this.id, this.value)"/>
+                        <input id="visit-promo-edit-ext-qty-pay" class="editable" type="number" onchange="visitPromoEditControlChange(this.id, this.value)" onkeyup="visitPromoEditControlKeyUp(this)"/>
                     </label>
                 </li>
                 <li class="visit-promo-edit-ext-kind2">
                     <label class="visit-promo-edit-ext-kind2">Количество к получению
-                        <input id="visit-promo-edit-ext-qty-get" class="editable" type="number" onchange="visitPromoEditControlChange(this.id, this.value)"/>
+                        <input id="visit-promo-edit-ext-qty-get" class="editable" type="number" onchange="visitPromoEditControlChange(this.id, this.value)" onkeyup="visitPromoEditControlKeyUp(this)"/>
                     </label>
                 </li>
                 <li class="visit-promo-edit-ext-kind3">
                     <label class="visit-promo-edit-ext-kind3">Название
-                        <input id="visit-promo-edit-ext-name" class="editable" type="text" onchange="visitPromoEditControlChange(this.id, this.value)"/>
+                        <input id="visit-promo-edit-ext-name" class="editable" type="text" onchange="visitPromoEditControlChange(this.id, this.value)" onkeyup="visitPromoEditControlKeyUp(this)"/>
                     </label>
                 </li>
                 <li class="visit-promo-edit-ext-kind3">
                     <label class="visit-promo-edit-ext-kind3">Объем
-                        <input id="visit-promo-edit-ext-volume" class="editable" type="number" onchange="visitPromoEditControlChange(this.id, this.value)"/>
+                        <input id="visit-promo-edit-ext-volume" class="editable" type="number" onchange="visitPromoEditControlChange(this.id, this.value)" onkeyup="visitPromoEditControlKeyUp(this)"/>
                     </label>
                 </li>
                 <li id="visit-promo-edit-li-photo-gallery">

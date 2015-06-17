@@ -8,6 +8,7 @@ function visitInit(e) {
 function visitShow(e) {
     log("..visitShow");
     visitProductsObjInit();
+    visitPromoObjInit();
     renderVisit(visit.visitPlanItemId, visit.visitId, visit.custId, visit.activityShowAll);
 }
 
@@ -15,6 +16,13 @@ function renderVisit(visitPlanItemId, visitId, custId, activityShowAll) {
     log("..renderVisit(" + visitPlanItemId + ", " + visitId + ", " + custId + ")");
     dbTools.visitGet(visitPlanItemId, visitId, renderVisitView);
     dbTools.visitActivityGet(visitPlanItemId, visitId, settings.skuCatId, custId, -1, -1, activityShowAll, renderVisitActivityList);
+// TODO: DEL
+/*dbTools.visitActivityGet2(visitPlanItemId, visitId, settings.skuCatId, custId, -1, -1, activityShowAll, 
+    function(tx, rs) {
+        log("====dbTools.visitActivityGet2");
+        logRs(rs);
+    }
+);*/
 }
 
 function renderVisitView(tx, rs) {
@@ -53,7 +61,7 @@ function visitHeaderClick(e) {
     if (e.item.attr("id") == "visit-point-name-item") {
         pointObjInit();
         point.custId = visit.custId;
-        app.navigate("views/Point.html");
+        navigateTo("views/Point.html");
     }
 }
 

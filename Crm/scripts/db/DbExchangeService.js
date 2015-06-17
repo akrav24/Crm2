@@ -60,9 +60,9 @@ dbTools.exchangeDataPost = function(blockId, data, onSuccess, onError) {
         contentType: "application/json",
         data: JSON.stringify(data),
         success: function(data) {
-            log("......");
+            log("......>>");
             log("..exchangeDataPost: " + dataLength + " rows sent");
-            log("......");
+            log("......<<");
             if (onSuccess != undefined) {
                 onSuccess(blockId, data);
             }
@@ -82,9 +82,9 @@ dbTools.exchangeDataGet = function(blockId, onSuccess, onError) {
         url: url,
         dataType: "json",
         success: function(data) {
-            log("......");
+            log("......>>");
             log("..exchangeDataGet: " + data.length + " rows received");
-            log("......");
+            log("......<<");
             if (onSuccess != undefined) {
                 onSuccess(blockId, data);
             }
