@@ -33,7 +33,7 @@ function visitPlanogramPhotoGalleryShow() {
     photoGallery.showTagEnable = false;
     photoGallery.editTagEnable = true;
     photoGallery.fileIdLst = [];
-    dbTools.visitPlanogramListGet(visit.visitId, visitPlanogramList.stageId, settings.skuCatId,
+    dbTools.visitPlanogramListGet(visit.custId, visitPlanogramList.stageId, settings.skuCatId,
         function(tx, rs) {
             photoGallery.fileIdLst = visitPlanogramPhotoGalleryFileIdLstGet(rs);
             photoGallery.onTagListGet = visitPlanogramPhotoGalleryOnTagListGet;

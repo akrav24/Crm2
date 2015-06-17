@@ -1010,25 +1010,23 @@ dbTools.visitPhotoUpdate = function(visitPhotoId, visitId, stageId, skucatId, fi
     }, function(error) {if (onError != undefined) {onError("!!! SQLite transaction error, " + dbTools.errorMsg(error));}});
 }
 
-dbTools.visitPlanogramListGet = function(visitId, stageId, skuCatId, datasetGet) {
-    log("visitPlanogramListGet(" + visitId + ", " + stageId + ", " + skuCatId + ")");
+dbTools.visitPlanogramListGet = function(custId, stageId, skuCatId, datasetGet) {
+    log("visitPlanogramListGet(" + custId + ", " + stageId + ", " + skuCatId + ")");
     dbTools.db.transaction(function(tx) {
         var sql = "SELECT P.planogramId, P.name, P.code, P.fileId"
-            + "  FROM Planogram P"
-            + "  INNER JOIN Cust C ON P.chainId = C.chainId"
-            + "  INNER JOIN Visit V ON V.visitId = ? AND C.custId = V.custId"
-            + "  WHERE P.skuCatId = ?"
-            + " UNION ALL"
-            + " SELECT P.planogramId, P.name, P.code, P.fileId"
-            + "  FROM Planogram P"
-            + "  WHERE P.skuCatId = ? AND P.chainId IS NULL"
-            + "    AND NOT EXISTS"
-            + "      (SELECT 1"
-            + "        FROM Planogram P"
-            + "        INNER JOIN Cust C ON P.chainId = C.chainId"
-            + "        INNER JOIN Visit V ON V.visitId = ? AND C.custId = V.custId"
-            + "        WHERE P.skuCatId = ?)";
-        tx.executeSql(sql, [visitId, skuCatId, skuCatId, visitId, skuCatId], datasetGet, dbTools.onSqlError);
+            + "    FROM Planogram P "
+            + "    INNER JOIN Cust C ON P.chainId = C.chainId "
+            + "    WHERE C.custId = ? AND P.skuCatId = ?"
+            + "  UNION ALL "
+            + "  SELECT P.planogramId, P.name, P.code, P.fileId "
+            + "    FROM Planogram P "
+            + "    WHERE P.skuCatId = ? AND P.chainId IS NULL "
+            + "      AND NOT EXISTS "
+            + "        (SELECT 1"
+            + "          FROM Planogram P "
+            + "          INNER JOIN Cust C ON P.chainId = C.chainId "
+            + "          WHERE C.custId = ? AND P.skuCatId = ?)";
+        tx.executeSql(sql, [custId, skuCatId, skuCatId, custId, skuCatId], datasetGet, dbTools.onSqlError);
     }, dbTools.onTransError);
 }
 
