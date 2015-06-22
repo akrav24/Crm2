@@ -261,6 +261,8 @@ function photoGalleryImageViewAfterShow(e) {
         imageTitle = photoGallery.title;
     }
     viewTitleSet(app.view(), imageTitle);
+    $("#photo-gallery-image-scroller .km-scroll-container").css("transform", "translate3d(0px, 0px, 0px) scale(1)");
+    $("#photo-gallery-image-scroller .km-scroll-container").css("-webkit-transform", "translate3d(0px, 0px, 0px) scale(1)");
 }
 
 function photoGalleryImageTagEditOnCheck(e) {

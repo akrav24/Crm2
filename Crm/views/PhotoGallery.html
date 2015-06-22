@@ -38,6 +38,11 @@
             <div class="gallery-image-content">
                 <p class="gallery-title">#=title#</p>
                 <div class="gallery-image" data-role="touch" data-tap="photoGalleryShowImage" style="background-image: url(#=fileLocalPath#);"></div>
+                <!--<div class="gallery-image" data-role="touch" data-tap="photoGalleryShowImage">
+                    <div data-role="scroller" data-zoom="true" class="gallery-image" style="background-image: url(#=fileLocalPath#);">
+                    </div>
+                </div>-->
+            <!--data-role="scroller" data-zoom="false" -->
             </div>
         </script>
     </div>
@@ -60,10 +65,7 @@
         </header>
         
         <div data-role="content" class="flex-container flex-container-vertical">
-            <!--<div class="gallery-tag-edit-image-flex-box gallery-tag-edit-image" data-bind="attr: {style: imageStyle}">
-            </div>-->
-            <div class="gallery-tag-edit-image-flex-box">
-                <!--<img class="gallery-tag-edit-image" width="100%" data-bind="attr: {src: imageSrc}">-->
+            <div id="photo-gallery-image-scroller" data-role="scroller" data-zoom="true" class="gallery-tag-edit-image-flex-box">
                 <img class="gallery-tag-edit-image" data-bind="attr: {src: imageSrc}">
             </div>
             <div data-role="scroller" class="gallery-tag-edit-tag-list-flex-box">
