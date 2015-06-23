@@ -44,19 +44,6 @@ function visitPromoAddClick(e) {
 
 function visitPromoPromosListClick(e) {
     log("..visitPromoPromosListClick");
-    /*visitPromoItem.visitPromoId = e.dataItem.visitPromoId;
-    visitPromoItem.skuSubCatId = e.dataItem.skuSubCatId;
-    visitPromoItem.genderName = e.dataItem.genderName;
-    visitPromoItem.brandId = e.dataItem.brandId;
-    visitPromoItem.brandName = e.dataItem.brandName;
-    visitPromoItem.promoGrpId = e.dataItem.promoGrpId;
-    visitPromoItem.promoGrpName = e.dataItem.promoGrpName;
-    visitPromoItem.promoId = e.dataItem.promoId;
-    visitPromoItem.promoName = e.dataItem.promoName;
-    visitPromoItem.extInfoKind = e.dataItem.extInfoKind;
-    visitPromoItem.extInfoVal = e.dataItem.extInfoVal;
-    visitPromoItem.extInfoVal2 = e.dataItem.extInfoVal2;
-    visitPromoItem.extInfoName = e.dataItem.extInfoName;*/
     copyObjValues(e.dataItem, visitPromoItem);
     navigateTo("#visit-promo-edit-view");
 }
@@ -186,17 +173,13 @@ function visitPromoPromoListClick(e) {
     visitPromoItem.promoId = e.dataItem.promoId;
     visitPromoItem.promoName = e.dataItem.name;
     visitPromoItem.extInfoKind = e.dataItem.extInfoKind;
-    /*if (visitPromoItem.extInfoKind > 0) {*/
-        navigateTo("#visit-promo-edit-view");
-    /*} else {
-        visitPromoSave(function() {navigateBackTo("views/VisitPromo.html");});
-    }*/
+    navigateTo("#visit-promo-edit-view");
 }
 
 function visitPromoSave(onSuccess) {
     dbTools.objectListItemSet("visit-list", true);
     dbTools.visitPromoUpdate(visit.visitId, visitPromoItem.visitPromoId, settings.skuCatId, visitPromoItem.skuSubCatId, visitPromoItem.brandId, 
-            visitPromoItem.promoId, visitPromoItem.extInfoVal, visitPromoItem.extInfoVal2, visitPromoItem.extInfoName, 
+            visitPromoItem.promoId, visitPromoItem.extInfoType, visitPromoItem.extInfoVal, visitPromoItem.extInfoVal2, visitPromoItem.extInfoName, 
         function(visitPromoId) {if (onSuccess != undefined) {onSuccess(visitPromoId);}}, 
         dbTools.onSqlError
     );
@@ -208,6 +191,18 @@ function visitPromoSave(onSuccess) {
 
 function visitPromoEditInit(e) {
     log("..visitPromoEditInit");
+    $("#visit-promo-edit-ext-type").kendoDropDownList({
+        dataTextField: "name",
+        dataValueField: "extInfoType",
+        dataSource: [
+            {name: "% скидки", extInfoType: 1},
+            {name: "Сумма скидки", extInfoType: 2},
+            {name: "Старая/новая цена", extInfoType: 3}
+        ],
+        value: "1",
+        height: 800,
+        change: visitPromoEditExtTypeChange
+    });
 }
 
 function visitPromoEditShow(e) {
@@ -223,22 +218,10 @@ function visitPromoEditShow(e) {
 function renderVisitPromoEditView(tx, rs) {
     log("..renderVisitPromoEditView");
     if (rs.rows.length > 0) {
-        /*visitPromoItem.visitPromoId = rs.rows.item(0).visitPromoId;
-        
-        visitPromoItem.skuSubCatId = rs.rows.item(0).genderId;
-        visitPromoItem.genderName = rs.rows.item(0).genderName;
-        visitPromoItem.brandId = rs.rows.item(0).brandId;
-        visitPromoItem.brandName = rs.rows.item(0).brandName;
-        visitPromoItem.promoGrpId = rs.rows.item(0).promoGrpId;
-        visitPromoItem.promoGrpName = rs.rows.item(0).promoGrpName;
-        visitPromoItem.promoId = rs.rows.item(0).promoId;
-        visitPromoItem.promoName = rs.rows.item(0).promoName;
-        visitPromoItem.extInfoKind = rs.rows.item(0).extInfoKind;
-        visitPromoItem.extInfoVal = rs.rows.item(0).extInfoVal;
-        visitPromoItem.extInfoVal2 = rs.rows.item(0).extInfoVal2;
-        visitPromoItem.extInfoName = rs.rows.item(0).extInfoName;
-        */
         copyObjValues(rs.rows.item(0), visitPromoItem);
+        if (visitPromoItem.extInfoType == undefined) {
+            visitPromoItem.extInfoType = 1;
+        }
         if (rs.rows.item(0).visitPromoPhotoCnt != undefined) {
             visitPromoItem.photoCount = rs.rows.item(0).visitPromoPhotoCnt;
         } else {
@@ -271,17 +254,34 @@ function visitPromoEditFillControls() {
     $("#visit-promo-edit-brand-name").text(visitPromoItem.brandName);
     $("#visit-promo-edit-sub-cat-name").text(visitPromoItem.skuSubCatName != null ? (" (" + visitPromoItem.skuSubCatName + ")") : "");
     $("#visit-promo-edit-promo-name").text(visitPromoItem.promoName);
-    $("#visit-promo-edit-ext-discount").val(null);
+    $("#visit-promo-edit-ext-type").data("kendoDropDownList").value(visitPromoItem.extInfoType);
+    $("#visit-promo-edit-ext-discount-percent").val(null);
+    $("#visit-promo-edit-ext-discount-value").val(null);
+    $("#visit-promo-edit-ext-discount-price-old").val(null);
+    $("#visit-promo-edit-ext-discount-price-new").val(null);
     $("#visit-promo-edit-ext-qty-pay").val(null);
     $("#visit-promo-edit-ext-qty-get").val(null);
     $("#visit-promo-edit-ext-name").val(null);
+    $("#visit-promo-edit-ext-name2").val(null);
     $("#visit-promo-edit-ext-volume").val(null);
     switch (visitPromoItem.extInfoKind) {
         case 1:
-            if (visitPromoItem.extInfoVal != null) {
-                $("#visit-promo-edit-ext-discount").val(Math.round(visitPromoItem.extInfoVal * 100));
-            } else {
-                $("#visit-promo-edit-ext-discount").val(visitPromoItem.extInfoVal);
+            $("#visit-promo-edit-ext-type").data("kendoDropDownList").value(visitPromoItem.extInfoType);
+            switch (visitPromoItem.extInfoType) {
+                case 1:
+                    if (visitPromoItem.extInfoVal != null) {
+                        $("#visit-promo-edit-ext-discount-percent").val(Math.round(visitPromoItem.extInfoVal * 100));
+                    } else {
+                        $("#visit-promo-edit-ext-discount-percent").val(visitPromoItem.extInfoVal);
+                    }
+                    break;
+                case 2:
+                    $("#visit-promo-edit-ext-discount-value").val(visitPromoItem.extInfoVal);
+                    break;
+                case 3:
+                    $("#visit-promo-edit-ext-discount-price-old").val(visitPromoItem.extInfoVal);
+                    $("#visit-promo-edit-ext-discount-price-new").val(visitPromoItem.extInfoVal2);
+                    break;
             }
             break;
         case 2:
@@ -291,6 +291,9 @@ function visitPromoEditFillControls() {
         case 3:
             $("#visit-promo-edit-ext-name").val(visitPromoItem.extInfoName);
             $("#visit-promo-edit-ext-volume").val(visitPromoItem.extInfoVal);
+            break;
+        case 4:
+            $("#visit-promo-edit-ext-name2").val(visitPromoItem.extInfoName);
             break;
     }
     visitPromoEditFillPhotoControls();
@@ -323,9 +326,18 @@ function visitPromoEditEnableControls() {
         $("#visit-promo-edit-save-button").addClass("hidden");
         $("#visit-promo-edit-del-button").addClass("hidden");
     }
-    for (var i = 1; i <= 3; i++) { 
-        if (i === visitPromoItem.extInfoKind) { 
+    for (var i = 1; i <= 4; i++) { 
+        if (i == visitPromoItem.extInfoKind) { 
             $(".visit-promo-edit-ext-kind" + i).removeAttr("style");
+            if (i === 1) {
+                for (var j = 1; j <= 3; j++) {
+                    if (j == visitPromoItem.extInfoType) { 
+                        $(".visit-promo-edit-ext-type" + j).removeAttr("style");
+                    } else {
+                        $(".visit-promo-edit-ext-type" + j).attr("style", "display: none;");
+                    }
+                }
+            }
         } else {
             $(".visit-promo-edit-ext-kind" + i).attr("style", "display: none;");
         }
@@ -333,13 +345,41 @@ function visitPromoEditEnableControls() {
     $(".editable").prop("readonly", visit.readonly);
 }
 
+function visitPromoEditExtTypeChange(e) {
+    var data = this.dataItem();
+    visitPromoItem.isEdited = true;
+    visitPromoItem.extInfoType = data.extInfoType;
+    switch (visitPromoItem.extInfoType) {
+        case 1:
+            visitPromoItem.extInfoVal = $("#visit-promo-edit-ext-discount-percent").val() / 100;
+            break;
+        case 2:
+            visitPromoItem.extInfoVal = $("#visit-promo-edit-ext-discount-value").val();
+            break;
+        case 3:
+            visitPromoItem.extInfoVal = $("#visit-promo-edit-ext-discount-price-old").val();
+            visitPromoItem.extInfoVal2 = $("#visit-promo-edit-ext-discount-price-new").val();
+            break;
+    }
+    visitPromoEditEnableControls();
+}
+
 function visitPromoEditControlChange(id, value) {
     log("..visitPromoEditControlChange('" + id + "', '" + value + "')");
     var val = value != "" ? value : null;
     visitPromoItem.isEdited = true;
     switch (id) {
-        case "visit-promo-edit-ext-discount":
+        case "visit-promo-edit-ext-discount-percent":
             visitPromoItem.extInfoVal = val / 100;
+            break;
+        case "visit-promo-edit-ext-discount-value":
+            visitPromoItem.extInfoVal = val;
+            break;
+        case "visit-promo-edit-ext-discount-price-old":
+            visitPromoItem.extInfoVal = val;
+            break;
+        case "visit-promo-edit-ext-discount-price-new":
+            visitPromoItem.extInfoVal2 = val;
             break;
         case "visit-promo-edit-ext-qty-pay":
             visitPromoItem.extInfoVal = val;
@@ -352,6 +392,9 @@ function visitPromoEditControlChange(id, value) {
             break;
         case "visit-promo-edit-ext-volume":
             visitPromoItem.extInfoVal = val;
+            break;
+        case "visit-promo-edit-ext-name2":
+            visitPromoItem.extInfoName = val;
             break;
     }
     visitPromoEditEnableControls();
@@ -379,7 +422,7 @@ function visitPromoEditSave(onSuccess) {
         visitPromos.Count++;
     }
     dbTools.visitPromoUpdate(visit.visitId, visitPromoItem.visitPromoId, settings.skuCatId, visitPromoItem.skuSubCatId, visitPromoItem.brandId, 
-            visitPromoItem.promoId, visitPromoItem.extInfoVal, visitPromoItem.extInfoVal2, visitPromoItem.extInfoName, 
+            visitPromoItem.promoId, visitPromoItem.extInfoType, visitPromoItem.extInfoVal, visitPromoItem.extInfoVal2, visitPromoItem.extInfoName, 
         function(visitPromoId) {
             for (; visitPromoItem.newPhotoLst.length > 0; ) {
                 dbTools.visitPromoPhotoUpdate(visit.visitId, visitPromoId, null, visitPromoItem.newPhotoLst[0].fileId, 
@@ -398,7 +441,7 @@ function visitPromoEditSave(onSuccess) {
 function visitPromoEditDel(onSuccess) {
     dbTools.objectListItemSet("visit-list", true);
     visitPromos.Count--;
-    dbTools.visitPromoUpdate(null, visitPromoItem.visitPromoId, null, null, null, null, null, null, null, 
+    dbTools.visitPromoUpdate(null, visitPromoItem.visitPromoId, null, null, null, null, null, null, null, null, 
         function(visitPromoId) {
             visitPromoItem.newPhotoLst = [];
             if (onSuccess != undefined) {onSuccess(visitPromoId);}
@@ -508,6 +551,7 @@ function visitPromoItemClear(step) {
         visitPromoItem.extInfoKind = null;
     }
     if (step <= 5) {
+        visitPromoItem.extInfoType = 1;
         visitPromoItem.extInfoVal = null;
         visitPromoItem.extInfoVal2 = null;
         visitPromoItem.extInfoName = null;

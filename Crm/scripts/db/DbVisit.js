@@ -683,7 +683,7 @@ dbTools.visitPromoListGet = function(visitId, skuCatId, datasetGet) {
     dbTools.db.transaction(function(tx) {
         var sql = "SELECT VP.visitId, VP.visitPromoId, VP.skuCatId, SC.name AS skuCatName, VP.skuSubCatId, SSC.name AS skuSubCatName,"
             + "    VP.brandId, B.name AS brandName, P.promoGrpId, PG.name AS promoGrpName, VP.promoId, P.name AS promoName,"
-            + "    P.extInfoKind, VP.extInfoVal, VP.extInfoVal2, VP.extInfoName"
+            + "    P.extInfoKind, VP.extInfoType, VP.extInfoVal, VP.extInfoVal2, VP.extInfoName"
             + "  FROM VisitPromo VP"
             + "  LEFT JOIN SkuCat SC ON VP.skuCatId = SC.skuCatId"
             + "  LEFT JOIN SkuSubCat SSC ON VP.skuSubCatId = SSC.skuSubCatId"
@@ -704,7 +704,7 @@ dbTools.visitPromoGet = function(visitPromoId, visitId, skuCatId, skuSubCatId, b
         if (visitPromoId > 0) {
             sql = "SELECT VP.visitId, VP.visitPromoId, VP.skuCatId, SC.name AS skuCatName, VP.skuSubCatId, SSC.name AS skuSubCatName,"
                 + "    VP.brandId, B.name AS brandName, P.promoGrpId, PG.name AS promoGrpName, VP.promoId, P.name AS promoName,"
-                + "    P.extInfoKind, VP.extInfoVal, VP.extInfoVal2, VP.extInfoName, VPP.visitPromoPhotoCnt"
+                + "    P.extInfoKind, VP.extInfoType, VP.extInfoVal, VP.extInfoVal2, VP.extInfoName, VPP.visitPromoPhotoCnt"
                 + "  FROM VisitPromo VP"
                 + "  LEFT JOIN SkuCat SC ON VP.skuCatId = SC.skuCatId"
                 + "  LEFT JOIN SkuSubCat SSC ON VP.skuSubCatId = SSC.skuSubCatId"
@@ -717,7 +717,7 @@ dbTools.visitPromoGet = function(visitPromoId, visitId, skuCatId, skuSubCatId, b
         } else {
             sql = "SELECT VP.visitId, VP.visitPromoId, VP.skuCatId, SC.name AS skuCatName, VP.skuSubCatId, SSC.name AS skuSubCatName,"
                 + "    VP.brandId, B.name AS brandName, P.promoGrpId, PG.name AS promoGrpName, VP.promoId, P.name AS promoName,"
-                + "    P.extInfoKind, VP.extInfoVal, VP.extInfoVal2, VP.extInfoName, VPP.visitPromoPhotoCnt"
+                + "    P.extInfoKind, VP.extInfoType, VP.extInfoVal, VP.extInfoVal2, VP.extInfoName, VPP.visitPromoPhotoCnt"
                 + "  FROM VisitPromo VP"
                 + "  LEFT JOIN SkuCat SC ON VP.skuCatId = SC.skuCatId"
                 + "  LEFT JOIN SkuSubCat SSC ON VP.skuSubCatId = SSC.skuSubCatId"
@@ -732,14 +732,14 @@ dbTools.visitPromoGet = function(visitPromoId, visitId, skuCatId, skuSubCatId, b
     }, dbTools.onTransError);
 }
 
-dbTools.visitPromoUpdate = function(visitId, visitPromoId, skuCatId, skuSubCatId, brandId, promoId, extInfoVal, extInfoVal2, extInfoName, onSuccess, onError) {
-    log("visitPromoUpdate(" + visitId + ", " + visitPromoId + ", " + skuCatId + ", " + skuSubCatId + ", " + promoId + ", " + extInfoVal + ", " + extInfoVal2 + ", " + extInfoName + ")");
+dbTools.visitPromoUpdate = function(visitId, visitPromoId, skuCatId, skuSubCatId, brandId, promoId, extInfoType, extInfoVal, extInfoVal2, extInfoName, onSuccess, onError) {
+    log("visitPromoUpdate(" + visitId + ", " + visitPromoId + ", " + skuCatId + ", " + skuSubCatId + ", " + promoId + ", " + extInfoType + ", " + extInfoVal + ", " + extInfoVal2 + ", " + extInfoName + ")");
     dbTools.db.transaction(function(tx) {
         if (visitPromoId > 0) {
             if (visitId != null || skuCatId != null || skuSubCatId != null || brandId != null 
                     || promoId != null || extInfoVal != null || extInfoVal2 != null || extInfoName != null) {
-                dbTools.sqlInsertUpdate(tx, "VisitPromo", ["visitPromoId"], ["visitId", "skuCatId", "skuSubCatId", "brandId", "promoId", "extInfoVal", "extInfoVal2", "extInfoName"], 
-                        [visitPromoId], [visitId, skuCatId, skuSubCatId, brandId, promoId, extInfoVal, extInfoVal2, extInfoName], 
+                dbTools.sqlInsertUpdate(tx, "VisitPromo", ["visitPromoId"], ["visitId", "skuCatId", "skuSubCatId", "brandId", "promoId", "extInfoType", "extInfoVal", "extInfoVal2", "extInfoName"], 
+                        [visitPromoId], [visitId, skuCatId, skuSubCatId, brandId, promoId, extInfoType, extInfoVal, extInfoVal2, extInfoName], 
                     function() {if (onSuccess != undefined) {onSuccess(visitPromoId);}},
                     onError
                 );
@@ -754,16 +754,16 @@ dbTools.visitPromoUpdate = function(visitId, visitPromoId, skuCatId, skuSubCatId
                 function(tx, rs) {
                     if (rs.rows.length > 0) {
                         visitPromoId = rs.rows.item(0).visitPromoId;
-                        dbTools.sqlInsertUpdate(tx, "VisitPromo", ["visitPromoId"], ["visitId", "skuCatId", "skuSubCatId", "brandId", "promoId", "extInfoVal", "extInfoVal2", "extInfoName"], 
-                                [visitPromoId], [visitId, skuCatId, skuSubCatId, brandId, promoId, extInfoVal, extInfoVal2, extInfoName], 
+                        dbTools.sqlInsertUpdate(tx, "VisitPromo", ["visitPromoId"], ["visitId", "skuCatId", "skuSubCatId", "brandId", "promoId", "extInfoType", "extInfoVal", "extInfoVal2", "extInfoName"], 
+                                [visitPromoId], [visitId, skuCatId, skuSubCatId, brandId, promoId, extInfoType, extInfoVal, extInfoVal2, extInfoName], 
                             function() {if (onSuccess != undefined) {onSuccess(visitPromoId);}},
                             onError
                         );
                     } else {
                         dbTools.tableNextIdGet(tx, "VisitPromo", 
                             function(tx, visitPromoId) {
-                                dbTools.sqlInsertUpdate(tx, "VisitPromo", ["visitPromoId"], ["visitId", "skuCatId", "skuSubCatId", "brandId", "promoId", "extInfoVal", "extInfoVal2", "extInfoName"], 
-                                        [visitPromoId], [visitId, skuCatId, skuSubCatId, brandId, promoId, extInfoVal, extInfoVal2, extInfoName], 
+                                dbTools.sqlInsertUpdate(tx, "VisitPromo", ["visitPromoId"], ["visitId", "skuCatId", "skuSubCatId", "brandId", "promoId", "extInfoType", "extInfoVal", "extInfoVal2", "extInfoName"], 
+                                        [visitPromoId], [visitId, skuCatId, skuSubCatId, brandId, promoId, extInfoType, extInfoVal, extInfoVal2, extInfoName], 
                                     function() {if (onSuccess != undefined) {onSuccess(visitPromoId);}},
                                     onError
                                 );

@@ -32,13 +32,26 @@
                     <div class="list-item-comment">
                         #switch (extInfoKind) {
                             case 1:
-                                #Скидка: #:(extInfoVal != null ? extInfoVal * 100 + "%" : "")##
+                                switch (extInfoType) {
+                                    case 1:
+                                        #% скидки: #:(extInfoVal != null ? extInfoVal * 100 + "%" : "")##
+                                    break;
+                                    case 2:
+                                        #Сумма скидки: #:(extInfoVal != null ? extInfoVal : "")##
+                                    break;
+                                    case 3:
+                                        #Старая цена: #:(extInfoVal != null ? extInfoVal : "")###, новая цена: #:(extInfoVal2 != null ? extInfoVal2 : "")##
+                                    break;
+                                }
                                 break;
                             case 2:
                                 #Количество к оплате: #:(extInfoVal != null ? extInfoVal : "")#, количество к получению: #:(extInfoVal2 != null ? extInfoVal2 : "")##
                                 break;
                             case 3:
-                                #Название: #:(extInfoName != null ? extInfoName : "")#, объем: #:(extInfoVal != null ? extInfoVal : "")##
+                                #Механика: #:(extInfoName != null ? extInfoName : "")#, объем: #:(extInfoVal != null ? extInfoVal : "")##
+                                break;
+                            case 4:
+                                #Механика: #:(extInfoName != null ? extInfoName : "")##
                                 break;
                         }#
                     </div>
@@ -161,8 +174,28 @@
                     </label>
                 </li>
                 <li class="visit-promo-edit-ext-kind1">
-                    <label class="visit-promo-edit-ext-kind1">% скидки
-                        <input id="visit-promo-edit-ext-discount" class="editable" type="number" onchange="visitPromoEditControlChange(this.id, this.value)" onkeyup="visitPromoEditControlKeyUp(this)"/>
+                    <label class="visit-promo-edit-ext-kind1">Вид скидки
+                        <input id="visit-promo-edit-ext-type" class="editable" />
+                    </label>
+                </li>
+                <li class="visit-promo-edit-ext-kind1 visit-promo-edit-ext-type1">
+                    <label class="visit-promo-edit-ext-kind1 visit-promo-edit-ext-type1">% скидки
+                        <input id="visit-promo-edit-ext-discount-percent" class="editable" type="number" onchange="visitPromoEditControlChange(this.id, this.value)" onkeyup="visitPromoEditControlKeyUp(this)"/>
+                    </label>
+                </li>
+                <li class="visit-promo-edit-ext-kind1 visit-promo-edit-ext-type2">
+                    <label class="visit-promo-edit-ext-kind1 visit-promo-edit-ext-type2">Сумма скидки
+                        <input id="visit-promo-edit-ext-discount-value" class="editable" type="number" onchange="visitPromoEditControlChange(this.id, this.value)" onkeyup="visitPromoEditControlKeyUp(this)"/>
+                    </label>
+                </li>
+                <li class="visit-promo-edit-ext-kind1 visit-promo-edit-ext-type3">
+                    <label class="visit-promo-edit-ext-kind1 visit-promo-edit-ext-type3">Старая цена
+                        <input id="visit-promo-edit-ext-discount-price-old" class="editable" type="number" onchange="visitPromoEditControlChange(this.id, this.value)" onkeyup="visitPromoEditControlKeyUp(this)"/>
+                    </label>
+                </li>
+                <li class="visit-promo-edit-ext-kind1 visit-promo-edit-ext-type3">
+                    <label class="visit-promo-edit-ext-kind1 visit-promo-edit-ext-type3">Новая цена
+                        <input id="visit-promo-edit-ext-discount-price-new" class="editable" type="number" onchange="visitPromoEditControlChange(this.id, this.value)" onkeyup="visitPromoEditControlKeyUp(this)"/>
                     </label>
                 </li>
                 <li class="visit-promo-edit-ext-kind2">
@@ -176,13 +209,18 @@
                     </label>
                 </li>
                 <li class="visit-promo-edit-ext-kind3">
-                    <label class="visit-promo-edit-ext-kind3">Название
+                    <label class="visit-promo-edit-ext-kind3">Механика
                         <input id="visit-promo-edit-ext-name" class="editable" type="text" onchange="visitPromoEditControlChange(this.id, this.value)" onkeyup="visitPromoEditControlKeyUp(this)"/>
                     </label>
                 </li>
                 <li class="visit-promo-edit-ext-kind3">
                     <label class="visit-promo-edit-ext-kind3">Объем
                         <input id="visit-promo-edit-ext-volume" class="editable" type="number" onchange="visitPromoEditControlChange(this.id, this.value)" onkeyup="visitPromoEditControlKeyUp(this)"/>
+                    </label>
+                </li>
+                <li class="visit-promo-edit-ext-kind4">
+                    <label class="visit-promo-edit-ext-kind4">Механика
+                        <input id="visit-promo-edit-ext-name2" class="editable" type="text" onchange="visitPromoEditControlChange(this.id, this.value)" onkeyup="visitPromoEditControlKeyUp(this)"/>
                     </label>
                 </li>
                 <li id="visit-promo-edit-li-photo-gallery">
