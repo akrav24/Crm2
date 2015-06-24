@@ -185,7 +185,7 @@ function visitHrefGet(stageId, blk, activityId, mode) {
             }*/
             href += (href.indexOf("?") >= 0 ? "&" : "?") + "mode=" + mode;
             href += "&navBackCount=";
-            if (settings.skuCatId > 0 || inArray([11, 12, 14], activityId)) {
+            if (settings.skuCatId > 0 || inArray([5, 11, 12, 14], activityId)) {
                 href += "1";
                 result = href;
             } else {

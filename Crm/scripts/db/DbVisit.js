@@ -177,9 +177,8 @@ dbTools.visitProductCategoryMatrixGet = function(visitId, isItemAllShow, dataset
                     + "        FROM VisitSkuCat VSC"
                     + "        WHERE VSC.visitId = @visitId"
                     + "      UNION ALL"
-                    + "      SELECT 5 AS activityId, VT.skuCatId"
-                    + "        FROM VisitTask VT"
-                    + "        WHERE VT.visitId = @visitId"
+                    + "      SELECT 5 AS activityId, -1 AS skuCatId"
+                    + "        WHERE EXISTS(SELECT 1 FROM VisitSubTask VST WHERE VST.visitId = @visitId)"
                     + "      UNION ALL"
                     + "      SELECT 6 AS activityId, VP.skuCatId"
                     + "        FROM VisitPromo VP"
@@ -375,10 +374,9 @@ dbTools.visitActivityGet = function(visitPlanItemId, visitId, skuCatId, custId, 
             + "      FROM VisitSkuCat VSC"
             + "      WHERE VSC.visitId = @visitId"
             + "    UNION ALL"
-            + "    SELECT 2 AS stageId, 5 AS activityId, VT.skuCatId"
-            + "      FROM VisitTask VT"
-            + "      WHERE VT.visitId = @visitId"
-            + "      GROUP BY VT.skuCatId"
+            + "    SELECT 2 AS stageId, 5 AS activityId, SC.skuCatId"
+            + "      FROM SkuCat SC"
+            + "      WHERE EXISTS(SELECT 1 FROM VisitSubTask VST WHERE VST.visitId = @visitId)"
             + "    UNION ALL"
             + "    SELECT 2 AS stageId, 6 AS activityId, VP.skuCatId"
             + "      FROM VisitPromo VP"
@@ -494,10 +492,9 @@ dbTools.visitActivityGet2 = function(visitPlanItemId, visitId, skuCatId, custId,
             + "      FROM VisitSkuCat VSC"
             + "      WHERE VSC.visitId = @visitId"
             + "    UNION ALL"
-            + "    SELECT 2 AS stageId, 5 AS activityId, VT.skuCatId"
-            + "      FROM VisitTask VT"
-            + "      WHERE VT.visitId = @visitId"
-            + "      GROUP BY VT.skuCatId"
+            + "    SELECT 2 AS stageId, 5 AS activityId, SC.skuCatId"
+            + "      FROM SkuCat SC"
+            + "      WHERE EXISTS(SELECT 1 FROM VisitSubTask VST WHERE VST.visitId = @visitId)"
             + "    UNION ALL"
             + "    SELECT 2 AS stageId, 6 AS activityId, VP.skuCatId"
             + "      FROM VisitPromo VP"
@@ -875,7 +872,7 @@ dbTools.visitSurveyAnswerUpdate = function(visitId, questionId, fieldNames, fiel
     }, function(error) {if (onError != undefined) {onError("!!! SQLite transaction error, " + dbTools.errorMsg(error));}});
 }
 
-dbTools.visitTaskListGet = function(dateBgn, custId, skuCatId, datasetGet) {
+/*dbTools.visitTaskListGet = function(dateBgn, custId, skuCatId, datasetGet) {
     log("visitTaskListGet('" + dateToSqlDate(dateBgn) + "', " + custId + ", " + skuCatId + ")");
     dbTools.db.transaction(function(tx) {
         var sql = "SELECT T.taskId, T.descr, T.nExec, VTT.doneCnt, CASE WHEN VTT.doneCnt >= T.nExec THEN 1 ELSE 0 END AS taskDone, VT.done, IFNULL(VT.note, '') AS note"
@@ -933,6 +930,43 @@ dbTools.visitTaskDoneUpdate = function(visitId, skuCatId, taskId, done, onSucces
     dbTools.db.transaction(function(tx) {
         dbTools.sqlInsertUpdate(tx, "VisitTask", ["visitId", "skuCatId", "taskId"], ["done"], [visitId, skuCatId, taskId], [done], 
             function() {if (onSuccess != undefined) {onSuccess(visitId, skuCatId, taskId);}},
+            onError
+        );
+    }, function(error) {if (onError != undefined) {onError("!!! SQLite transaction error, " + dbTools.errorMsg(error));}});
+}
+*/
+dbTools.visitTaskListGet = function(dateBgn, custId, datasetGet) {
+    log("visitTaskListGet('" + dateToSqlDate(dateBgn) + "', " + custId + ")");
+    dbTools.db.transaction(function(tx) {
+        var sql = "SELECT T.taskId, T.descr, T.fileId"
+            + "  FROM Task T "
+            + "  INNER JOIN TaskLink TL ON T.taskId = TL.taskId "
+            + "  WHERE T.dateBgn <= ? AND T.dateEnd >= ? "
+            + "    AND IFNULL(T.activityId, 0) = 0 "
+            + "    AND TL.custId = ? "
+            + "  ORDER BY T.descr ";
+        var dateBgnSql = dateToSqlDate(dateBgn);
+        tx.executeSql(sql, [dateBgnSql, dateBgnSql, custId], datasetGet, dbTools.onSqlError);
+    }, dbTools.onTransError);
+}
+
+dbTools.visitSubTaskListGet = function(visitId, taskId, datasetGet) {
+    log("visitSubTaskListGet(" + visitId + ", " + taskId + ")");
+    dbTools.db.transaction(function(tx) {
+        var sql = "SELECT ST.taskId, ST.subTaskId, ST.name, VST.done"
+            + "  FROM SubTask ST"
+            + "  LEFT JOIN VisitSubTask VST ON VST.visitId = ? AND ST.subTaskId = VST.subTaskId"
+            + "  WHERE ST.taskId = ?"
+            + "  ORDER BY ST.name, ST.subTaskId";
+        tx.executeSql(sql, [visitId, taskId], datasetGet, dbTools.onSqlError);
+    }, dbTools.onTransError);
+}
+
+dbTools.visitSubTaskDoneUpdate = function(visitId, taskId, subTaskId, done, onSuccess, onError) {
+    log("visitSubTaskDoneUpdate(" + visitId + ", " + taskId + ", " + subTaskId + ", " + done + ")");
+    dbTools.db.transaction(function(tx) {
+        dbTools.sqlInsertUpdate(tx, "VisitSubTask", ["visitId", "subTaskId"], ["done"], [visitId, subTaskId], [done], 
+            function() {if (onSuccess != undefined) {onSuccess(visitId, taskId, subTaskId);}},
             onError
         );
     }, function(error) {if (onError != undefined) {onError("!!! SQLite transaction error, " + dbTools.errorMsg(error));}});
