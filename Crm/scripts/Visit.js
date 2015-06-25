@@ -9,20 +9,17 @@ function visitShow(e) {
     log("..visitShow");
     visitProductsObjInit();
     visitPromoObjInit();
-    renderVisit(visit.visitPlanItemId, visit.visitId, visit.custId, visit.activityShowAll);
+    renderVisit(visit.visitPlanItemId, visit.visitId);
 }
 
-function renderVisit(visitPlanItemId, visitId, custId, activityShowAll) {
-    log("..renderVisit(" + visitPlanItemId + ", " + visitId + ", " + custId + ")");
-    dbTools.visitGet(visitPlanItemId, visitId, renderVisitView);
-    dbTools.visitActivityGet(visitPlanItemId, visitId, settings.skuCatId, custId, -1, -1, activityShowAll, renderVisitActivityList);
-// TODO: DEL
-/*dbTools.visitActivityGet2(visitPlanItemId, visitId, settings.skuCatId, custId, -1, -1, activityShowAll, 
-    function(tx, rs) {
-        log("====dbTools.visitActivityGet2");
-        logRs(rs);
-    }
-);*/
+function renderVisit(visitPlanItemId, visitId) {
+    log("..renderVisit(" + visitPlanItemId + ", " + visitId + ")");
+    dbTools.visitGet(visitPlanItemId, visitId, 
+        function(tx, rs) {
+            renderVisitView(tx, rs);
+            dbTools.visitActivityGet(visitPlanItemId, visitId, settings.skuCatId, visit.custId, visit.dateBgn, -1, -1, visit.activityShowAll, renderVisitActivityList);
+        }
+    );
 }
 
 function renderVisitView(tx, rs) {
@@ -37,6 +34,8 @@ function renderVisitView(tx, rs) {
         visit.timeEnd = sqlDateToDate(data[0].timeEnd);
         visit.fmtId = data[0].fmtId;
     }
+log("====visit.dateBgn=" + visit.dateBgn);
+log("====visit.custId=" + visit.custId);
     $("#visit-point-name").text(visit.name + ', ' + visit.addr);
     visitTimeCaptionSet(visit.timeBgn, visit.timeEnd);
     $("#visit-cat-name").text(settings.skuCatName);
@@ -169,7 +168,7 @@ function visitFinishOnClick(e) {
 function visitActivityShowAllClick(e) {
     visit.activityShowAll = 1 - visit.activityShowAll;
     visit.resetScroller = true;
-    renderVisit(visit.visitPlanItemId, visit.visitId, visit.custId, visit.activityShowAll);
+    renderVisit(visit.visitPlanItemId, visit.visitId, visit.custId, visit.dateBgn, visit.activityShowAll);
     $("#visit-activity-show-all-button").text(visit.activityShowAll === 1 ? "Скрыть" : "Показать все");
 }
 

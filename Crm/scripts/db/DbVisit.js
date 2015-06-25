@@ -149,7 +149,7 @@ dbTools.visitProductCategoryMatrixGet = function(visitId, isItemAllShow, dataset
                     sqlColNames += ", A" + rs.rows.item(i).activityId;
                     sqlColExpr += ", SUM(CASE WHEN VA.activityId = " + rs.rows.item(i).activityId + " THEN 1 END) AS A" + rs.rows.item(i).activityId;
                 }
-                var ScuCatCte = "(SELECT skuCatId, name, blk, lvl"
+                var SkuCatCte = "(SELECT skuCatId, name, blk, lvl"
                     + "    FROM"
                     + "      (SELECT -1 AS skuCatId, 'Все' AS name, 0 AS lvl, 0 AS blk WHERE @isItemAllShow <> '0'"
                     + "      UNION ALL"
@@ -163,10 +163,11 @@ dbTools.visitProductCategoryMatrixGet = function(visitId, isItemAllShow, dataset
                     + "        INNER JOIN Sku S ON VS.skuId = S.skuId"
                     + "        WHERE VS.visitId = @visitId"
                     + "      UNION ALL"
-                    + "      SELECT 2 AS activityId, P.skuCatId"
+                    + "      SELECT 2 AS activityId, CP.skuCatId"
                     + "        FROM VisitPlanogramAnswer VPA"
+                    + "        INNER JOIN Visit V ON VPA.visitId = V.visitId"
                     + "        INNER JOIN PlanogramQuestion PQ ON VPA.planogramId = PQ.planogramId AND VPA.questionId = PQ.questionId"
-                    + "        INNER JOIN Planogram P ON PQ.planogramId = P.planogramId"
+                    + "        INNER JOIN CustPlanogram CP ON V.custId = CP.custId AND PQ.planogramId = CP.planogramId"
                     + "        WHERE VPA.visitId = @visitId"
                     + "      UNION ALL"
                     + "      SELECT 3 AS activityId, VP.skuCatId"
@@ -190,15 +191,12 @@ dbTools.visitProductCategoryMatrixGet = function(visitId, isItemAllShow, dataset
                     + "        WHERE VSP.visitId = @visitId"
                     + "      UNION ALL"
                     + "      SELECT 11 AS activityId, -1 AS skuCatId"
-                    //+ "        FROM SkuCat SC"
                     + "        WHERE EXISTS(SELECT 1 FROM VisitSurveyAnswer VSA INNER JOIN SurveyQuestion SQ ON VSA.questionId = SQ.questionId WHERE VSA.visitId = @visitId AND SQ.surveyId = 2)"
                     + "      UNION ALL"
                     + "      SELECT 12 AS activityId, -1 AS skuCatId"
-                    //+ "        FROM SkuCat SC"
                     + "        WHERE EXISTS(SELECT 1 FROM VisitSurveyAnswer VSA INNER JOIN SurveyQuestion SQ ON VSA.questionId = SQ.questionId WHERE VSA.visitId = @visitId AND SQ.surveyId = 1)"
                     + "      UNION ALL"
                     + "      SELECT 14 AS activityId, -1 AS skuCatId"
-                    //+ "        FROM SkuCat SC"
                     + "        WHERE EXISTS(SELECT 1 FROM VisitSku VS WHERE VS.visitId = @visitId AND VS.reasonId IS NOT NULL)"
                     + "      ) A"
                     + "      GROUP BY A.activityId, A.skuCatId"
@@ -206,13 +204,13 @@ dbTools.visitProductCategoryMatrixGet = function(visitId, isItemAllShow, dataset
                 var sql = "SELECT A.skuCatId, A.name" + sqlColNames
                     + "    FROM"
                     + "      (SELECT SC.skuCatId, SC.name, SC.blk, SC.lvl" + sqlColExpr
-                    + "        FROM " + ScuCatCte + " SC"
+                    + "        FROM " + SkuCatCte + " SC"
                     + "        LEFT JOIN " + VisitActivityCte + " VA ON SC.skuCatId = VA.skuCatId"
                     + "        WHERE SC.skuCatId > 0"
                     + "        GROUP BY SC.skuCatId, SC.name, SC.blk, SC.lvl"
                     + "      UNION ALL"
                     + "      SELECT SC.skuCatId, SC.name, SC.blk, SC.lvl" + sqlColExpr
-                    + "        FROM " + ScuCatCte + " SC"
+                    + "        FROM " + SkuCatCte + " SC"
                     + "        LEFT JOIN " + VisitActivityCte + " VA ON 1 = 1"
                     + "        WHERE SC.skuCatId = -1"
                     + "        GROUP BY SC.skuCatId, SC.name, SC.blk, SC.lvl"
@@ -288,7 +286,7 @@ dbTools.visitProductGet = function(visitId, skuId, datasetGet) {
     }, dbTools.onTransError);
 }
 
-dbTools.visitActivityGet = function(visitPlanItemId, visitId, skuCatId, custId, stageId, activityId, activityShowAll, datasetGet) {
+/*dbTools.visitActivityGet0 = function(visitPlanItemId, visitId, skuCatId, custId, stageId, activityId, activityShowAll, datasetGet) {
     log("visitActivityGet(" + visitPlanItemId + ", " + visitId + ", " + skuCatId + ", " + custId + ", " + stageId + ", " + activityId + ", " + activityShowAll + ")");
     if (visitId == null) {visitId = 0;}
     dbTools.db.transaction(function(tx) {
@@ -334,7 +332,6 @@ dbTools.visitActivityGet = function(visitPlanItemId, visitId, skuCatId, custId, 
             + "    (SELECT 1 AS stageId, 1 AS activityId, S.skuCatId"
             + "      FROM VisitSku VS"
             + "      INNER JOIN Sku S ON VS.skuId = S.skuId"
-            //+ "      WHERE VS.visitId = @visitId AND VS.sel0 = 1"
             + "      WHERE VS.visitId = @visitId"
             + "      GROUP BY S.skuCatId"
             + "    UNION ALL"
@@ -343,11 +340,6 @@ dbTools.visitActivityGet = function(visitPlanItemId, visitId, skuCatId, custId, 
             + "      WHERE VP.visitId = @visitId AND VP.stageId = 1"
             + "      GROUP BY VP.skuCatId"
             + "    UNION ALL"
-            /*+ "    SELECT 1 AS stageId, 14 AS activityId, S.skuCatId"
-            + "      FROM VisitSku VS"
-            + "      INNER JOIN Sku S ON VS.skuId = S.skuId"
-            + "      WHERE VS.visitId = @visitId AND VS.reasonId IS NOT NULL"
-            + "      GROUP BY S.skuCatId"*/
             + "    SELECT 1 AS stageId, 14 AS activityId, SC.skuCatId"
             + "      FROM SkuCat SC"
             + "      WHERE EXISTS(SELECT 1 FROM VisitSku VS WHERE VS.visitId = @visitId AND VS.reasonId IS NOT NULL)"
@@ -355,7 +347,6 @@ dbTools.visitActivityGet = function(visitPlanItemId, visitId, skuCatId, custId, 
             + "    SELECT 2 AS stageId, 1 AS activityId, S.skuCatId"
             + "      FROM VisitSku VS"
             + "      INNER JOIN Sku S ON VS.skuId = S.skuId"
-            //+ "      WHERE VS.visitId = @visitId AND VS.sel = 1"
             + "      WHERE VS.visitId = @visitId AND VS.sel <> IFNULL(VS.sel0, 0)"
             + "      GROUP BY S.skuCatId"
             + "    UNION ALL"
@@ -405,54 +396,67 @@ dbTools.visitActivityGet = function(visitPlanItemId, visitId, skuCatId, custId, 
         tx.executeSql(sql, [], datasetGet, dbTools.onSqlError);
     }, dbTools.onTransError);
 }
-
-dbTools.visitActivityGet2 = function(visitPlanItemId, visitId, skuCatId, custId, stageId, activityId, activityShowAll, datasetGet) {
-    log("visitActivityGet2(" + visitPlanItemId + ", " + visitId + ", " + skuCatId + ", " + custId + ", " + stageId + ", " + activityId + ", " + activityShowAll + ")");
+*/
+dbTools.visitActivityGet = function(visitPlanItemId, visitId, skuCatId, custId, dateBgn, stageId, activityId, activityShowAll, datasetGet) {
+    log("visitActivityGet2(" + visitPlanItemId + ", " + visitId + ", " + skuCatId + ", " + custId + ", " + dateBgn + ", " + stageId + ", " + activityId + ", " + activityShowAll + ")");
     if (visitId == null) {visitId = 0;}
     dbTools.db.transaction(function(tx) {
         var actSql = "";
         var sql = "";
         if (visitPlanItemId > 0) {
-            actSql = "SELECT VSA.stageId AS stageId, VSA.activityId AS activityId, A.name AS name, VSA.mode, 1 AS blk, A.lvl AS lvl"
+            actSql = "SELECT VSA.stageId, VSA.activityId, A.name, VSA.mode, 1 AS blk, A.lvl"
                 + "      FROM VisitPlanItem VPI"
                 + "      INNER JOIN VisitSchemaActivity VSA ON VPI.visitSchemaId = VSA.visitSchemaId"
                 + "      INNER JOIN Activity A ON VSA.activityId = A.activityId"
                 + "      WHERE VPI.visitPlanItemId = @visitPlanItemId";
         } else if (visitId > 0) {
-            actSql = "SELECT VSA.stageId AS stageId, VSA.activityId AS activityId, A.name AS name, VSA.mode, 1 AS blk, A.lvl AS lvl"
+            actSql = "SELECT VSA.stageId, VSA.activityId, A.name, VSA.mode, 1 AS blk, A.lvl"
                 + "      FROM Visit V"
                 + "      INNER JOIN Cust C ON V.custId = C.custId"
                 + "      INNER JOIN VisitSchemaActivity VSA ON C.visitSchemaId = VSA.visitSchemaId"
                 + "      INNER JOIN Activity A ON VSA.activityId = A.activityId"
                 + "      WHERE V.visitId = @visitId";
         } else {
-            actSql = "SELECT VSA.stageId AS stageId, VSA.activityId AS activityId, A.name AS name, VSA.mode, 1 AS blk, A.lvl AS lvl"
+            actSql = "SELECT VSA.stageId, VSA.activityId, A.name, VSA.mode, 1 AS blk, A.lvl"
                 + "      FROM Cust C"
                 + "      INNER JOIN VisitSchemaActivity VSA ON C.visitSchemaId = VSA.visitSchemaId"
                 + "      INNER JOIN Activity A ON VSA.activityId = A.activityId"
                 + "      WHERE C.custId = @custId";
         }
-        sql = "SELECT A.stageId, A.activityId, A.name, A.mode, A.blk, COUNT(AC.skuCatId) AS skuCatCnt"
-            + "  FROM"
-            + "    (" + actSql;
+        actSql += " UNION ALL"
+            + "      SELECT 2 AS stageId, T.activityId, A.name AS name, 0 AS mode, 1 AS blk, A.lvl"
+            + "        FROM Task T"
+            + "        INNER JOIN TaskLink TL ON T.taskId = TL.taskId"
+            + "        INNER JOIN Activity A ON T.activityId = A.activityId"
+            + "        WHERE TL.custId = @custId"
+            + "          AND T.dateBgn <= @dateBgn AND T.dateEnd >= @dateBgn"
+            + "      UNION ALL"
+            + "      SELECT 2 AS stageId, A.activityId, A.name AS name, 0 AS mode, 1 AS blk, A.lvl AS lvl"
+            + "        FROM Task T"
+            + "        INNER JOIN TaskLink TL ON T.taskId = TL.taskId"
+            + "        CROSS JOIN (SELECT * FROM Activity WHERE activityId = 5) A"
+            + "        WHERE IFNULL(T.activityId, 0) = 0"
+            + "          AND TL.custId = @custId"
+            + "          AND T.dateBgn <= @dateBgn AND T.dateEnd >= @dateBgn";
         if (activityShowAll != 0) {
-            sql += "    UNION ALL"
-                + "      SELECT VSA0.stageId AS stageId, VSA0.activityId AS activityId, A.name AS name, VSA0.mode, 1 AS blk, A.lvl AS lvl"
-                + "      FROM VisitSchemaActivity VSA0"
-                + "      INNER JOIN Activity A ON VSA0.activityId = A.activityId"
-                + "      LEFT JOIN (" + actSql + ") VSA ON VSA0.activityId = VSA.activityId AND VSA0.stageId = VSA.stageId"
-                + "      WHERE VSA0.visitSchemaId = 0 AND VSA.activityId IS NULL";
+            actSql += " UNION ALL"
+                + "    SELECT VSA.stageId, VSA.activityId, A.name, VSA.mode, 1 AS blk, A.lvl"
+                + "      FROM VisitSchemaActivity VSA"
+                + "      INNER JOIN Activity A ON VSA.activityId = A.activityId"
+                + "      WHERE VSA.visitSchemaId = 0";
         }
-        sql += "    UNION ALL"
+        actSql += " UNION ALL"
             + "     SELECT 1 AS stageId, 0 AS activityId, 'Первичный анализ' AS name, 0 AS mode, 0 AS blk, 0 AS lvl"
             + "     UNION ALL"
-            + "     SELECT 2 AS stageId, 0 AS activityId, 'Основной анализ' AS name, 0 AS mode, 0 AS blk, 0 AS lvl"
+            + "     SELECT 2 AS stageId, 0 AS activityId, 'Основной анализ' AS name, 0 AS mode, 0 AS blk, 0 AS lvl";
+        sql = "SELECT A.stageId, A.activityId, A.name, A.mode, A.blk, COUNT(AC.skuCatId) AS skuCatCnt"
+            + "  FROM"
+            + "    (" + actSql
             + "   ) A"
             + "  LEFT JOIN"
             + "    (SELECT 1 AS stageId, 1 AS activityId, S.skuCatId"
             + "      FROM VisitSku VS"
             + "      INNER JOIN Sku S ON VS.skuId = S.skuId"
-            //+ "      WHERE VS.visitId = @visitId AND VS.sel0 = 1"
             + "      WHERE VS.visitId = @visitId"
             + "      GROUP BY S.skuCatId"
             + "    UNION ALL"
@@ -461,11 +465,6 @@ dbTools.visitActivityGet2 = function(visitPlanItemId, visitId, skuCatId, custId,
             + "      WHERE VP.visitId = @visitId AND VP.stageId = 1"
             + "      GROUP BY VP.skuCatId"
             + "    UNION ALL"
-            /*+ "    SELECT 1 AS stageId, 14 AS activityId, S.skuCatId"
-            + "      FROM VisitSku VS"
-            + "      INNER JOIN Sku S ON VS.skuId = S.skuId"
-            + "      WHERE VS.visitId = @visitId AND VS.reasonId IS NOT NULL"
-            + "      GROUP BY S.skuCatId"*/
             + "    SELECT 1 AS stageId, 14 AS activityId, SC.skuCatId"
             + "      FROM SkuCat SC"
             + "      WHERE EXISTS(SELECT 1 FROM VisitSku VS WHERE VS.visitId = @visitId AND VS.reasonId IS NOT NULL)"
@@ -473,16 +472,16 @@ dbTools.visitActivityGet2 = function(visitPlanItemId, visitId, skuCatId, custId,
             + "    SELECT 2 AS stageId, 1 AS activityId, S.skuCatId"
             + "      FROM VisitSku VS"
             + "      INNER JOIN Sku S ON VS.skuId = S.skuId"
-            //+ "      WHERE VS.visitId = @visitId AND VS.sel = 1"
             + "      WHERE VS.visitId = @visitId AND VS.sel <> IFNULL(VS.sel0, 0)"
             + "      GROUP BY S.skuCatId"
             + "    UNION ALL"
-            + "    SELECT 2 AS stageId, 2 AS activityId, P.skuCatId"
+            + "    SELECT 2 AS stageId, 2 AS activityId, CP.skuCatId"
             + "      FROM VisitPlanogramAnswer VPA"
+            + "      INNER JOIN Visit V ON VPA.visitId = V.visitId"
             + "      INNER JOIN PlanogramQuestion PQ ON VPA.planogramId = PQ.planogramId AND VPA.questionId = PQ.questionId"
-            + "      INNER JOIN Planogram P ON PQ.planogramId = P.planogramId"
+            + "      INNER JOIN CustPlanogram CP ON V.custId = CP.custId AND PQ.planogramId = CP.planogramId"
             + "      WHERE VPA.visitId = @visitId"
-            + "      GROUP BY P.skuCatId"
+            + "      GROUP BY CP.skuCatId"
             + "    UNION ALL"
             + "    SELECT 2 AS stageId, 3 AS activityId, VP.skuCatId"
             + "      FROM VisitPhoto VP"
@@ -519,7 +518,7 @@ dbTools.visitActivityGet2 = function(visitPlanItemId, visitId, skuCatId, custId,
             + "  GROUP BY A.stageId, A.activityId, A.name, A.blk, A.lvl"
             + "  ORDER BY A.stageId, A.blk, A.lvl";
         sql = sql.replace(/@visitPlanItemId/g, visitPlanItemId).replace(/@visitId/g, visitId).replace(/@custId/g, (custId > 0 ? custId : 0)).replace(/@stageId/g, stageId)
-            .replace(/@activityId/g, activityId).replace(/@skuCatId/g, skuCatId);
+            .replace(/@activityId/g, activityId).replace(/@skuCatId/g, skuCatId).replace(/@dateBgn/g, "'" + dateToSqlDate(dateBgn) + "'");
         tx.executeSql(sql, [], datasetGet, dbTools.onSqlError);
     }, dbTools.onTransError);
 }
@@ -1048,19 +1047,10 @@ dbTools.visitPlanogramListGet = function(custId, stageId, skuCatId, datasetGet) 
     log("visitPlanogramListGet(" + custId + ", " + stageId + ", " + skuCatId + ")");
     dbTools.db.transaction(function(tx) {
         var sql = "SELECT P.planogramId, P.name, P.code, P.fileId"
-            + "    FROM Planogram P "
-            + "    INNER JOIN Cust C ON P.chainId = C.chainId "
-            + "    WHERE C.custId = ? AND P.skuCatId = ?"
-            + "  UNION ALL "
-            + "  SELECT P.planogramId, P.name, P.code, P.fileId "
-            + "    FROM Planogram P "
-            + "    WHERE P.skuCatId = ? AND P.chainId IS NULL "
-            + "      AND NOT EXISTS "
-            + "        (SELECT 1"
-            + "          FROM Planogram P "
-            + "          INNER JOIN Cust C ON P.chainId = C.chainId "
-            + "          WHERE C.custId = ? AND P.skuCatId = ?)";
-        tx.executeSql(sql, [custId, skuCatId, skuCatId, custId, skuCatId], datasetGet, dbTools.onSqlError);
+            + "    FROM Planogram P"
+            + "    INNER JOIN CustPlanogram CP ON P.planogramId = CP.planogramId"
+            + "    WHERE CP.custId = ? AND CP.skuCatId = ?";
+        tx.executeSql(sql, [custId, skuCatId], datasetGet, dbTools.onSqlError);
     }, dbTools.onTransError);
 }
 
