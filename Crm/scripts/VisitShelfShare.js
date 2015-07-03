@@ -20,6 +20,10 @@ function visitShelfShareEditShow(e) {
     renderVisitShelfShareEdit(visit.visitId, settings.skuCatId);
 }
 
+function visitShelfShareEditAfterShow(e) {
+    viewTitleSet(app.view(), "Доля на полке - " + settings.skuCatName);
+}
+
 function renderVisitShelfShareEdit(visitId, skuCatId) {
     dbTools.visitShelfShareGet(visitId, skuCatId, renderVisitShelfShareEditView);
 }
@@ -40,7 +44,7 @@ function renderVisitShelfShareEditView(tx, rs) {
 }
 
 function visitShelfShareEditFillControls() {
-    $("#visit-shelf-share-edit-name").val(settings.skuCatName);
+    //$("#visit-shelf-share-edit-name").val(settings.skuCatName);
     if (visitShelfShareItem.shelfShare != null) {
         $("#visit-shelf-share-edit-shelf-share").val(Math.round(visitShelfShareItem.shelfShare * 100));
     } else {

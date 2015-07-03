@@ -18,6 +18,10 @@ function visitProductsShow(e) {
     renderVisitProducts(visit.visitId, settings.skuCatId, visit.fmtFilterType, visit.fmtId);
 }
 
+function visitProductsAfterShow(e) {
+    viewTitleSet(app.view(), "Наличие продукции - " + settings.skuCatName);
+}
+
 function renderVisitProducts(visitId, skucatId, fmtFilterType, fmtId) {
     dbTools.visitProductsGet(visitId, skucatId, fmtFilterType, fmtId, renderVisitProductsView);
 }
@@ -71,6 +75,10 @@ function visitProductEditShow(e) {
     visitProduct.skuId = e.view.params.skuId;
     visitProductClear();
     renderVisitProductEdit(visit.visitId, visitProduct.skuId);
+}
+
+function visitProductEditAfterShow(e) {
+    viewTitleSet(app.view(), "Наличие продукции - " + settings.skuCatName);
 }
 
 function renderVisitProductEdit(visitId, skuId) {

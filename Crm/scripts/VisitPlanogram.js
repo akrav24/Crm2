@@ -27,7 +27,7 @@ function visitPlanogramShow(e) {
 function visitPlanogramPhotoGalleryShow() {
     log("..visitPlanogramPhotoGalleryShow");
     photoGalleryObjInit();
-    photoGallery.title = "Соблюдение планограммы";
+    photoGallery.title = "Соблюдение планограммы - " + settings.skuCatName;
     photoGallery.fileTableName = "FileIn";
     photoGallery.addNewPhotoEnable = false;
     photoGallery.showTagEnable = false;

@@ -21,6 +21,10 @@ function visitPromoPromosShow(e) {
     dbTools.visitPromoListGet(visit.visitId, settings.skuCatId, function(tx, rs) {renderVisitPromoPromosView(tx, rs, goToNextViewIfEmpty);});
 }
 
+function visitPromoPromosAfterShow(e) {
+    viewTitleSet(app.view(), "Промо-активность - " + settings.skuCatName);
+}
+
 function renderVisitPromoPromosView(tx, rs, goToNextViewIfEmpty) {
     log("..renderVisitPromoPromosView(tx, rs, " + goToNextViewIfEmpty + ")");
     renderListView(rs, "#visit-promo-promos-list");
@@ -57,6 +61,10 @@ function visitPromoSubCatShow(e) {
     visitPromoItemClear(1);
     goToNextViewIfEmpty = visitPromoItem.subCatGoToNextViewIfEmpty
     dbTools.visitPromoSubCatListGet(settings.skuCatId, function(tx, rs) {renderVisitPromoSubCatView(tx, rs, goToNextViewIfEmpty);});
+}
+
+function visitPromoSubCatAfterShow(e) {
+    viewTitleSet(app.view(), "Подкатегория - " + settings.skuCatName);
 }
 
 function renderVisitPromoSubCatView(tx, rs, goToNextViewIfEmpty) {
@@ -96,6 +104,10 @@ function visitPromoBrandShow(e) {
     dbTools.visitPromoBrandListGet(settings.skuCatId, renderVisitPromoBrandView);
 }
 
+function visitPromoBrandAfterShow(e) {
+    viewTitleSet(app.view(), "Бренд - " + settings.skuCatName);
+}
+
 function renderVisitPromoBrandView(tx, rs) {
     log("..renderVisitPromoBrandView");
     renderListView(rs, "#visit-promo-brand-list");
@@ -131,6 +143,10 @@ function visitPromoPromoGrpShow(e) {
     dbTools.visitPromoPromoGrpListGet(renderVisitPromoPromoGrpView);
 }
 
+function visitPromoPromoGrpAfterShow(e) {
+    viewTitleSet(app.view(), "Группа промо-активности - " + settings.skuCatName);
+}
+
 function renderVisitPromoPromoGrpView(tx, rs) {
     log("..renderVisitPromoPromoGrpView");
     renderListView(rs, "#visit-promo-promo-grp-list");
@@ -156,6 +172,10 @@ function visitPromoPromoShow(e) {
     log("..visitPromoPromoShow");
     visitPromoItemClear(4);
     dbTools.visitPromoPromoListGet(visitPromoItem.promoGrpId, renderVisitPromoPromoView);
+}
+
+function visitPromoPromoAfterShow(e) {
+    viewTitleSet(app.view(), "Промо-активность - " + settings.skuCatName);
 }
 
 function renderVisitPromoPromoView(tx, rs) {
@@ -213,6 +233,10 @@ function visitPromoEditShow(e) {
             visitPromoItem.promoId, renderVisitPromoEditView);
     }
     visitPromoItem.isNotDataReload = false;
+}
+
+function visitPromoEditAfterShow(e) {
+    viewTitleSet(app.view(), "Промо-активность - " + settings.skuCatName);
 }
 
 function renderVisitPromoEditView(tx, rs) {
@@ -454,7 +478,7 @@ function visitPromoEditListClick(e) {
     if (e.item.attr("id") == "visit-promo-edit-li-photo-gallery") {
         visitPromoItem.isNotDataReload = true;
         photoGalleryObjInit();
-        photoGallery.title = "Фотоотчет";
+        photoGallery.title = "Фотоотчет - " + settings.skuCatName;
         photoGallery.fileTableName = "FileOut";
         photoGallery.onAdd = visitPromoEditPhotoGalleryPhotoAdd;
         /*if (!visit.readonly && (visitPromoItem.visitPromoId == null || visitPromoItem.isEdited)) {

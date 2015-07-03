@@ -12,7 +12,8 @@
         data-title="Доля на полке" 
         data-layout="main" 
         data-init="visitShelfShareEditInit" 
-        data-show="visitShelfShareEditShow">
+        data-show="visitShelfShareEditShow"
+        data-after-show="visitShelfShareEditAfterShow">
       
         <header data-role="header">
             <div data-role="navbar">
@@ -24,11 +25,11 @@
         </header>
         
         <ul id="visit-shelf-share-edit-list" class="list form-list" data-role="listview">
-            <li>
+            <!--<li>
                 <label>Категория
                     <input id="visit-shelf-share-edit-name" type="text" readonly/>
                 </label>
-            </li>
+            </li>-->
             <li>
                 <label>Доля на полке (%)
                     <input id="visit-shelf-share-edit-shelf-share" type="number" onchange="visitShelfShareEditControlChange(this.id, this.value)"/>

@@ -27,7 +27,7 @@ function visitPhotoShow(e) {
 function visitPhotoAdd() {
     log("..visitPhotoAdd");
     photoGalleryObjInit();
-    photoGallery.title = "Фотоотчет";
+    photoGallery.title = "Фотоотчет - " + settings.skuCatName;
     photoGallery.fileTableName = "FileOut";
     photoGallery.onAdd = visitPhotoPhotoGalleryPhotoAdd;
     photoGallery.addNewPhotoEnable = !visit.readonly;

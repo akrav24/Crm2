@@ -16,8 +16,11 @@ function visitSkuPriceShow(e) {
     if (visitSkuPriceList.navBackCount < 1) {
         visitSkuPriceList.navBackCount = 1;
     }
-
     renderVisitSkuPrice(visit.visitId, settings.skuCatId);
+}
+
+function visitSkuPriceAfterShow(e) {
+    viewTitleSet(app.view(), "Прайс-аудит - " + settings.skuCatName);
 }
 
 function renderVisitSkuPrice(visitId, skuCatId) {
@@ -62,6 +65,10 @@ function visitSkuPriceEditInit(e) {
 function visitSkuPriceEditShow(e) {
     log("..visitSkuPriceEditShow");
     dbTools.visitSkuPriceGet(visit.visitId, visitSkuPriceItem.skuId, renderVisitSkuPriceEditView);
+}
+
+function visitSkuPriceEditAfterShow(e) {
+    viewTitleSet(app.view(), "Прайс-аудит - " + settings.skuCatName);
 }
 
 function renderVisitSkuPriceEditView(tx, rs) {
