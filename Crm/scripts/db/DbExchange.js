@@ -550,11 +550,26 @@ dbTools.exchangeMailImport = function(blockId, onSuccess, onError) {
                                 var flds = rs.rows.item(i)["flds"];
                                 
                                 var tableUpdate = function(tblName, refTypeId, flds) {
-                                    var sql = "SELECT group_concat(@tblNameId) AS idLst FROM @tblName WHERE EXISTS(SELECT 1 FROM Mail@tblName B WHERE B.@tblNameId=@tblName.@tblNameId AND B.blockId=? AND B.updateDate>@tblName.updateDate)";
+                                    //var sql = "SELECT group_concat(@tblNameId) AS idLst FROM @tblName WHERE EXISTS(SELECT 1 FROM Mail@tblName B WHERE B.@tblNameId=@tblName.@tblNameId AND B.blockId=? /*AND B.updateDate>@tblName.updateDate*/)";
+                                    var sql = "SELECT @tblNameId AS id FROM"
+                                        + "  (SELECT @tblNameId FROM @tblName WHERE EXISTS(SELECT 1 FROM Mail@tblName B WHERE B.@tblNameId=@tblName.@tblNameId AND B.blockId=? /*AND B.updateDate>@tblName.updateDate*/)"
+                                        + "  UNION"
+                                        + "  SELECT @tblNameId FROM Mail@tblName WHERE blockId=?"
+                                        + "  ) A";
                                     var sqlExec = sql.replace(new RegExp("@tblName","g"), tblName);
-                                    tx.executeSql(sqlExec, [blockId], function(tx, rs) {
+                                    tx.executeSql(sqlExec, [blockId, blockId], function(tx, rs) {
                                         if (rs.rows.length > 0) {
-                                            var idLst = rs.rows.item(0).idLst;
+                                            //var idLst = rs.rows.item(0).idLst;
+                                            var idArr = [];
+                                            for (var i = 0; i < rs.rows.length; i++) {
+                                                if (rs.rows.item(i).id != null) {
+                                                    idArr.push(rs.rows.item(i).id);
+                                                }
+                                            }
+                                            if (idArr.length === 0) {
+                                                idArr.push(0);
+                                            }
+                                            var idLst = idArr.join(",");
                                             if (idLst != null) {
                                                 sqlExec = "SELECT name FROM refType WHERE parentId = ?";
                                                 tx.executeSql(sqlExec, [refTypeId], function(tx, rs) {
@@ -569,7 +584,7 @@ dbTools.exchangeMailImport = function(blockId, onSuccess, onError) {
                                         }
                                     });
                                     
-                                    sql = "DELETE FROM @tblName WHERE EXISTS(SELECT 1 FROM Mail@tblName B WHERE B.@tblNameId=@tblName.@tblNameId AND B.blockId=? AND B.updateDate>@tblName.updateDate)";
+                                    sql = "DELETE FROM @tblName WHERE EXISTS(SELECT 1 FROM Mail@tblName B WHERE B.@tblNameId=@tblName.@tblNameId AND B.blockId=? /*AND B.updateDate>@tblName.updateDate*/)";
                                     sqlExec = sql.replace(new RegExp("@tblName","g"), tblName);
                                     tx.executeSql(sqlExec, [blockId]);
                                     
@@ -577,17 +592,17 @@ dbTools.exchangeMailImport = function(blockId, onSuccess, onError) {
                                     sqlExec = sql.replace(new RegExp("@tblName", "g"), tblName);
                                     tx.executeSql(sqlExec, [blockId], function(tx, rs) {
                                         if (rs.rows.length > 0) {
-                                            var idLst = [];
+                                            var idArr2 = [];
                                             for (var i = 0; i < rs.rows.length; i++) {
                                                 if (rs.rows.item(i).id != null) {
-                                                    idLst.push(rs.rows.item(i).id);
+                                                    idArr2.push(rs.rows.item(i).id);
                                                 }
                                             }
-                                            if (idLst.length === 0) {
-                                                idLst.push(0);
+                                            if (idArr2.length === 0) {
+                                                idArr2.push(0);
                                             }
                                             var sql = "INSERT INTO @tblName(@flds) SELECT @flds FROM Mail@tblName WHERE blockId=? AND @tblNameId IN (@idLst)";
-                                            var sqlExec = sql.replace(new RegExp("@tblName", "g"), tblName).replace(new RegExp("@flds", "g"), flds).replace(new RegExp("@idLst", "g"), idLst.join(","));
+                                            var sqlExec = sql.replace(new RegExp("@tblName", "g"), tblName).replace(new RegExp("@flds", "g"), flds).replace(new RegExp("@idLst", "g"), idArr2.join(","));
                                             tx.executeSql(sqlExec, [blockId], function(tx) {
                                                 var sql = "SELECT name, flds FROM RefType WHERE dir<0 AND parentId=?";
                                                 tx.executeSql(sql, [refTypeId], function(tx, rs){
@@ -595,7 +610,7 @@ dbTools.exchangeMailImport = function(blockId, onSuccess, onError) {
                                                     for (var i = 0; i < rs.rows.length; i++) {
                                                         var dtlName = rs.rows.item(i).name;
                                                         var dtlFlds = rs.rows.item(i).flds;
-                                                        var sqlExec = sql.replace(new RegExp("@dtlName", "g"), dtlName).replace(new RegExp("@dtlFlds", "g"), dtlFlds).replace(new RegExp("@tblName", "g"), tblName).replace(new RegExp("@idLst", "g"), idLst.join(","));
+                                                        var sqlExec = sql.replace(new RegExp("@dtlName", "g"), dtlName).replace(new RegExp("@dtlFlds", "g"), dtlFlds).replace(new RegExp("@tblName", "g"), tblName).replace(new RegExp("@idLst", "g"), idArr2.join(","));
                                                         tx.executeSql(sqlExec, [blockId]);
                                                     }
                                                 });
@@ -676,6 +691,7 @@ dbTools.exchangeFileImport = function(blockId, onSuccess, onError) {
                 function(tx, rs) {
                     for (var i = 0; i < rs.rows.length; i++) {
                         var fileSave = function(fileInId, fileName, data) {
+                            log("..exchangeFileImport.fileSave(fileInId=" + fileInId + ", fileName='" + fileName +"', data)");
                             fileHelper.fileDataWrite(data, fileHelper.folderName(), fileName,
                                 function(fileEntry) {
                                     dbTools.db.transaction(

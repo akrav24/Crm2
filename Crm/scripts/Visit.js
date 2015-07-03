@@ -34,8 +34,6 @@ function renderVisitView(tx, rs) {
         visit.timeEnd = sqlDateToDate(data[0].timeEnd);
         visit.fmtId = data[0].fmtId;
     }
-log("====visit.dateBgn=" + visit.dateBgn);
-log("====visit.custId=" + visit.custId);
     $("#visit-point-name").text(visit.name + ', ' + visit.addr);
     visitTimeCaptionSet(visit.timeBgn, visit.timeEnd);
     $("#visit-cat-name").text(settings.skuCatName);
