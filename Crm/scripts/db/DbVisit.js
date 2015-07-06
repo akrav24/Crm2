@@ -608,10 +608,13 @@ dbTools.visitAnalysisResultUpdate = function(visitId, skuId, reasonId, reasonQnt
 dbTools.visitShelfShareGet = function(visitId, skuCatId, datasetGet) {
     log("visitShelfShareGet");
     dbTools.db.transaction(function(tx) {
-        var sql = "SELECT VSC.visitId, VSC.skuCatId, VSC.shelfWidthTotal, VSC.shelfWidthOur, VSC.shelfShare"
-            + "  FROM VisitSkuCat VSC"
-            + "  WHERE VSC.visitId = ? AND VSC.skuCatId = ?";
-        tx.executeSql(sql, [visitId, skuCatId], datasetGet, dbTools.onSqlError);
+        var sql = "SELECT V.visitId, ? AS skuCatId, CHSC.shelfShare shelfShareDef, VSC.shelfWidthTotal, VSC.shelfWidthOur, VSC.shelfShare"
+            + "  FROM Visit V"
+            + "  LEFT JOIN Cust C ON V.custId = C.custId"
+            + "  LEFT JOIN ChainSkuCat CHSC ON C.chainId = CHSC.chainId AND CHSC.skuCatId = ?"
+            + "  LEFT JOIN VisitSkuCat VSC ON V.visitId = VSC.visitId AND VSC.skuCatId = ?"
+            + "  WHERE V.visitId = ?";
+        tx.executeSql(sql, [skuCatId, skuCatId, skuCatId, visitId], datasetGet, dbTools.onSqlError);
     }, dbTools.onTransError);
 }
 
@@ -949,6 +952,26 @@ dbTools.visitTaskListGet = function(dateBgn, custId, datasetGet) {
     }, dbTools.onTransError);
 }
 
+dbTools.visitTaskGet = function(visitId, taskId, datasetGet) {
+    log("visitTaskGet(" + visitId + ", " + taskId + ")");
+    dbTools.db.transaction(function(tx) {
+        var sql = "SELECT VT.taskId, VT.note"
+            + "  FROM VisitTask VT"
+            + "  WHERE VT.visitId = ? AND VT.taskId = ?";
+        tx.executeSql(sql, [visitId, taskId], datasetGet, dbTools.onSqlError);
+    }, dbTools.onTransError);
+}
+
+dbTools.visitTaskUpdate = function(visitId, taskId, note, onSuccess, onError) {
+    log("visitTaskUpdate(" + visitId + ", " + taskId + ", '" + note + "')");
+    dbTools.db.transaction(function(tx) {
+        dbTools.sqlInsertUpdate(tx, "VisitTask", ["visitId", "taskId"], ["note"], [visitId, taskId], [note], 
+            function() {if (onSuccess != undefined) {onSuccess(visitId, taskId);}},
+            onError
+        );
+    }, function(error) {if (onError != undefined) {onError("!!! SQLite transaction error, " + dbTools.errorMsg(error));}});
+}
+
 dbTools.visitSubTaskListGet = function(visitId, taskId, datasetGet) {
     log("visitSubTaskListGet(" + visitId + ", " + taskId + ")");
     dbTools.db.transaction(function(tx) {
@@ -1076,8 +1099,28 @@ dbTools.visitPlanogramAnswerUpdate = function(visitId, planogramId, questionId, 
     }, function(error) {if (onError != undefined) {onError("!!! SQLite transaction error, " + dbTools.errorMsg(error));}});
 }
 
-dbTools.visitpPhotoTagListGet = function(visitPhotoId, datasetGet) {
-    log("visitpPhotoTagListGet(" + visitPhotoId + ")");
+dbTools.visitPlanogramGet = function(visitId, planogramId, datasetGet) {
+    log("visitPlanogramGet(" + visitId + ", " + planogramId + ")");
+    dbTools.db.transaction(function(tx) {
+        var sql = "SELECT VP.planogramId, VP.note"
+            + "  FROM VisitPlanogram VP"
+            + "  WHERE VP.visitId = ? AND VP.planogramId = ?";
+        tx.executeSql(sql, [visitId, planogramId], datasetGet, dbTools.onSqlError);
+    }, dbTools.onTransError);
+}
+
+dbTools.visitPlanogramUpdate = function(visitId, planogramId, note, onSuccess, onError) {
+    log("visitPlanogramUpdate(" + visitId + ", " + planogramId + ", '" + note + "')");
+    dbTools.db.transaction(function(tx) {
+        dbTools.sqlInsertUpdate(tx, "VisitPlanogram", ["visitId", "planogramId"], ["note"], [visitId, planogramId], [note], 
+            function() {if (onSuccess != undefined) {onSuccess(visitId, planogramId);}},
+            onError
+        );
+    }, function(error) {if (onError != undefined) {onError("!!! SQLite transaction error, " + dbTools.errorMsg(error));}});
+}
+
+dbTools.visitPhotoTagListGet = function(visitPhotoId, datasetGet) {
+    log("visitPhotoTagListGet(" + visitPhotoId + ")");
     dbTools.db.transaction(function(tx) {
         var sql = "SELECT PT.photoTagId, PT.name, VPT.value"
             + "  FROM PhotoTag PT"

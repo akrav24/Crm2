@@ -32,12 +32,16 @@ function visitPlanogramPhotoGalleryShow() {
     photoGallery.addNewPhotoEnable = false;
     photoGallery.showTagEnable = false;
     photoGallery.editTagEnable = true;
+    photoGallery.showNoteEnable = true;
+    photoGallery.editNoteEnable = true;
     photoGallery.fileIdLst = [];
     dbTools.visitPlanogramListGet(visit.custId, visitPlanogramList.stageId, settings.skuCatId,
         function(tx, rs) {
             photoGallery.fileIdLst = visitPlanogramPhotoGalleryFileIdLstGet(rs);
             photoGallery.onTagListGet = visitPlanogramPhotoGalleryOnTagListGet;
             photoGallery.onTagChange = visitPlanogramPhotoGalleryOnTagChange;
+            photoGallery.onImageNoteGet = visitPlanogramPhotoGalleryOnImageNoteGet;
+            photoGallery.onImageNoteChange = visitPlanogramPhotoGalleryOnImageNoteChange;
             app.navigate("views/PhotoGallery.html");
         }
     );
@@ -66,6 +70,25 @@ function visitPlanogramPhotoGalleryOnTagListGet(fileTableName, fileId, linkId, o
 function visitPlanogramPhotoGalleryOnTagChange(fileTableName, fileId, linkId, tagId, value, onSuccess, onError) {
     dbTools.visitPlanogramAnswerUpdate(visit.visitId, linkId, tagId, value, 
         function(visitId, photoLinkId, photoTagId) {if (!!onSuccess) {onSuccess(photoTagId);}},
+        dbTools.onSqlError
+    );
+}
+
+function visitPlanogramPhotoGalleryOnImageNoteGet(fileTableName, fileId, linkId, onSuccess, onError) {
+    dbTools.visitPlanogramGet(visit.visitId, linkId, 
+        function(tx, rs) {
+            var note = "";
+            if (rs.rows.length > 0) {
+                note = rs.rows.item(0).note;
+            }
+            if (!!onSuccess) {onSuccess(note);}
+        }
+    );
+}
+
+function visitPlanogramPhotoGalleryOnImageNoteChange(fileTableName, fileId, linkId, value, onSuccess, onError) {
+    dbTools.visitPlanogramUpdate(visit.visitId, linkId, value, 
+        function(visitId, photoLinkId) {if (!!onSuccess) {onSuccess(photoLinkId);}},
         dbTools.onSqlError
     );
 }

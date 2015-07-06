@@ -31,12 +31,16 @@ function visitTaskPhotoGalleryShow() {
     photoGallery.addNewPhotoEnable = false;
     photoGallery.showTagEnable = false;
     photoGallery.editTagEnable = true;
+    photoGallery.showNoteEnable = true;
+    photoGallery.editNoteEnable = true;
     photoGallery.fileIdLst = [];
     dbTools.visitTaskListGet(visit.dateBgn, visit.custId,
         function(tx, rs) {
             photoGallery.fileIdLst = visitTaskPhotoGalleryFileIdLstGet(rs);
             photoGallery.onTagListGet = visitTaskPhotoGalleryOnTagListGet;
             photoGallery.onTagChange = visitTaskPhotoGalleryOnTagChange;
+            photoGallery.onImageNoteGet = visitTaskPhotoGalleryOnImageNoteGet;
+            photoGallery.onImageNoteChange = visitTaskPhotoGalleryOnImageNoteChange;
             app.navigate("views/PhotoGallery.html");
         }
     );
@@ -65,6 +69,25 @@ function visitTaskPhotoGalleryOnTagListGet(fileTableName, fileId, linkId, onSucc
 function visitTaskPhotoGalleryOnTagChange(fileTableName, fileId, linkId, tagId, value, onSuccess, onError) {
     dbTools.visitSubTaskDoneUpdate(visit.visitId, linkId, tagId, value, 
         function(visitId, photoLinkId, photoTagId) {if (!!onSuccess) {onSuccess(photoTagId);}},
+        dbTools.onSqlError
+    );
+}
+
+function visitTaskPhotoGalleryOnImageNoteGet(fileTableName, fileId, linkId, onSuccess, onError) {
+    dbTools.visitTaskGet(visit.visitId, linkId, 
+        function(tx, rs) {
+            var note = "";
+            if (rs.rows.length > 0) {
+                note = rs.rows.item(0).note;
+            }
+            if (!!onSuccess) {onSuccess(note);}
+        }
+    );
+}
+
+function visitTaskPhotoGalleryOnImageNoteChange(fileTableName, fileId, linkId, value, onSuccess, onError) {
+    dbTools.visitTaskUpdate(visit.visitId, linkId, value, 
+        function(visitId, photoLinkId) {if (!!onSuccess) {onSuccess(photoLinkId);}},
         dbTools.onSqlError
     );
 }

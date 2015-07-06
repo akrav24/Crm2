@@ -8,6 +8,7 @@ var photoGalleryImageViewModel = kendo.observable({
     imageStyle: function() {
         return "background-image: url(" + this.get("imageSrc") + ");"
     },
+    imageNote: "",
     tagLst: []
 });
 
@@ -238,7 +239,7 @@ function photoGalleryImageViewShow(e) {
             function(tagLst) {
                 photoGalleryImageViewModel.set("tagLst", tagLst);
                 // !!!
-                $("#gallery-tag-edit-tag-list").data("kendoMobileListView").setDataSource(photoGalleryImageViewModel.get("tagLst"));
+                $("#photo-gallery-tag-edit-tag-list").data("kendoMobileListView").setDataSource(photoGalleryImageViewModel.get("tagLst"));
                 $(".checkbox").on("ifChecked", photoGalleryImageTagEditOnCheck);
                 $(".checkbox").on("ifUnchecked", photoGalleryImageTagEditOnUncheck);
                 $(".checkbox").iCheck({
@@ -253,6 +254,16 @@ function photoGalleryImageViewShow(e) {
             function(errMsg) {log(errMsg);}
         );
     }
+    if (!!photoGallery.onImageNoteGet) {
+        photoGallery.onImageNoteGet(photoGallery.fileTableName, photoGalleryImageViewModel.get("fileId"), photoGalleryImageViewModel.get("linkId"), 
+            function(imageNote) {
+                photoGalleryImageViewModel.set("imageNote", imageNote);
+                $("#photo-gallery-image-note").text(imageNote);
+            }, 
+            function(errMsg) {log(errMsg);}
+        );
+    }
+    photoGalleryImageViewEnableControls();
 }
 
 function photoGalleryImageViewAfterShow(e) {
@@ -265,6 +276,11 @@ function photoGalleryImageViewAfterShow(e) {
     $("#photo-gallery-image-scroller .km-scroll-container").css("-webkit-transform", "translate3d(0px, 0px, 0px) scale(1)");
 }
 
+function photoGalleryImageViewEnableControls() {
+    log("..photoGalleryImageViewEnableControls()");
+    showControl("#photo-gallery-image-note-list", photoGallery.showNoteEnable);
+}
+
 function photoGalleryImageTagEditOnCheck(e) {
     if (!!photoGallery.onTagChange) {
         photoGallery.onTagChange(photoGallery.fileTableName, photoGalleryImageViewModel.get("fileId"), photoGalleryImageViewModel.get("linkId"), $(this).attr("data-tag-id"), 1);
@@ -275,6 +291,103 @@ function photoGalleryImageTagEditOnUncheck(e) {
     if (!!photoGallery.onTagChange) {
         photoGallery.onTagChange(photoGallery.fileTableName, photoGalleryImageViewModel.get("fileId"), photoGalleryImageViewModel.get("linkId"), $(this).attr("data-tag-id"), 0);
     }
+}
+
+//----------------------------------------
+// photo-gallery-image-note-edit-view
+//----------------------------------------
+
+function photoGalleryImageNoteEditInit(e) {
+    log("..photoGalleryImageNoteEditInit()");
+}
+
+function photoGalleryImageNoteEditShow(e) {
+    log("..photoGalleryImageNoteEditShow()");
+    if (!!photoGallery.onImageNoteGet) {
+        photoGallery.onImageNoteGet(photoGallery.fileTableName, photoGalleryImageViewModel.get("fileId"), photoGalleryImageViewModel.get("linkId"), 
+            function(imageNote) {
+                photoGalleryImageViewModel.set("imageNote", imageNote);
+                $("#photo-gallery-image-note-edit-note").val(imageNote);
+            }, 
+            function(errMsg) {log(errMsg);}
+        );
+    }
+    photoGalleryImageNoteEditEnableControls();
+}
+
+function photoGalleryImageNoteEditAfterShow(e) {
+    log("..photoGalleryImageNoteEditAfterShow()");
+    var imageTitle = photoGalleryImageViewModel.get("imageTitle");
+    if (imageTitle == "" || imageTitle == " ") {
+        imageTitle = photoGallery.title;
+    }
+    viewTitleSet(app.view(), imageTitle);
+}
+
+function photoGalleryImageNoteEditNavBackClick(e) {
+    log("..photoGalleryImageNoteEditNavBackClick()");
+    navigateBackTo("#photo-gallery-image-view");
+}
+
+function photoGalleryImageNoteEditEnableControls() {
+    log("..visitPromoEditEnableControls");
+    if (!visit.readonly) {
+        if (photoGallery.isImageNoteEdited) {
+            $("#photo-gallery-image-note-edit-save-button").removeClass("hidden");
+            $("#photo-gallery-image-note-edit-del-button").addClass("hidden");
+        } else {
+            if (photoGalleryImageViewModel.get("imageNote") == "") {
+                $("#photo-gallery-image-note-edit-save-button").removeClass("hidden");
+                $("#photo-gallery-image-note-edit-del-button").addClass("hidden");
+            } else {
+                $("#photo-gallery-image-note-edit-save-button").addClass("hidden");
+                $("#photo-gallery-image-note-edit-del-button").removeClass("hidden");
+            }
+        }
+    } else {
+        $("#photo-gallery-image-note-edit-save-button").addClass("hidden");
+        $("#photo-gallery-image-note-edit-del-button").addClass("hidden");
+    }
+    $(".editable").prop("readonly", visit.readonly);
+}
+
+function photoGalleryImageNoteEditSaveClick(e) {
+    log("..photoGalleryImageNoteEditSaveClick()");
+    if (!!photoGallery.onImageNoteChange) {
+        photoGallery.onImageNoteChange(photoGallery.fileTableName, photoGalleryImageViewModel.get("fileId"), photoGalleryImageViewModel.get("linkId"), photoGalleryImageViewModel.get("imageNote"),
+            function() {navigateBackTo("#photo-gallery-image-view");}
+        );
+    }
+}
+
+function photoGalleryImageNoteEditDelClick(e) {
+    log("..photoGalleryImageNoteEditDelClick()");
+    if (!!photoGallery.onImageNoteChange) {
+        photoGallery.onImageNoteChange(photoGallery.fileTableName, photoGalleryImageViewModel.get("fileId"), photoGalleryImageViewModel.get("linkId"), null,
+            function() {navigateBackTo("#photo-gallery-image-view");}
+        );
+    }
+}
+
+function photoGalleryImageNoteEditControlChange(id, value) {
+    log("..photoGalleryImageNoteEditControlChange('" + id + "', " + (value != undefined ? ("'" + value.substring(0, 10) + "...'") : "null") + ")");
+    var val = value != "" ? value : null;
+    photoGallery.isImageNoteEdited = true;
+    switch (id) {
+        case "photo-gallery-image-note-edit-note":
+            if (val == null) {
+                val = "";
+            }
+            photoGalleryImageViewModel.set("imageNote", val);
+            break;
+    }
+    photoGalleryImageNoteEditEnableControls();
+}
+
+function photoGalleryImageNoteEditControlKeyUp(sender) {
+    log("..photoGalleryImageNoteEditControlKeyUp(sender)");
+    photoGallery.isImageNoteEdited = true;
+    photoGalleryImageNoteEditEnableControls();
 }
 
 //----------------------------------------
@@ -303,9 +416,14 @@ function photoGalleryObjInit() {
     photoGallery.fileIdLst = [];
     // можно ли делать фото
     photoGallery.addNewPhotoEnable = false;
-    // 
+    // показывать список тегов
     photoGallery.showTagEnable = false;
+    // возможность редактирования тегов
     photoGallery.editTagEnable = false;
+    // показывать примечание
+    photoGallery.showNoteEnable = false;
+    // возможность редактирования примечания
+    photoGallery.editNoteEnable = false;
     
     // events
     //
@@ -317,8 +435,12 @@ function photoGalleryObjInit() {
     photoGallery.onExit = undefined;
     // событие возникающее при получении списка тегов - photoGallery.onTagListGet(fileTableName, fileId, linkId, onSuccess, onError), onSuccess = function(tagLst), tagLst = [{id, name, value}, ...], onError = function(errMsg)
     photoGallery.onTagListGet = undefined;
-    // событие возникающее после добавления изменения значения тега - photoGallery.onTagChange(fileTableName, fileId, linkId, tagId, value, onSuccess, onError)
+    // событие возникающее после изменения значения тега - photoGallery.onTagChange(fileTableName, fileId, linkId, tagId, value, onSuccess, onError)
     photoGallery.onTagChange = undefined;
+    // событие возникающее при получении примечания - photoGallery.onImageNoteGet(fileTableName, fileId, linkId, onSuccess, onError), onSuccess = function(imageNote), onError = function(errMsg)
+    photoGallery.onImageNoteGet = undefined;
+    // событие возникающее после изменения значения примечания - photoGallery.onImageNoteChange(fileTableName, fileId, linkId, value, onSuccess, onError)
+    photoGallery.onImageNoteChange = undefined;
     
     // private var's
     //
@@ -328,6 +450,8 @@ function photoGalleryObjInit() {
     photoGallery.isNotDataReload = false;
     // photoGallery.data = [{fileId, fileName, fileLocalPath, title, linkId}, ...]
     photoGallery.data = [];
+    // признак: примечание изменено пользователем
+    photoGallery.isImageNoteEdited = false;
     
 }
 

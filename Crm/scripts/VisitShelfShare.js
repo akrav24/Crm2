@@ -31,6 +31,7 @@ function renderVisitShelfShareEdit(visitId, skuCatId) {
 function renderVisitShelfShareEditView(tx, rs) {
     log("..renderVisitShelfShareEditView");
     if (rs.rows.length > 0) {
+        visitShelfShareItem.shelfShareDef = rs.rows.item(0).shelfShareDef;
         visitShelfShareItem.shelfShare = rs.rows.item(0).shelfShare;
         visitShelfShareItem.shelfWidthTotal = rs.rows.item(0).shelfWidthTotal;
         visitShelfShareItem.shelfWidthOur = rs.rows.item(0).shelfWidthOur;
@@ -45,6 +46,11 @@ function renderVisitShelfShareEditView(tx, rs) {
 
 function visitShelfShareEditFillControls() {
     //$("#visit-shelf-share-edit-name").val(settings.skuCatName);
+    if (visitShelfShareItem.shelfShareDef != null) {
+        $("#visit-shelf-share-edit-shelf-share-def").val(Math.round(visitShelfShareItem.shelfShareDef * 100));
+    } else {
+        $("#visit-shelf-share-edit-shelf-share-def").val(visitShelfShareItem.shelfShareDef);
+    }
     if (visitShelfShareItem.shelfShare != null) {
         $("#visit-shelf-share-edit-shelf-share").val(Math.round(visitShelfShareItem.shelfShare * 100));
     } else {
@@ -55,6 +61,7 @@ function visitShelfShareEditFillControls() {
 }
 
 function visitShelfShareItemClear() {
+    visitShelfShareItem.shelfShareDef = null;
     visitShelfShareItem.shelfShare = null;
     visitShelfShareItem.shelfWidthTotal = null;
     visitShelfShareItem.shelfWidthOur = null;

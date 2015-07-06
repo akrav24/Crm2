@@ -69,11 +69,21 @@
                 <img class="gallery-tag-edit-image" data-bind="attr: {src: imageSrc}">
             </div>
             <div data-role="scroller" class="gallery-tag-edit-tag-list-flex-box">
-                <ul data-role="listview" id="gallery-tag-edit-tag-list" class="list" data-bind="source: tagLst" data-template="gallery-tag-edit-tag-list-tmpl"></ul>
+                <ul data-role="listview" id="photo-gallery-tag-edit-tag-list" class="list" data-bind="source: tagLst" data-template="photo-gallery-tag-edit-tag-list-tmpl"></ul>
+                <ul data-role="listview" id="photo-gallery-image-note-list" class="list list-item-header" style="margin-top: 2px;">
+                    <li>
+                        <a class="list-item-header" href="#photo-gallery-image-note-edit-view">
+                            <p>
+                                <div>Примечание</div>
+                                <div id="photo-gallery-image-note" class="list-item-comment"></div>
+                            </p>
+                        </a>
+                    </li>
+                </ul>
             </div>
         </div>
         
-        <script id="gallery-tag-edit-tag-list-tmpl" type="text/x-kendo-template">
+        <script id="photo-gallery-tag-edit-tag-list-tmpl" type="text/x-kendo-template">
             <div class="list-item-header">
                 <p>
                     <table  width="100%">
@@ -88,5 +98,36 @@
             </div>
         </script>
     </div>
+    
+    <div id="photo-gallery-image-note-edit-view"
+        data-role="view" 
+        data-title="Фотогалерея" 
+        data-layout="main" 
+        data-model="photoGalleryImageViewModel"
+        data-init="photoGalleryImageNoteEditInit"
+        data-show="photoGalleryImageNoteEditShow"
+        data-after-show="photoGalleryImageNoteEditAfterShow">
+        
+        <header data-role="header">
+            <div data-role="navbar">
+                <a class="nav-button" data-align="left" data-role="button" data-icon="back" data-click="photoGalleryImageNoteEditNavBackClick"></a>
+                <span data-role="view-title"></span>
+                <a id="photo-gallery-image-note-edit-save-button" class="nav-button hidden" data-align="right" data-role="button" data-click="photoGalleryImageNoteEditSaveClick">Сохранить</a>
+                <a id="photo-gallery-image-note-edit-del-button" class="nav-button hidden" data-align="right" data-role="button" data-click="photoGalleryImageNoteEditDelClick">Удалить</a>
+            </div>
+        </header>
+        
+        <!--<form>-->
+            <ul class="list form-list" data-role="listview">
+                <li>
+                    <label>Примечание
+                        <input id="photo-gallery-image-note-edit-note" class="editable" type="text" data-bind="attr: {value: imageNote}" onchange="photoGalleryImageNoteEditControlChange(this.id, this.value)" onkeyup="photoGalleryImageNoteEditControlKeyUp(this)"/>
+                        <!--<textarea id="photo-gallery-image-note-edit-note" class="editable" rows="3" data-bind="text: imageNote" onchange="photoGalleryImageNoteEditControlChange(this.id, this.value)" onkeyup="photoGalleryImageNoteEditControlKeyUp(this)"></textarea>-->
+                    </label>
+                </li>
+            </ul>
+        <!--</form>-->
+    </div>
+    
 </body>
 </html>

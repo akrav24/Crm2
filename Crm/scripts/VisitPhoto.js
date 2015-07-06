@@ -59,7 +59,7 @@ function visitPhotoPhotoGalleryPhotoAdd(fileTableName, fileId, fileName, onSucce
 }
 
 function visitPhotoPhotoGalleryOnTagListGet(fileTableName, fileId, linkId, onSuccess, onError) {
-    dbTools.visitpPhotoTagListGet(linkId, 
+    dbTools.visitPhotoTagListGet(linkId, 
         function(tx, rs) {
             var tagLst = [];
             for (var i = 0; i < rs.rows.length; i++) {

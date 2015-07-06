@@ -174,7 +174,7 @@ dbTools.tableUpdateDateFieldExists = function(tableName) {
     return 
         !inArray(
             ["parm", "visitpromo", "visitsku", "visitskucat", "visitpromophoto", "visitsurveyanswer", "visittask", "visitskuprice", 
-                "visitphoto", "visitplanogramanswer", "visitphototag", "visitsubtask"
+                "visitphoto", "visitplanogramanswer", "visitphototag", "visitsubtask", "visitplanogram"
             ], tableName.toLowerCase());
 }
 

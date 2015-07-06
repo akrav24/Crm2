@@ -91,6 +91,7 @@ body {
 }
 .km-root .km-pane .km-view .form-list label>input:not([type = checkbox]),
 .km-root .km-pane .form-list label>input:not([type = checkbox]),
+.km-root .km-pane .form-list label>textarea,
 .km-root .km-pane .km-view .form-list label .k-dropdown {
     position: relative;
     width: 100%;
