@@ -78,13 +78,13 @@ var app;
 
 }());
 
-function nodeIdSet(newNodeId) {
+function nodeIdSet(newNodeId, onSuccess, onError) {
     log("nodeIdSet(newNodeId=" + newNodeId + ")");
     //if (newNodeId != settings.nodeId) {
         settingsObjInit();
         settings.nodeId = newNodeId;
         dbTools.dropAllTables();
-        dbTools.createSystemTables();
+        dbTools.createSystemTables(onSuccess);
         log("nodeIdSet done");
     //}
 }

@@ -53,7 +53,17 @@ function settingsNodeIdEditSave(e) {
                 var msg = "Вы действительно намерены изменить код узла? После изменениия кода узла база данных приложения будет очищена.";
                 dialogHelper.confirm(/*"#settings-node-id-edit-dialog", */false, msg,
                     function() {
-                        nodeIdSet(newNodeId);
+                        kendo.ui.progress($("#settings-node-id-edit-view"), true);
+                        nodeIdSet(newNodeId,
+                            function() {
+                                log("..settingsNodeIdEditSave: nodeId change done");
+                                kendo.ui.progress($("#settings-node-id-edit-view"), false);
+                                renderSettings();
+                                settingsModalViewClose("#settings-node-id-edit-view");
+                            }
+                        );
+                    },
+                    function() {
                         renderSettings();
                         settingsModalViewClose("#settings-node-id-edit-view");
                     }

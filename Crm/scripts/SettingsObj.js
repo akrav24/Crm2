@@ -10,7 +10,7 @@ function settingsObjInit(onSuccess) {
     settings = {};
     
     // версия приложения
-    settings.appVersion = 1026;
+    settings.appVersion = 1027;
     
     // признак выполнения приложения в симуляторе
     settings.simulator = (window.navigator.simulator === true);
@@ -29,6 +29,7 @@ function settingsObjInit(onSuccess) {
     // максимальное количество записей для вставки в таблицу SQLite в рамках отдельной транзакции
     // если количество слишком малое (< 100) или слишком большое (> 50000), то происходит резкое замедление операции вставки
     settings.bulkRecordCount = 2000;
+    settings.fileBulkRecordCount = 10;
     
     // даты последнего обмена информацией с сервером
     settings.exchange = {};

@@ -323,7 +323,7 @@ dbTools.exchangeMailExportLocalData = function(blockId, onSuccess, onError) {
     );
 }
 
-dbTools.exchangeMailBlockDataIn = function(blockId, onSuccess, onError) {
+/*dbTools.exchangeMailBlockDataIn = function(blockId, onSuccess, onError) {
     log("exchangeMailBlockDataIn(blockId=" + blockId + ")");
     
     dbTools.exchangeDataGet(blockId, 
@@ -359,6 +359,69 @@ dbTools.exchangeMailBlockDataIn = function(blockId, onSuccess, onError) {
         onError
     );
 }
+*/
+dbTools.exchangeMailBlockDataIn = function(blockId, onSuccess, onError) {
+    log("exchangeMailBlockDataIn(blockId=" + blockId + ")");
+    
+    dbTools.exchangeDataGet(blockId, 
+        function(blockId, data) {
+            log("..exchangeMailBlockDataIn: insert into MailBlockDataIn begin");
+            
+            var bulkRecordCountGet = function(data) {
+                var result = settings.bulkRecordCount;
+                if (data.toLowerCase().substring(0, 5) == "@file") {
+                    result = settings.fileBulkRecordCount;
+                }
+                return result;
+            }
+            
+            var bulkInsert = function(blockId, data, begIndex, bulkCnt, onSuccess, onError) {
+                var endIndex = begIndex + bulkCnt < data.length ? begIndex + bulkCnt : data.length;
+                log("......bulkInsert begIndex=" + begIndex + ", endIndex=" + endIndex);
+                if (begIndex < endIndex) {
+                    dbTools.db.transaction(
+                        function(tx) {
+                            for (var i = begIndex; i < endIndex; i++) {
+                                if (i > begIndex && data[i].data != null && data[i].data.substring(0, 1) == "@") {
+                                    endIndex = i;
+                                } else {
+                                    tx.executeSql("INSERT INTO MailBlockDataIn (blockId, irow, data) VALUES(?, ?, ?)", [data[i].blockId, data[i].irow, data[i].data]);
+                                }
+                            }
+                        },
+                        function(error) {
+                            log("..exchangeMailBlockDataIn bulkInsert ERROR, begIndex=" + begIndex + ", endIndex=" + endIndex + ", error=" + dbTools.errorMsg(error)); 
+                            if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error));}
+                        },
+                        function() {
+                            log("......bulkInsert: transaction commited, begIndex=" + begIndex + ", endIndex=" + endIndex); 
+                            if ((endIndex >= data.length) || (data[endIndex].data != null && data[endIndex].data.substring(0, 1) == "@")) {
+                                blockInsert(blockId, data, endIndex, onSuccess, onError);
+                            } else {
+                                bulkInsert(blockId, data, endIndex, bulkCnt, onSuccess, onError);
+                            }
+                        }
+                    );
+                } else {
+                    blockInsert(blockId, data, begIndex, onSuccess, onError);
+                }
+            }
+            
+            var blockInsert = function(blockId, data, begIndex, onSuccess, onError) {
+                log("....blockInsert begIndex=" + begIndex + ", data[" + begIndex +"].data=" + (begIndex < data.length ? (data[begIndex].data != null ? "'" + data[begIndex].data.substring(0, 10) + "...'" : "null") : "<<End of data>>"));
+                if (begIndex < data.length) {
+                    var bulkCnt = bulkRecordCountGet(data[begIndex].data);
+                    bulkInsert(blockId, data, begIndex, bulkCnt, onSuccess, onError);
+                } else {
+                    if (onSuccess != undefined) {onSuccess(blockId);}
+                }
+            }
+            
+            blockInsert(blockId, data, 0, onSuccess, onError);
+        },
+        onError
+    );
+}
 
 dbTools.exchangeMailBlockDataInProc = function(blockId, onSuccess, onError, onProgress) {
     log("exchangeMailBlockDataInProc(blockId=" + blockId + ")");
@@ -366,7 +429,12 @@ dbTools.exchangeMailBlockDataInProc = function(blockId, onSuccess, onError, onPr
     
     dbTools.exchangeMailBlockDataInProcScriptExec(blockId,
         function(blockId) {
-            dbTools.exchangeMailBlockDataInProcMailAdd(blockId, onSuccess, onError);
+            dbTools.exchangeMailBlockDataInProcMailAdd(blockId, 
+                function(blockId) {
+                    dbTools.exchangeMailBlockDataInProcMailFileInAdd(blockId, onSuccess, onError);
+                }, 
+                onError
+            );
         },
         onError
     );
@@ -443,7 +511,7 @@ dbTools.exchangeMailBlockDataInProcScriptExec = function(blockId, onSuccess, onE
     );
 }
 
-dbTools.exchangeMailBlockDataInProcMailAdd = function(blockId, onSuccess, onError) {
+/*dbTools.exchangeMailBlockDataInProcMailAdd = function(blockId, onSuccess, onError) {
     log("exchangeMailBlockDataInProcMailAdd(blockId=" + blockId + ")");
     
     var rsIn = {};
@@ -468,9 +536,6 @@ dbTools.exchangeMailBlockDataInProcMailAdd = function(blockId, onSuccess, onErro
                             for (var i = begIndex; i < endIndex; i++) {
                                 var data = rs.rows.item(i)["data"];
                                 var j;
-                                // TODO: На Lenovo A5500-F при получении из таблицы MailBlockDataIn записей FileIn у каждой второй записи данные = null
-                                // TODO: На симуляторе все Ок
-                                // TODO: Проверить на Samsung
                                 if (data != null) {
                                     if (data.charAt(0) === "@") {
                                         j = data.indexOf(":");
@@ -501,6 +566,194 @@ dbTools.exchangeMailBlockDataInProcMailAdd = function(blockId, onSuccess, onErro
             }
             
             bulkInsert(blockId, rsIn, 0, settings.bulkRecordCount, "", onSuccess, onError);
+        }
+    );
+}
+*/
+dbTools.exchangeMailBlockDataInProcMailAdd = function(blockId, onSuccess, onError) {
+    log("exchangeMailBlockDataInProcMailAdd(blockId=" + blockId + ")");
+    
+    var rsIn = {};
+    dbTools.db.transaction(
+        function(tx) {
+           var sql = "SELECT A.data FROM MailBlockDataIn A"
+                + "  CROSS JOIN (SELECT MIN(irow) AS irow FROM MailBlockDataIn WHERE blockId = ? AND data LIKE '@Script%') SB "
+                + "  CROSS JOIN (SELECT MIN(irow) AS irow FROM MailBlockDataIn WHERE blockId = ? AND data LIKE '@%' AND data NOT LIKE '@Script%' AND irow > (SELECT MIN(irow) AS irow FROM MailBlockDataIn WHERE blockId = ? AND data LIKE '@Script%')) SE "
+                + "  CROSS JOIN (SELECT MIN(irow) AS irow FROM MailBlockDataIn WHERE blockId = ? AND data LIKE '@FileIn%') FIB "
+                + "  CROSS JOIN (SELECT MIN(irow) AS irow FROM MailBlockDataIn WHERE blockId = ? AND data LIKE '@%' AND data NOT LIKE '@FileIn%' AND irow > (SELECT MIN(irow) AS irow FROM MailBlockDataIn WHERE blockId = ? AND data LIKE '@FileIn%')) FIE "
+                + "  WHERE A.blockId = ? AND (SB.irow IS NULL OR A.irow < SB.irow OR A.irow >= SE.irow) AND (FIB.irow IS NULL OR A.irow < FIB.irow OR A.irow >= FIE.irow) ORDER BY A.irow ";
+            tx.executeSql(sql, [blockId, blockId, blockId, blockId, blockId, blockId, blockId], function(tx, rs) {
+                rsIn = rs;
+            });
+        },
+        function(error) {if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error));}},
+        function() {
+            var bulkInsert = function(blockId, rs, begIndex, bulkCnt, sql, onSuccess, onError) {
+                var endIndex = begIndex + bulkCnt < rs.rows.length ? begIndex + bulkCnt : rs.rows.length;
+                log("....bulkInsert begIndex=" + begIndex + ", endIndex=" + endIndex);
+                if (begIndex < endIndex) {
+                    dbTools.db.transaction(
+                        function(tx) {
+                            for (var i = begIndex; i < endIndex; i++) {
+                                var data = rs.rows.item(i)["data"];
+                                var j;
+                                if (data != null) {
+                                    if (data.charAt(0) === "@") {
+                                        j = data.indexOf(":");
+                                        var tblName = data.substring(1, j);
+                                        var tblFlds = data.substring(j + 1);
+                                        sql = "INSERT INTO Mail" + tblName + "(blockId," + tblFlds + ") VALUES(@1, @2)";
+                                    } else {
+                                        tx.executeSql(sql.replace("@1", blockId).replace("@2", data), []);
+                                    }
+                                } else {
+                                    log("......data is null! i=" + i);
+                                }
+                                
+                            }
+                        },
+                        function(error) {
+                            log("..exchangeMailBlockDataInProcMailAdd ERROR, begIndex=" + begIndex + ", endIndex=" + endIndex + ", error=" + dbTools.errorMsg(error)); 
+                            if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error));}
+                        },
+                        function() {
+                            log("..exchangeMailBlockDataInProcMailAdd bulkInsert: transaction commited, begIndex=" + begIndex + ", endIndex=" + endIndex); 
+                            bulkInsert(blockId, rs, endIndex, bulkCnt, sql, onSuccess, onError);
+                        }
+                    );
+                } else {
+                    if (onSuccess != undefined) {onSuccess(blockId);}
+                }
+            }
+            
+            bulkInsert(blockId, rsIn, 0, settings.bulkRecordCount, "", onSuccess, onError);
+        }
+    );
+}
+
+/*dbTools.exchangeMailBlockDataInProcMailFileInAdd = function(blockId, onSuccess, onError) {
+    log("exchangeMailBlockDataInProcMailFileInAdd(blockId=" + blockId + ")");
+    
+    var rsIn = {};
+    dbTools.db.transaction(
+        function(tx) {
+           var sql = "SELECT A.data FROM MailBlockDataIn A"
+                + "  CROSS JOIN (SELECT MIN(irow) AS irow FROM MailBlockDataIn WHERE blockId = ? AND data LIKE '@FileIn%') FIB "
+                + "  CROSS JOIN (SELECT MIN(irow) AS irow FROM MailBlockDataIn WHERE blockId = ? AND data LIKE '@%' AND data NOT LIKE '@FileIn%' AND irow > (SELECT MIN(irow) AS irow FROM MailBlockDataIn WHERE blockId = ? AND data LIKE '@FileIn%')) FIE "
+                + "  WHERE A.blockId = ? AND (A.irow >= FIB.irow AND A.irow < FIE.irow) ORDER BY A.irow ";
+            tx.executeSql(sql, [blockId, blockId, blockId, blockId], function(tx, rs) {
+                rsIn = rs;
+            });
+        },
+        function(error) {log("====F2");if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error));}},
+        function() {
+            var bulkInsert = function(blockId, rs, begIndex, bulkCnt, sql, onSuccess, onError) {
+                var endIndex = begIndex + bulkCnt < rs.rows.length ? begIndex + bulkCnt : rs.rows.length;
+                log("....bulkInsert begIndex=" + begIndex + ", endIndex=" + endIndex);
+                if (begIndex < endIndex) {
+                    dbTools.db.transaction(
+                        function(tx) {
+                            for (var i = begIndex; i < endIndex; i++) {
+                                var data = rs.rows.item(i)["data"];
+                                var j;
+                                if (data != null) {
+                                    if (data.charAt(0) === "@") {
+                                        j = data.indexOf(":");
+                                        var tblName = data.substring(1, j);
+                                        var tblFlds = data.substring(j + 1);
+                                        sql = "INSERT INTO Mail" + tblName + "(blockId," + tblFlds + ") VALUES(@1, @2)";
+                                    } else {
+                                        tx.executeSql(sql.replace("@1", blockId).replace("@2", data), []);
+                                    }
+                                } else {
+                                    log("......data is null! i=" + i);
+                                }
+                                
+                            }
+                        },
+                        function(error) {
+                            log("..exchangeMailBlockDataInProcMailFileInAdd ERROR, begIndex=" + begIndex + ", endIndex=" + endIndex + ", error=" + dbTools.errorMsg(error)); 
+                            if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error));}
+                        },
+                        function() {
+                            log("..exchangeMailBlockDataInProcMailFileInAdd bulkInsert: transaction commited, begIndex=" + begIndex + ", endIndex=" + endIndex); 
+                            bulkInsert(blockId, rs, endIndex, bulkCnt, sql, onSuccess, onError);
+                        }
+                    );
+                } else {
+                    if (onSuccess != undefined) {onSuccess(blockId);}
+                }
+            }
+            
+            bulkInsert(blockId, rsIn, 0, settings.fileBulkRecordCount, "", onSuccess, onError);
+        }
+    );
+}
+*/
+dbTools.exchangeMailBlockDataInProcMailFileInAdd = function(blockId, onSuccess, onError) {
+    log("exchangeMailBlockDataInProcMailFileInAdd(blockId=" + blockId + ")");
+    
+    var fileBegIndex = 0;
+    var fileEndIndex = 0;
+    dbTools.db.transaction(
+        function(tx) {
+           var sql = "SELECT "
+                + "  (SELECT MIN(irow) AS irow FROM MailBlockDataIn WHERE blockId = ? AND data LIKE '@FileIn%') AS begIRow,"
+                + "  (SELECT MIN(irow) AS irow FROM MailBlockDataIn WHERE blockId = ? AND data LIKE '@%' AND data NOT LIKE '@FileIn%' AND irow > (SELECT MIN(irow) AS irow FROM MailBlockDataIn WHERE blockId = ? AND data LIKE '@FileIn%')) AS endIRow";
+            tx.executeSql(sql, [blockId, blockId, blockId], function(tx, rs) {
+                if (rs.rows.length > 0) {
+                    fileBegIndex = rs.rows.item(0).begIRow;
+                    fileEndIndex = rs.rows.item(0).endIRow;
+                }
+            });
+        },
+        function(error) {if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error));}},
+        function() {
+            var sqlIns = "";
+            if (fileBegIndex < fileEndIndex) {
+                dbTools.db.transaction(
+                    function(tx) {
+                       var sql = "SELECT A.data FROM MailBlockDataIn A"
+                            + "  WHERE A.blockId = ? AND (A.irow = ?)";
+                        tx.executeSql(sql, [blockId, fileBegIndex], function(tx, rs) {
+                            var j = rs.rows.item(0).data.indexOf(":");
+                            var tblName = rs.rows.item(0).data.substring(1, j);
+                            var tblFlds = rs.rows.item(0).data.substring(j + 1);
+                            sqlIns = "INSERT INTO Mail" + tblName + "(blockId," + tblFlds + ") VALUES(@1, @2)";
+                        });
+                    },
+                    function(error) {if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error));}},
+                    function() {
+                        if (fileBegIndex + 1 < fileEndIndex) {
+                            for (i = fileBegIndex + 1; i < fileEndIndex; i++) {
+                                var fileInsert = function(blockId, index) {
+                                    log("....fileInsert irow=" + index);
+                                    dbTools.db.transaction(
+                                        function(tx) {
+                                           var sql = "SELECT A.data FROM MailBlockDataIn A"
+                                                + "  WHERE A.blockId = ? AND (A.irow = ?)";
+                                            tx.executeSql(sql, [blockId, index], function(tx, rs) {
+                                                tx.executeSql(sqlIns.replace("@1", blockId).replace("@2", rs.rows.item(0).data), []);
+                                            });
+                                        },
+                                        function(error) {if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error));}},
+                                        function() {
+                                            if (index == fileEndIndex - 1) {
+                                                if (onSuccess != undefined) {onSuccess(blockId);}
+                                            }
+                                        }
+                                    );
+                                }
+                                fileInsert(blockId, i);
+                            }
+                        } else {
+                            if (onSuccess != undefined) {onSuccess(blockId);}
+                        }
+                    }
+                );
+            } else {
+                if (onSuccess != undefined) {onSuccess(blockId);}
+            }
         }
     );
 }
@@ -550,6 +803,7 @@ dbTools.exchangeMailImport = function(blockId, onSuccess, onError) {
                                 var flds = rs.rows.item(i)["flds"];
                                 
                                 var tableUpdate = function(tblName, refTypeId, flds) {
+                                    log("....tableUpdate('" + tblName + "', " + refTypeId + ", '" + flds + "')");
                                     //var sql = "SELECT group_concat(@tblNameId) AS idLst FROM @tblName WHERE EXISTS(SELECT 1 FROM Mail@tblName B WHERE B.@tblNameId=@tblName.@tblNameId AND B.blockId=? /*AND B.updateDate>@tblName.updateDate*/)";
                                     var sql = "SELECT @tblNameId AS id FROM"
                                         + "  (SELECT @tblNameId FROM @tblName WHERE EXISTS(SELECT 1 FROM Mail@tblName B WHERE B.@tblNameId=@tblName.@tblNameId AND B.blockId=? /*AND B.updateDate>@tblName.updateDate*/)"
@@ -626,7 +880,7 @@ dbTools.exchangeMailImport = function(blockId, onSuccess, onError) {
                 });
             });
         },
-        function(error) {if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error));}},
+        function(error) {log("exchangeMailImport ERROR"); if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error));}},
         function() {if (onSuccess != undefined) {onSuccess(blockId);}}
     );
 }
@@ -683,7 +937,7 @@ dbTools.getAllImages = function(blockId, onSuccess, onError) {
     );
 }
 
-dbTools.exchangeFileImport = function(blockId, onSuccess, onError) {
+/*dbTools.exchangeFileImport = function(blockId, onSuccess, onError) {
     log("exchangeFileImport(" + blockId + ")");
     dbTools.db.transaction(
         function(tx) {
@@ -712,6 +966,52 @@ dbTools.exchangeFileImport = function(blockId, onSuccess, onError) {
             );
         }, 
         function(error) {if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error))}}
+    );
+}
+*/
+dbTools.exchangeFileImport = function(blockId, onSuccess, onError) {
+    log("exchangeFileImport(" + blockId + ")");
+    var rsIn = {};
+    dbTools.db.transaction(
+        function(tx) {
+            tx.executeSql("SELECT fileInId, fileName FROM FileIn WHERE data IS NOT NULL", [], 
+                function(tx, rs) {
+                    rsIn = rs;
+                },
+                function(error) {log("!!! SQLite error: " + dbTools.errorMsg(error));}
+            );
+        }, 
+        function(error) {if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error))}},
+        function() {
+            for (var i = 0; i < rsIn.rows.length; i++) {
+                var fileSave = function(fileInId, fileName) {
+                    log("..exchangeFileImport.fileSave(fileInId=" + fileInId + ", fileName='" + fileName +"')");
+                    dbTools.db.transaction(
+                        function(tx) {
+                            tx.executeSql("SELECT data FROM FileIn WHERE fileInId = ?", [fileInId], 
+                                function(tx, rs) {
+                                    var data = rs.rows.item(0).data;
+                                    fileHelper.fileDataWrite(data, fileHelper.folderName(), fileName,
+                                        function(fileEntry) {
+                                            dbTools.db.transaction(
+                                                function(tx) {
+                                                    tx.executeSql("UPDATE FileIn SET data = NULL WHERE fileInId = ?", [fileInId]);
+                                                }, 
+                                                function(error) {if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error))}}
+                                            );
+                                        },
+                                        function(errMsg) {if (onError != undefined) {onError(errMsg)}}
+                                    );
+                                }
+                            );
+                        },
+                        function(error) {if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error))}}
+                    );
+                }
+                fileSave(rsIn.rows.item(i).fileInId, rsIn.rows.item(i).fileName);
+            }
+            if (onSuccess != undefined) {onSuccess()}
+        }
     );
 }
 

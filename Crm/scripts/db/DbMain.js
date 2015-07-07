@@ -393,6 +393,7 @@ dbTools.objectListItemSet = function(name, needReloadData, callback) {
 }
 
 dbTools.dropAllTables = function() {
+    log("dropAllTables()");
     dbTools.db.transaction(function(tx) {
         tx.executeSql("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'android%' AND name NOT LIKE '%WebKit%'", [], function(tx, rs) {
             for (var i = 0; i < rs.rows.length; i++) {
