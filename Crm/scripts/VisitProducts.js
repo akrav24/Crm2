@@ -116,6 +116,15 @@ function visitProductsNavBackClick(e) {
     navigateBack(visitProducts.navBackCount);
 }
 
+function visitProductsListClick(e) {
+    log("..visitProductsListClick");
+    var skuId = e.dataItem.skuId;
+    var checkbox = $(".checkbox[data-sku-id='" + skuId + "']");
+    /*if ($(".checkbox[data-sku-id='" + skuId + "']").size() === 1) {
+        checkbox.iCheck('toggle');
+    }*/
+}
+
 function visitProductsCheckAllClick(e) {
     log("..visitProductsCheckAllClick");
     dialogHelper.confirm(/*"#visit-products-dialog", */false, "Вы действительно намерены отметить все продукты?",
@@ -184,6 +193,14 @@ function visitProductEditOnCheck(e) {
 function visitProductEditOnUncheck(e) {
     dbTools.visitProductSelUpdate(visit.visitId, $(this).attr("data-sku-id"), visitProducts.stageId, 0, undefined, dbTools.onSqlError);
     dbTools.objectListItemSet("visit-list", true);
+}
+
+function visitProductsListItemClick(skuId) {
+    log("visitProductsListItemClick(" + skuId + ")");
+    var checkbox = $(".checkbox[data-sku-id='" + skuId + "']");
+    if ($(".checkbox[data-sku-id='" + skuId + "']").size() === 1) {
+        checkbox.iCheck("toggle");
+    }
 }
 
 function visitProductSave() {

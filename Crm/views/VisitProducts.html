@@ -33,7 +33,7 @@
             </ul>
             
             <script id="visit-products-list-tmpl" type="text/x-kendo-template">
-                <div class="list-item-header">
+                <div class="list-item-header" onclick="visitProductsListItemClick(#:skuId#)">
                     <p>
                         <table  width="100%">
                             <tr class="table-text-align#if (!!isNew) {# color-selected#}#">

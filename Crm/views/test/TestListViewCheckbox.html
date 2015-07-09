@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <div
+        data-role="view" 
+        data-title="Test Listview Checkbox" 
+        data-layout="main" 
+        data-show="testShow">
+        
+        <header data-role="header">
+            <div data-role="navbar">
+                <a class="nav-button" data-align="left" data-role="button" data-icon="back" href="#"></a>
+                <span data-role="view-title"></span>
+            </div>
+        </header>
+        
+        <form>
+            <ul data-role="listview" class="list">
+                <li class="list-item-header">
+                    <p>
+                        <label>Check 01
+                            <input type="checkbox" checked="checked"/>
+                        </label>
+                    </p>
+                </li>
+                <li class="list-item-header">
+                    <p>
+                        <label>Check 02
+                            <input type="checkbox" checked="checked"/>
+                        </label>
+                    </p>
+                </li>
+            </ul>
+            <ul data-role="listview" id="test-list" class="list" data-template="test-list-tmpl">
+            </ul>
+            
+            <script id="test-list-tmpl" type="text/x-kendo-template">
+                <div class="list-item-header">
+                    <p>
+                        <label>#:name#
+                            <input type="checkbox" #if (checked) {#checked="checked"#}# #if (disabled) {#disabled="disabled"#}#/>
+                        </label>
+                    </p>
+                </div>
+            </script>
+        </form>
+    </div>
+    
+    <script>
+        function testShow(e) {
+            var data = [
+                {name: "Check 1", checked: false, disabled: false},
+                {name: "Check 2", checked: true, disabled: false},
+                {name: "Check 3", checked: true, disabled: false},
+                {name: "Check 4", checked: true, disabled: true},
+                {name: "Check 5", checked: true, disabled: true},
+                {name: "Check 6", checked: false, disabled: true}
+            ];
+            var dataSource = new kendo.data.DataSource({data: data});
+            $("#test-list").data("kendoMobileListView").setDataSource(dataSource);
+        }
+        
+    </script>
+    
+</body>
+</html>

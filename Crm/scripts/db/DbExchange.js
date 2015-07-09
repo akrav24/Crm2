@@ -645,7 +645,7 @@ dbTools.exchangeMailBlockDataInProcMailAdd = function(blockId, onSuccess, onErro
                 rsIn = rs;
             });
         },
-        function(error) {log("====F2");if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error));}},
+        function(error) {if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error));}},
         function() {
             var bulkInsert = function(blockId, rs, begIndex, bulkCnt, sql, onSuccess, onError) {
                 var endIndex = begIndex + bulkCnt < rs.rows.length ? begIndex + bulkCnt : rs.rows.length;

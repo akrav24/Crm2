@@ -445,11 +445,11 @@ dbTools.visitActivityGet = function(visitPlanItemId, visitId, skuCatId, custId, 
                 + "      INNER JOIN Activity A ON VSA.activityId = A.activityId"
                 + "      WHERE VSA.visitSchemaId = 0";
         }
-        actSql += " UNION ALL"
+        /*actSql += " UNION ALL"
             + "     SELECT 1 AS stageId, 0 AS activityId, 'Первичный анализ' AS name, 0 AS mode, 0 AS blk, 0 AS lvl"
             + "     UNION ALL"
-            + "     SELECT 2 AS stageId, 0 AS activityId, 'Основной анализ' AS name, 0 AS mode, 0 AS blk, 0 AS lvl";
-        sql = "SELECT A.stageId, A.activityId, A.name, A.mode, A.blk, COUNT(AC.skuCatId) AS skuCatCnt"
+            + "     SELECT 2 AS stageId, 0 AS activityId, 'Основной анализ' AS name, 0 AS mode, 0 AS blk, 0 AS lvl";*/
+        sql = "SELECT A.stageId, A.activityId, A.name, MAX(A.mode) AS mode, A.blk, COUNT(AC.skuCatId) AS skuCatCnt"
             + "  FROM"
             + "    (" + actSql
             + "   ) A"
@@ -472,7 +472,7 @@ dbTools.visitActivityGet = function(visitPlanItemId, visitId, skuCatId, custId, 
             + "    SELECT 2 AS stageId, 1 AS activityId, S.skuCatId"
             + "      FROM VisitSku VS"
             + "      INNER JOIN Sku S ON VS.skuId = S.skuId"
-            + "      WHERE VS.visitId = @visitId AND VS.sel <> IFNULL(VS.sel0, 0)"
+            + "      WHERE VS.visitId = @visitId /*AND VS.sel <> IFNULL(VS.sel0, 0)*/"
             + "      GROUP BY S.skuCatId"
             + "    UNION ALL"
             + "    SELECT 2 AS stageId, 2 AS activityId, CP.skuCatId"
@@ -513,6 +513,10 @@ dbTools.visitActivityGet = function(visitPlanItemId, visitId, skuCatId, custId, 
             + "    SELECT 2 AS stageId, 12 AS activityId, SC.skuCatId"
             + "      FROM SkuCat SC"
             + "      WHERE EXISTS(SELECT 1 FROM VisitSurveyAnswer VSA INNER JOIN SurveyQuestion SQ ON VSA.questionId = SQ.questionId WHERE VSA.visitId = @visitId AND SQ.surveyId = 1)"
+            + "    UNION ALL"
+            + "    SELECT 2 AS stageId, 14 AS activityId, SC.skuCatId"
+            + "      FROM SkuCat SC"
+            + "      WHERE EXISTS(SELECT 1 FROM VisitSku VS WHERE VS.visitId = @visitId AND VS.reasonId IS NOT NULL)"
             + "    ) AC ON A.stageId = AC.stageId AND A.activityId = AC.activityId AND (@skuCatId = -1 OR AC.skuCatId = @skuCatId)"
             + "  WHERE (@stageId = -1 OR A.stageId = @stageId) AND (@activityId = -1 OR A.activityId = @activityId)"
             + "  GROUP BY A.stageId, A.activityId, A.name, A.blk, A.lvl"
@@ -537,7 +541,7 @@ dbTools.visitAnalysisResultsGet = function(visitId, fmtFilterType, fmtId, datase
             + "    AND B.ext = 0"
             + "    AND (@fmtFilterType = 1 OR EXISTS(SELECT 1 FROM FmtSku WHERE fmtId = ? AND skuId = S.skuId))"
             + "    AND EXISTS(SELECT 1 FROM VisitSku VS1 INNER JOIN Sku S1 ON VS1.skuId = S1.skuId WHERE VS1.visitId = ? AND S1.skuCatId = S.skuCatId LIMIT 1)"
-            + "    AND IFNULL(VS.sel0, 0) = 0"
+            + "    AND IFNULL(VS.sel, 0) = 0"
             + "  ORDER BY S.name";
         sql = sql.replace(/@fmtFilterType/g, fmtFilterType);
         tx.executeSql(sql, [visitId, fmtId, visitId], datasetGet, dbTools.onSqlError);
