@@ -47,8 +47,9 @@
                                 <td width="100%">
                                     <div>#:name#</div>
                                     <div class="list-item-comment">#:reasonName#
-                                        #if (useQnt == 1) {#, количество: #:reasonQnt##}#
+                                        #if (useQnt == 1) {#, количество: #:isNull(reasonQnt)##}#
                                         #if (useDate == 1) {#, дата: #:dateToStr(sqlDateToDate(reasonDate), "DD/MM/YYYY")##}#
+                                        #if (qntOrder != null && qntOrder != "") {#, заказ: #:qntOrder##}#
                                     </div>
                                 </td>
                             </tr>
@@ -89,13 +90,20 @@
                 </li>
                 <li class="visit-analysis-result-edit-reason-qnt">
                     <label>Количество
-                        <input id="visit-analysis-result-edit-reason-qnt" class="editable" type="number" onchange="visitAnalysisResultEditControlChange(this.id, this.value)"/>
+                        <input id="visit-analysis-result-edit-reason-qnt" class="editable" type="number" onchange="visitAnalysisResultEditControlChange(this.id, this.value)"
+                            onkeyup="visitAnalysisResultEditControlKeyUp(this)"/>
                     </label>
                 </li>
                 <li class="visit-analysis-result-edit-reason-date">
                     <label>Дата
-                        <input id="visit-analysis-result-edit-reason-date" class="editable" type="date" style="position: relative; width: 100%; right: 0; margin-top: 0; top: 0;" 
-                            onchange="visitAnalysisResultEditControlChange(this.id, this.value)"/>
+                        <input id="visit-analysis-result-edit-reason-date" class="editable" type="date" style="position: relative; width: 100%; right: 0; margin-top: 0; top: 0;"
+                            onchange="visitAnalysisResultEditControlChange(this.id, this.value)" onkeyup="visitAnalysisResultEditControlKeyUp(this)"/>
+                    </label>
+                </li>
+                <li>
+                    <label>Заказ
+                        <input id="visit-analysis-result-edit-qnt-order" class="editable" type="number" onchange="visitAnalysisResultEditControlChange(this.id, this.value)"
+                            onkeyup="visitAnalysisResultEditControlKeyUp(this)"/>
                     </label>
                 </li>
             </ul>
@@ -122,8 +130,7 @@
         </ul>
         
         <script id="visit-analysis-results-wizard-reason-tmpl" type="text/x-kendo-template">
-            <a class="list-item-header"
-            >
+            <a class="list-item-header">
                 <p>#:name#</p>
             </a>
         </script>

@@ -10,6 +10,10 @@ inArray = Array.prototype.indexOf ?
         return false
     }
 
+function isNull(value, isNullValue) {
+    return (value != null ? value : (isNullValue != undefined ? isNullValue : ""));
+}
+
 function dateToStr(dt, format) {
    var result = ""
     if (dt != undefined) {
@@ -72,26 +76,27 @@ function navigateBack(backCount) {
     log("..navigateBack(" + backCount + ")");
     var delay;
     if (!settings.simulator) {
-        delay = 51;
+        delay = settings.backDelay;
     } else {
         delay = 50;
     }
     var delayedBack = function(backCount, i, delay) {
         if (i < backCount) {
+            //log("......navigateBack setTimeout " + delay + "ms (view: '" + app.view().id + "')");
             setTimeout(
                 function() {
-                    //log("....navigateBack view: '" + app.view().id + "'");
+                    //log("....navigateBack from view: '" + app.view().id + "'");
                     app.navigate("#:back");
-                    delayedBack(backCount, ++i);
+                    delayedBack(backCount, ++i, delay);
                 }, 
                 delay
             );
         }
     }
     if (backCount > 0) {
-        //log("....navigateBack view: '" + app.view().id + "'");
+        //log("....navigateBack from view: '" + app.view().id + "'");
         app.navigate("#:back");
-        setTimeout(function() {delayedBack(backCount, 1, delay);}, delay);
+        delayedBack(backCount, 1, delay);
     }
 }
 
@@ -107,7 +112,7 @@ function navigateBackTo(viewId) {
     var srcViewId = app.view().id;
     var delay;
     if (!settings.simulator) {
-        delay = 51;
+        delay = settings.backDelay;
     } else {
         delay = 50;
     }

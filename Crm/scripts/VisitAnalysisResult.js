@@ -109,6 +109,7 @@ function renderVisitAnalysisResultEditView(tx, rs) {
             visitAnalysisResult.reasonQnt = rs.rows.item(0).reasonQnt;
             visitAnalysisResult.useDate = rs.rows.item(0).useDate;
             visitAnalysisResult.reasonDate = sqlDateToDate(rs.rows.item(0).reasonDate);
+            visitAnalysisResult.qntOrder = rs.rows.item(0).qntOrder;
         }
     } else {
         visitAnalysisResultClear(false);
@@ -123,6 +124,7 @@ function visitAnalysisResultEditFillControls() {
     });
     $("#visit-analysis-result-edit-reason-qnt").val(visitAnalysisResult.reasonQnt);
     $("#visit-analysis-result-edit-reason-date").val(dateToInputDate(visitAnalysisResult.reasonDate));
+    $("#visit-analysis-result-edit-qnt-order").val(visitAnalysisResult.qntOrder);
 }
 
 function renderVisitAnalysisResultEditReason(tx, rs, value) {
@@ -149,7 +151,16 @@ function visitAnalysisResultEditControlChange(id, value) {
         case "visit-analysis-result-edit-reason-date":
             visitAnalysisResult.reasonDate = inputDateToDate(val);
             break;
+        case "visit-analysis-result-edit-qnt-order":
+            visitAnalysisResult.qntOrder = val;
+            break;
     }
+    visitAnalysisResultEditEnableControls();
+}
+
+function visitAnalysisResultEditControlKeyUp(sender) {
+    log("..visitAnalysisResultEditControlKeyUp(sender)");
+    visitAnalysisResult.isEdited = true;
     visitAnalysisResultEditEnableControls();
 }
 
@@ -163,6 +174,7 @@ function visitAnalysisResultEditDelClick() {
     visitAnalysisResult.reasonId = null;
     visitAnalysisResult.reasonQnt = null;
     visitAnalysisResult.reasonDate = null;
+    visitAnalysisResult.qntOrder = null;
     visitAnalysisResultDelete(function() {navigateBack(visitAnalysisResult.navBackCount);});
 }
 
@@ -251,13 +263,13 @@ function visitAnalysisResultsWizardReasonListClick(e) {
         app.navigate("#visit-analysis-results-wizard-reason-view?skuId=" + visitAnalysisResult.skuId 
             + "&parentReasonId=" + e.dataItem.reasonId + "&parentUseQnt=" + e.dataItem.useQnt + "&parentUseDate=" + e.dataItem.useDate);
     } else {
-        if (e.dataItem.useQnt > 0 || e.dataItem.useDate > 0) {
+        //if (e.dataItem.useQnt > 0 || e.dataItem.useDate > 0) {
             app.navigate("#visit-analysis-result-edit-view?skuId=" + visitAnalysisResult.skuId 
                 + "&isNotReloadReason=1&reasonId=" + e.dataItem.reasonId 
                 + "&useQnt=" + e.dataItem.useQnt + "&useDate=" + e.dataItem.useDate + "&navBackCount=" + (e.dataItem.parentId > 0 ? "3" : "2"));
-        } else {
-            visitAnalysisResultsWizardReasonSave(e.dataItem.reasonId, (e.dataItem.parentId > 0 ? 2 : 1));
-        }
+        //} else {
+        //    visitAnalysisResultsWizardReasonSave(e.dataItem.reasonId, (e.dataItem.parentId > 0 ? 2 : 1));
+        //}
     }
 }
 
@@ -286,6 +298,7 @@ function visitAnalysisResultClear(clearSku) {
     visitAnalysisResult.reasonQnt = null;
     visitAnalysisResult.useDate = null;
     visitAnalysisResult.reasonDate = null;
+    visitAnalysisResult.qntOrder = null;
 }
 
 function visitAnalysisResultSave(onSuccess) {
@@ -296,7 +309,7 @@ function visitAnalysisResultSave(onSuccess) {
         reasonId = null;
     }
     dbTools.objectListItemSet("visit-list", true);
-    dbTools.visitAnalysisResultUpdate(visit.visitId, visitAnalysisResult.skuId, reasonId, visitAnalysisResult.reasonQnt, visitAnalysisResult.reasonDate, 
+    dbTools.visitAnalysisResultUpdate(visit.visitId, visitAnalysisResult.skuId, reasonId, visitAnalysisResult.reasonQnt, visitAnalysisResult.reasonDate, visitAnalysisResult.qntOrder,
         function(visitId, skuId) {if (onSuccess != undefined) {onSuccess(visitId, skuId);}}, 
         dbTools.onSqlError
     );
@@ -304,7 +317,7 @@ function visitAnalysisResultSave(onSuccess) {
 
 function visitAnalysisResultDelete(onSuccess) {
     dbTools.objectListItemSet("visit-list", true);
-    dbTools.visitAnalysisResultUpdate(visit.visitId, visitAnalysisResult.skuId, null, null, null, 
+    dbTools.visitAnalysisResultUpdate(visit.visitId, visitAnalysisResult.skuId, null, null, null, null,
         function(visitId, skuId) {if (onSuccess != undefined) {onSuccess(visitId, skuId);}}, 
         dbTools.onSqlError
     );

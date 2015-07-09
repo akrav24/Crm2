@@ -553,12 +553,11 @@ dbTools.visitAnalysisResultGet = function(visitId, skuId, datasetGet) {
     dbTools.db.transaction(function(tx) {
         var sql = "SELECT S.skuId, S.name, S.code, IFNULL(S.code, '') || ' ' || S.name AS fullName, VS.sel, VS.sel0,"
             + "    IFNULL(VS.reasonId, 0) AS reasonId, R.name AS reasonName,"
-            + "    R.useQnt, VS.reasonQnt, R.useDate, VS.reasonDate"
-            + "  FROM VisitSku VS"
-            + "  INNER JOIN Sku S ON VS.skuId = S.skuId"
+            + "    R.useQnt, VS.reasonQnt, R.useDate, VS.reasonDate, VS.qntOrder"
+            + "  FROM Sku S"
+            + "  LEFT JOIN VisitSku VS ON VS.visitId = ? AND S.skuId = VS.skuId"
             + "  LEFT JOIN Reason R ON VS.reasonId = R.reasonId"
-            + "  WHERE VS.visitId = ?"
-            + "    AND VS.skuId = ?";
+            + "  WHERE S.skuId = ?";
         tx.executeSql(sql, [visitId, skuId], datasetGet, dbTools.onSqlError);
     }, dbTools.onTransError);
 }
@@ -595,14 +594,15 @@ dbTools.visitReasonGet = function(reasonId, datasetGet) {
     }, dbTools.onTransError);
 }
 
-dbTools.visitAnalysisResultUpdate = function(visitId, skuId, reasonId, reasonQnt, reasonDate, onSuccess, onError) {
-    log("visitAnalysisResultUpdate(" + visitId + ", " + skuId + ", " + reasonId + ", " + reasonQnt + ", " + reasonDate + ")");
+dbTools.visitAnalysisResultUpdate = function(visitId, skuId, reasonId, reasonQnt, reasonDate, qntOrder, onSuccess, onError) {
+    log("visitAnalysisResultUpdate(" + visitId + ", " + skuId + ", " + reasonId + ", " + reasonQnt + ", " + reasonDate + ", " + qntOrder + ")");
     dbTools.db.transaction(function(tx) {
         if (!(reasonId > 0)) {
             reasonQnt = null;
             reasonDate = null;
+            qntOrder = null;
         }
-        dbTools.sqlInsertUpdate(tx, "VisitSku", ["visitId", "skuId"], ["reasonId", "reasonQnt", "reasonDate"], [visitId, skuId], [reasonId, reasonQnt, dateToSqlDate(reasonDate)], 
+        dbTools.sqlInsertUpdate(tx, "VisitSku", ["visitId", "skuId"], ["reasonId", "reasonQnt", "reasonDate", "qntOrder"], [visitId, skuId], [reasonId, reasonQnt, dateToSqlDate(reasonDate), qntOrder], 
             function() {if (onSuccess != undefined) {onSuccess(visitId, skuId);}},
             onError
         );

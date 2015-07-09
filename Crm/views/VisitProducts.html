@@ -43,6 +43,10 @@
                                 <td width="60px"><span style="margin-left: 10px">#:code#</span></td>
                                 <td width="100%">
                                     <div style="margin-left: 5px; width: 100%">#:name#</div>
+                                    <div style="margin-left: 5px;" class="list-item-comment">
+                                        #if (qntRest != null && qntRest != "") {#Остаток: #:qntRest##}#
+                                        #if (qntOrder != null && qntOrder != "") { if (qntRest != null && qntRest != "") {#, заказ: #:qntOrder##} else {#Заказ: #:qntOrder##} }#
+                                    </div>
                                 </td>
                                 #if ((visitProducts.mode & 2) !== 0) {#
                                 <td width="100px">

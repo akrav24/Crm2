@@ -10,7 +10,7 @@ function settingsObjInit(onSuccess) {
     settings = {};
     
     // версия приложения
-    settings.appVersion = 1030;
+    settings.appVersion = 1032;
     
     // признак выполнения приложения в симуляторе
     settings.simulator = (window.navigator.simulator === true);
@@ -30,6 +30,9 @@ function settingsObjInit(onSuccess) {
     // если количество слишком малое (< 100) или слишком большое (> 50000), то происходит резкое замедление операции вставки
     settings.bulkRecordCount = 2000;
     settings.fileBulkRecordCount = 10;
+    
+    // задержка при при программном переходе на предыдущую страницу (ms)
+    settings.backDelay = 60;
     
     // даты последнего обмена информацией с сервером
     settings.exchange = {};
