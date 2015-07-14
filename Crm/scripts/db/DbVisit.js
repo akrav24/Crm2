@@ -1144,3 +1144,25 @@ dbTools.visitPhotoTagUpdate = function(visitId, visitPhotoId, photoTagId, value,
     }, function(error) {if (onError != undefined) {onError("!!! SQLite transaction error, " + dbTools.errorMsg(error));}});
 }
 
+dbTools.visitReportBlkListGet = function(visitId, datasetGet) {
+    log("visitReportBlkListGet(" + visitId + ")");
+    dbTools.db.transaction(function(tx) {
+        var sql = "SELECT A.blkId, A.name"
+        + "  FROM"
+        + "    (SELECT 1 AS blkId, 'Новинки' AS name, 1 AS blk"
+        + "    UNION ALL"
+        + "    SELECT 2 AS blkId, 'ООС' AS name, 2 AS blk"
+        + "    UNION ALL"
+        + "    SELECT 3 AS blkId, 'Планограммы' AS name, 3 AS blk"
+        + "    UNION ALL"
+        + "    SELECT 4 AS blkId, 'Доля на полке' AS name, 4 AS blk"
+        + "    UNION ALL"
+        + "    SELECT 5 AS blkId, 'Промо' AS name, 5 AS blk"
+        + "    UNION ALL"
+        + "    SELECT 6 AS blkId, 'Прочие задачи' AS name, 6 AS blk"
+        + "    ) A"
+        + "  ORDER BY A.blk";
+        tx.executeSql(sql, [], datasetGet, dbTools.onSqlError);
+    }, dbTools.onTransError);
+}
+

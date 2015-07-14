@@ -239,6 +239,11 @@ body {
     display: none;
 }
 
+.collapsible-list {
+    line-height: 1.6em;
+    /*padding: .5em .7em;*/
+}
+
 .list {
 }
 .list-item-group-header {

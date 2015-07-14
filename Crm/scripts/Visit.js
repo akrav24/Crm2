@@ -182,7 +182,7 @@ function visitHrefGet(stageId, blk, activityId, mode) {
             }*/
             href += (href.indexOf("?") >= 0 ? "&" : "?") + "mode=" + mode;
             href += "&navBackCount=";
-            if (settings.skuCatId > 0 || inArray([5, 11, 12, 14], activityId)) {
+            if (settings.skuCatId > 0 || inArray([5, 11, 12, 14, 15], activityId)) {
                 href += "1";
                 result = href;
             } else {
@@ -227,6 +227,11 @@ function hrefByActivityIdGet(stageId, activityId) {
             break;
         case 14:
             result = "views/VisitAnalysisResult.html";
+            break;
+        case 15:
+            result = "views/VisitReport.html";
+// TODO DEL
+if (settings.nodeId != 20) {result = ""}
             break;
         default:
             result = "";
