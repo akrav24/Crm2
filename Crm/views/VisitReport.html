@@ -6,6 +6,7 @@
 </head>
 <body>
     <script src="scripts/VisitReport.js"></script>
+    <script src="scripts/Visit.js"></script>
     
     <div id="visit-report-view"
         data-role="view" 
@@ -29,13 +30,11 @@
         <!--<ul id="visit-report-list" class="list list-item-header" data-role="listview" data-template="visit-report-list-tmpl"></ul>-->
         
         <script id="visit-report-list-tmpl" type="text/x-kendo-template">
-            <!--<a class="list-item-header">-->
+            #if (activityId > 0) {#<a class="list-item-header">#}#
                 <p class="list-item-header">
-                    <div>#:name#</div>
-                    <div class="list-item-comment">
-                    </div>
+                    <div class="mark#:mark#">#:name#</div>
                 </p>
-            <!--</a>-->
+            #if (activityId > 0) {#</a>#}#
         </script>
         
     </div>

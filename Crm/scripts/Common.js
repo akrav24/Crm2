@@ -205,11 +205,21 @@ function sqlPrepare(sql) {
 }
 */
 
-function renderListView(rs, viewSelector) {
-    var data = dbTools.rsToJson(rs);
+function renderListView(rs, viewSelector, isResetScroller) {
+    if (isResetScroller == undefined) {
+        isResetScroller = true;
+    }
+    var data;
+    if (rs.rows != undefined) {
+        data = dbTools.rsToJson(rs);
+    } else {
+        data = rs;
+    }
     var dataSource = new kendo.data.DataSource({data: data});
     $(viewSelector).data("kendoMobileListView").setDataSource(dataSource);
-    app.scroller().reset();
+    if (isResetScroller) {
+        app.scroller().reset();
+    }
 }
 
 function showControl(controlSelector, visible) {

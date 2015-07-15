@@ -55,6 +55,11 @@ body {
     color: Red !important;
 }
 
+.collapsible-header {
+    line-height: 2.7em;
+    /*padding: .5em .7em;*/
+}
+
 .date {
     width: 100px;
 }
@@ -239,11 +244,6 @@ body {
     display: none;
 }
 
-.collapsible-list {
-    line-height: 1.6em;
-    /*padding: .5em .7em;*/
-}
-
 .list {
 }
 .list-item-group-header {
@@ -289,6 +289,22 @@ body {
     width: 40%;
 }
 
+.menu-buttongroup {
+    height: 40px;
+    width: 100%;
+}
+
+.mark1 {
+    color: DarkRed;
+}
+
+.menu-section {
+    width: 100%;
+}
+.menu-section p {
+    margin: 0 0 5px;
+}
+
 .navbar {
     height: 60px;
 }
@@ -297,18 +313,6 @@ body {
     font-size: medium;
     height: 80%;
     margin-right: 5px;
-}
-
-.menu-buttongroup {
-    height: 40px;
-    width: 100%;
-}
-
-.menu-section {
-    width: 100%;
-}
-.menu-section p {
-    margin: 0 0 5px;
 }
 
 .progress-panel-inner {

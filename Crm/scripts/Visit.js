@@ -231,7 +231,7 @@ function hrefByActivityIdGet(stageId, activityId) {
         case 15:
             result = "views/VisitReport.html";
 // TODO DEL
-if (settings.nodeId != 20) {result = ""}
+//if (settings.nodeId != 20) {result = ""}
             break;
         default:
             result = "";
