@@ -60,13 +60,23 @@ dbTools.exchangeExport = function(blockId, onSuccess, onError, onProgress) {
     log("exchangeExport(blockId=" + blockId + ")");
     if (onProgress != undefined) {onProgress();}
     dbTools.exchangeMailExport(blockId, 
-        function(blockId) {
+        function(blockId, data) {
             var dataOut = [];
             dbTools.db.transaction(
                 function(tx) {
                     tx.executeSql("SELECT rowid AS irow, data FROM MailBlockDataOut WHERE blockId = ? ORDER BY rowid", [blockId], function(tx, rs) {
+                        var irow = 0;
                         for (var i = 0; i < rs.rows.length; i++) {
                             dataOut.push({"blockId":blockId, "irow":rs.rows.item(i)["irow"], "data":rs.rows.item(i)["data"]});
+                            if (rs.rows.item(i).irow > irow) {
+                                irow = rs.rows.item(i).irow;
+                            }
+                        }
+                        if (!!data) {
+                            for (var i = 0; i < data.length; i++) {
+                                irow++;
+                                dataOut.push({"blockId": blockId, "irow": irow, "data": data[i].data});
+                            }
                         }
                         /*log("exchangeExport dataOut: " + JSON.stringify(dataOut).substring(0, 500));*/
                         dbTools.exchangeDataPost(blockId, dataOut, 
@@ -224,7 +234,7 @@ dbTools.exchangeMailExportLocalData = function(blockId, onSuccess, onError) {
         function(tx) {
             var sqlMain = "INSERT INTO MailBlockDataOut(blockId, data) VALUES(?, ?)";
             // список таблиц верхнего уровня
-            tx.executeSql("SELECT refTypeId, name, IFNULL(sendAll, 0) AS sendAll, flds FROM RefType WHERE dir > 0 AND parentId IS NULL", [],
+            tx.executeSql("SELECT refTypeId, name, IFNULL(sendAll, 0) AS sendAll, flds FROM RefType WHERE dir > 0 AND parentId IS NULL AND name <> 'FileOut'", [],
                 function(tx, tblRs) {
                     // функция обработки таблицы верхнего уровня и подчиненных ей таблиц
                     var exportTbl = function(blockId, tx, tblRs, tblIndex) {
@@ -319,7 +329,82 @@ dbTools.exchangeMailExportLocalData = function(blockId, onSuccess, onError) {
             );
         },
         function(error) {if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error));}},
-        function() {if (!!onSuccess) {onSuccess(blockId);}}
+        function() {dbTools.exchangeMailExportLocalFileOut(blockId, onSuccess, onError);}
+    );
+}
+
+dbTools.exchangeMailExportLocalFileOut = function(blockId, onSuccess, onError) {
+    log("exchangeMailExportLocalFileOut(blockId=" + blockId + ")");
+    
+    var data = [];
+    var idRs = {};
+    idRs.rows = {length: 0};
+    var tblName = "", 
+        tblFlds = "",
+        tblVals = "";
+    
+    dbTools.db.transaction(
+        function(tx) {
+            tx.executeSql("SELECT refTypeId, name, IFNULL(sendAll, 0) AS sendAll, flds FROM RefType WHERE dir > 0 AND name = 'FileOut'", [],
+                function(tx, tblRs) {
+                    if (tblRs.rows.length > 0) {
+                        var tblRefTypeId = tblRs.rows.item(0).refTypeId;
+                        tblName = tblRs.rows.item(0).name;
+                        tblFlds = tblRs.rows.item(0).flds;
+                        data.push({data: "@" + tblName + ":" + tblFlds});
+                        var tblSql = "SELECT A.@tblNameId AS id"
+                            + "  FROM @tblName A"
+                            + "  LEFT JOIN ExtRef B ON B.refTypeId = @refTypeId AND B.refId = A.@tblNameId"
+                            + "  WHERE (B.refId IS NULL OR SUBSTR(A.updateDate,1, 17) > SUBSTR(B.updateDate, 1, 17))";
+                        tblSql = tblSql.replace(/@tblName/g, tblName).replace(/@refTypeId/g, tblRefTypeId);
+                        dbTools.tableFieldValueListSqlGet(tx, tblName, "A.", 
+                            function(tx, tableName, fieldValueListSql) {
+                                tblVals = fieldValueListSql;
+                            }
+                        );
+                        tx.executeSql(tblSql, [], function(tx, rs) {
+                            idRs = rs;
+                        });
+                    }
+                }
+            );
+        },
+        function(error) {if (!!onError) {onError("!!! SQLite error: " + dbTools.errorMsg(error));}},
+        function() {
+            var bulkInsert = function(idRs, data, begIndex, onSuccess, onError) {
+                var bulkCnt = settings.fileBulkRecordCount;
+                var endIndex = begIndex + bulkCnt < idRs.rows.length ? begIndex + bulkCnt : idRs.rows.length;
+                log("......bulkInsert begIndex=" + begIndex + ", endIndex=" + endIndex);
+                if (begIndex < endIndex) {
+                    dbTools.db.transaction(
+                        function(tx) {
+                            for (var i = begIndex; i < endIndex; i++) {
+                                var sql = "SELECT @vals AS data "
+                                    + "  FROM @tblName A"
+                                    + "  WHERE A.@tblNameId=@id";
+                                sql = sql.replace(/@vals/g, tblVals).replace(/@tblName/g, tblName).replace(/@id/g, idRs.rows.item(i).id);
+                                tx.executeSql(sql, [], function(tx, rs) {
+                                    if (rs.rows.length > 0) {
+                                        data.push({data: rs.rows.item(0).data});
+                                    }
+                                });
+                            }
+                        },
+                        function(error) {
+                            log("..exchangeMailExportLocalFileOut bulkInsert ERROR, begIndex=" + begIndex + ", endIndex=" + endIndex + ", error=" + dbTools.errorMsg(error)); 
+                            if (onError != undefined) {onError("!!! SQLite error: " + dbTools.errorMsg(error));}
+                        },
+                        function() {
+                            log("......bulkInsert: transaction commited, begIndex=" + begIndex + ", endIndex=" + endIndex); 
+                            bulkInsert(idRs, data, endIndex, onSuccess, onError);
+                        }
+                    );
+                } else {
+                    if (!!onSuccess) {onSuccess(blockId, data);}
+                }
+            }
+            bulkInsert(idRs, data, 0, onSuccess, onError);
+        }
     );
 }
 
