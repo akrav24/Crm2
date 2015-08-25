@@ -43,7 +43,12 @@ dbTools.exchangeBlockIdGet = function(onSuccess, onError) {
             log("..exchangeBlockIdGet blockId=" + blockId);
             if (onSuccess != undefined) {onSuccess(blockId);}
         },
-        error: function (jqXHR, textStatus, errorThrown) {if (onError != undefined) {onError("Ajax Get Error: " + url);}}
+        error: function (jqXHR, textStatus, errorThrown) {
+            //log("..exchangeBlockIdGet ERROR jqXHR: " + kendo.stringify(jqXHR));
+            log("..exchangeBlockIdGet ERROR textStatus: " + kendo.stringify(textStatus));
+            log("..exchangeBlockIdGet ERROR errorThrown: " + kendo.stringify(errorThrown));
+            if (onError != undefined) {onError("Ajax Get Error: " + url);}
+        }
     });
     return blockId;
 }
@@ -53,12 +58,14 @@ dbTools.exchangeDataPost = function(blockId, data, onSuccess, onError) {
     dataLength = data.length;
     log("exchangeDataPost(blockId=" + blockId  + ", data=[" + data.length + " rows])");
     var url = dbTools.serverUrl(settings.serverName, settings.serverPort) + "Api/Exchange/?blockId=" + blockId;
+    log("..exchangeDataPost: stringify data...");
+    var dataStr = JSON.stringify(data);
     log("..exchangeDataPost: sending data...");
     $.ajax({
         type: "POST",
         url: url,
         contentType: "application/json",
-        data: JSON.stringify(data),
+        data: dataStr,
         success: function(data) {
             log("......>>");
             log("..exchangeDataPost: " + dataLength + " rows sent");
@@ -67,7 +74,12 @@ dbTools.exchangeDataPost = function(blockId, data, onSuccess, onError) {
                 onSuccess(blockId, data);
             }
         },
-        error: function (jqXHR, textStatus, errorThrown) {if (onError != undefined) {onError("Ajax Post Error: " + url);}}
+        error: function (jqXHR, textStatus, errorThrown) {
+            //log("..exchangeDataPost ERROR jqXHR: " + kendo.stringify(jqXHR));
+            log("..exchangeDataPost ERROR textStatus: " + kendo.stringify(textStatus));
+            log("..exchangeDataPost ERROR errorThrown: " + kendo.stringify(errorThrown));
+            if (onError != undefined) {onError("Ajax Post Error: " + url);}
+        }
     });
 }
 
@@ -89,7 +101,12 @@ dbTools.exchangeDataGet = function(blockId, onSuccess, onError) {
                 onSuccess(blockId, data);
             }
         },
-        error: function (jqXHR, textStatus, errorThrown) {if (onError != undefined) {onError("Ajax Get Error: " + url);}}
+        error: function (jqXHR, textStatus, errorThrown) {
+            //log("..exchangeDataGet ERROR jqXHR: " + kendo.stringify(jqXHR));
+            log("..exchangeDataGet ERROR textStatus: " + kendo.stringify(textStatus));
+            log("..exchangeDataGet ERROR errorThrown: " + kendo.stringify(errorThrown));
+            if (onError != undefined) {onError("Ajax Get Error: " + url);}
+        }
     });
 }
 
