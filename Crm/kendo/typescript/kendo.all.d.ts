@@ -6481,9 +6481,15 @@ declare module kendo.ui {
         enable(command: Element, enable: boolean): void;
         enable(command: JQuery, enable: boolean): void;
         getSelectedFromGroup(groupName: string): void;
+        hide(command: string): void;
+        hide(command: Element): void;
+        hide(command: JQuery): void;
         remove(command: string): void;
         remove(command: Element): void;
         remove(command: JQuery): void;
+        show(command: string): void;
+        show(command: Element): void;
+        show(command: JQuery): void;
         toggle(): void;
 
     }
@@ -6493,6 +6499,7 @@ declare module kendo.ui {
         click?: Function;
         enable?: boolean;
         group?: string;
+        hidden?: boolean;
         icon?: string;
         id?: string;
         imageUrl?: string;
@@ -6509,6 +6516,7 @@ declare module kendo.ui {
     interface ToolBarItemMenuButton {
         attributes?: any;
         enable?: boolean;
+        hidden?: boolean;
         icon?: string;
         id?: string;
         imageUrl?: string;
@@ -6523,6 +6531,7 @@ declare module kendo.ui {
         click?: Function;
         enable?: boolean;
         group?: string;
+        hidden?: boolean;
         icon?: string;
         id?: string;
         imageUrl?: string;
@@ -6877,6 +6886,7 @@ declare module kendo.ui {
 
     interface TreeListEditable {
         mode?: string;
+        move?: boolean;
         template?: any;
         window?: any;
     }
@@ -6991,6 +7001,7 @@ declare module kendo.ui {
         columnShow?(e: TreeListColumnShowEvent): void;
         columnHide?(e: TreeListColumnHideEvent): void;
         columnReorder?(e: TreeListColumnReorderEvent): void;
+        columnResize?(e: TreeListColumnResizeEvent): void;
         columnMenuInit?(e: TreeListColumnMenuInitEvent): void;
         columnLock?(e: TreeListColumnLockEvent): void;
         columnUnlock?(e: TreeListColumnUnlockEvent): void;
@@ -7066,6 +7077,12 @@ declare module kendo.ui {
         oldIndex?: number;
     }
 
+    interface TreeListColumnResizeEvent extends TreeListEvent {
+        column?: any;
+        newWidth?: number;
+        oldWidth?: number;
+    }
+
     interface TreeListColumnMenuInitEvent extends TreeListEvent {
         container?: JQuery;
         field?: string;
@@ -7132,7 +7149,9 @@ declare module kendo.ui {
         select(node?: Element): void;
         select(node?: string): void;
         setDataSource(dataSource: kendo.data.HierarchicalDataSource): void;
-        text(): string;
+        text(node: JQuery): string;
+        text(node: Element): string;
+        text(node: string): string;
         text(node: JQuery, newText: string): void;
         text(node: Element, newText: string): void;
         text(node: string, newText: string): void;
@@ -7334,39 +7353,39 @@ declare module kendo.ui {
     }
 
     interface UploadCancelEvent extends UploadEvent {
-        files?: any;
+        files?: UploadFile[];
     }
 
     interface UploadErrorEvent extends UploadEvent {
-        files?: any;
+        files?: UploadFile[];
         operation?: string;
         XMLHttpRequest?: any;
     }
 
     interface UploadProgressEvent extends UploadEvent {
-        files?: any;
+        files?: UploadFile[];
         percentComplete?: number;
     }
 
     interface UploadRemoveEvent extends UploadEvent {
-        files?: any;
+        files?: UploadFile[];
         data?: any;
     }
 
     interface UploadSelectEvent extends UploadEvent {
         e?: any;
-        files?: any;
+        files?: UploadFile[];
     }
 
     interface UploadSuccessEvent extends UploadEvent {
-        files?: any;
+        files?: UploadFile[];
         operation?: string;
-        response?: string;
+        response?: any;
         XMLHttpRequest?: any;
     }
 
     interface UploadUploadEvent extends UploadEvent {
-        files?: any;
+        files?: UploadFile[];
         data?: any;
         formData?: any;
         XMLHttpRequest?: any;
@@ -7794,7 +7813,7 @@ declare module kendo.dataviz.ui {
         background?: string;
         border?: ChartCategoryAxisItemNotesDataItemIconBorder;
         size?: number;
-        type?: string;
+        shape?: string;
         visible?: boolean;
     }
 
@@ -14071,9 +14090,25 @@ declare module kendo.dataviz.diagram {
 
     }
 
+    interface CircleFillGradientStop {
+        offset?: number;
+        color?: string;
+        opacity?: number;
+    }
+
+    interface CircleFillGradient {
+        type?: string;
+        center?: any;
+        radius?: number;
+        start?: any;
+        end?: any;
+        stops?: CircleFillGradientStop[];
+    }
+
     interface CircleFill {
         color?: string;
         opacity?: number;
+        gradient?: CircleFillGradient;
     }
 
     interface CircleStroke {
@@ -14388,9 +14423,25 @@ declare module kendo.dataviz.diagram {
 
     }
 
+    interface RectangleFillGradientStop {
+        offset?: number;
+        color?: string;
+        opacity?: number;
+    }
+
+    interface RectangleFillGradient {
+        type?: string;
+        center?: any;
+        radius?: number;
+        start?: any;
+        end?: any;
+        stops?: RectangleFillGradientStop[];
+    }
+
     interface RectangleFill {
         color?: string;
         opacity?: number;
+        gradient?: RectangleFillGradient;
     }
 
     interface RectangleStroke {
@@ -14449,9 +14500,25 @@ declare module kendo.dataviz.diagram {
         connect?: boolean;
     }
 
+    interface ShapeFillGradientStop {
+        offset?: number;
+        color?: string;
+        opacity?: number;
+    }
+
+    interface ShapeFillGradient {
+        type?: string;
+        center?: any;
+        radius?: number;
+        start?: any;
+        end?: any;
+        stops?: ShapeFillGradientStop[];
+    }
+
     interface ShapeFill {
         color?: string;
         opacity?: number;
+        gradient?: ShapeFillGradient;
     }
 
     interface ShapeHoverFill {
