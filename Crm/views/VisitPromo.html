@@ -54,6 +54,9 @@
                             case 4:
                                 #Механика: #:(extInfoName != null ? extInfoName : "")##
                                 break;
+                            case 5:
+                                #Примечание: #:(extInfoName != null ? extInfoName : "")##
+                                break;
                         }#
                     </div>
                 </p>
@@ -227,6 +230,11 @@
                 <li class="visit-promo-edit-ext-kind4">
                     <label class="visit-promo-edit-ext-kind4">Механика
                         <input id="visit-promo-edit-ext-name2" class="editable" type="text" onchange="visitPromoEditControlChange(this.id, this.value)" onkeyup="visitPromoEditControlKeyUp(this)"/>
+                    </label>
+                </li>
+                <li class="visit-promo-edit-ext-kind5">
+                    <label class="visit-promo-edit-ext-kind5">Примечание
+                        <input id="visit-promo-edit-ext-name3" class="editable" type="text" onchange="visitPromoEditControlChange(this.id, this.value)" onkeyup="visitPromoEditControlKeyUp(this)"/>
                     </label>
                 </li>
                 <li id="visit-promo-edit-li-photo-gallery">

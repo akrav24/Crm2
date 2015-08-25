@@ -287,6 +287,7 @@ function visitPromoEditFillControls() {
     $("#visit-promo-edit-ext-qty-get").val(null);
     $("#visit-promo-edit-ext-name").val(null);
     $("#visit-promo-edit-ext-name2").val(null);
+    $("#visit-promo-edit-ext-name3").val(null);
     $("#visit-promo-edit-ext-volume").val(null);
     switch (visitPromoItem.extInfoKind) {
         case 1:
@@ -319,6 +320,9 @@ function visitPromoEditFillControls() {
         case 4:
             $("#visit-promo-edit-ext-name2").val(visitPromoItem.extInfoName);
             break;
+        case 5:
+            $("#visit-promo-edit-ext-name3").val(visitPromoItem.extInfoName);
+            break;
     }
     visitPromoEditFillPhotoControls();
 }
@@ -350,7 +354,7 @@ function visitPromoEditEnableControls() {
         $("#visit-promo-edit-save-button").addClass("hidden");
         $("#visit-promo-edit-del-button").addClass("hidden");
     }
-    for (var i = 1; i <= 4; i++) { 
+    for (var i = 1; i <= 9; i++) { 
         if (i == visitPromoItem.extInfoKind) { 
             $(".visit-promo-edit-ext-kind" + i).removeAttr("style");
             if (i === 1) {
@@ -418,6 +422,9 @@ function visitPromoEditControlChange(id, value) {
             visitPromoItem.extInfoVal = val;
             break;
         case "visit-promo-edit-ext-name2":
+            visitPromoItem.extInfoName = val;
+            break;
+        case "visit-promo-edit-ext-name3":
             visitPromoItem.extInfoName = val;
             break;
     }
