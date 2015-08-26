@@ -673,7 +673,7 @@ dbTools.visitPromoPromoGrpListGet = function(datasetGet) {
 dbTools.visitPromoPromoListGet = function(promoGrpId, datasetGet) {
     log("visitPromoPromoListGet(" + promoGrpId + ")");
     dbTools.db.transaction(function(tx) {
-        var sql = "SELECT P.promoId, P.name, P.extInfoKind"
+        var sql = "SELECT P.promoId, P.name, P.extInfoKind, P.photoEnabled"
             + "  FROM Promo P"
             + "  WHERE P.promoGrpId = ?"
             + "  ORDER BY P.lvl";
@@ -686,7 +686,7 @@ dbTools.visitPromoListGet = function(visitId, skuCatId, datasetGet) {
     dbTools.db.transaction(function(tx) {
         var sql = "SELECT VP.visitId, VP.visitPromoId, VP.skuCatId, SC.name AS skuCatName, VP.skuSubCatId, SSC.name AS skuSubCatName,"
             + "    VP.brandId, B.name AS brandName, P.promoGrpId, PG.name AS promoGrpName, VP.promoId, P.name AS promoName,"
-            + "    P.extInfoKind, VP.extInfoType, VP.extInfoVal, VP.extInfoVal2, VP.extInfoName"
+            + "    P.extInfoKind, P.photoEnabled, VP.extInfoType, VP.extInfoVal, VP.extInfoVal2, VP.extInfoName"
             + "  FROM VisitPromo VP"
             + "  LEFT JOIN SkuCat SC ON VP.skuCatId = SC.skuCatId"
             + "  LEFT JOIN SkuSubCat SSC ON VP.skuSubCatId = SSC.skuSubCatId"
@@ -707,7 +707,7 @@ dbTools.visitPromoGet = function(visitPromoId, visitId, skuCatId, skuSubCatId, b
         if (visitPromoId > 0) {
             sql = "SELECT VP.visitId, VP.visitPromoId, VP.skuCatId, SC.name AS skuCatName, VP.skuSubCatId, SSC.name AS skuSubCatName,"
                 + "    VP.brandId, B.name AS brandName, P.promoGrpId, PG.name AS promoGrpName, VP.promoId, P.name AS promoName,"
-                + "    P.extInfoKind, VP.extInfoType, VP.extInfoVal, VP.extInfoVal2, VP.extInfoName, VPP.visitPromoPhotoCnt"
+                + "    P.extInfoKind, P.photoEnabled, VP.extInfoType, VP.extInfoVal, VP.extInfoVal2, VP.extInfoName, VPP.visitPromoPhotoCnt"
                 + "  FROM VisitPromo VP"
                 + "  LEFT JOIN SkuCat SC ON VP.skuCatId = SC.skuCatId"
                 + "  LEFT JOIN SkuSubCat SSC ON VP.skuSubCatId = SSC.skuSubCatId"
@@ -720,7 +720,7 @@ dbTools.visitPromoGet = function(visitPromoId, visitId, skuCatId, skuSubCatId, b
         } else {
             sql = "SELECT VP.visitId, VP.visitPromoId, VP.skuCatId, SC.name AS skuCatName, VP.skuSubCatId, SSC.name AS skuSubCatName,"
                 + "    VP.brandId, B.name AS brandName, P.promoGrpId, PG.name AS promoGrpName, VP.promoId, P.name AS promoName,"
-                + "    P.extInfoKind, VP.extInfoType, VP.extInfoVal, VP.extInfoVal2, VP.extInfoName, VPP.visitPromoPhotoCnt"
+                + "    P.extInfoKind, P.photoEnabled, VP.extInfoType, VP.extInfoVal, VP.extInfoVal2, VP.extInfoName, VPP.visitPromoPhotoCnt"
                 + "  FROM VisitPromo VP"
                 + "  LEFT JOIN SkuCat SC ON VP.skuCatId = SC.skuCatId"
                 + "  LEFT JOIN SkuSubCat SSC ON VP.skuSubCatId = SSC.skuSubCatId"

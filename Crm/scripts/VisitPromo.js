@@ -193,6 +193,7 @@ function visitPromoPromoListClick(e) {
     visitPromoItem.promoId = e.dataItem.promoId;
     visitPromoItem.promoName = e.dataItem.name;
     visitPromoItem.extInfoKind = e.dataItem.extInfoKind;
+    visitPromoItem.photoEnabled = e.dataItem.photoEnabled;
     navigateTo("#visit-promo-edit-view");
 }
 
@@ -369,6 +370,11 @@ function visitPromoEditEnableControls() {
         } else {
             $(".visit-promo-edit-ext-kind" + i).attr("style", "display: none;");
         }
+    }
+    if (visitPromoItem.photoEnabled != 0) { 
+        $("#visit-promo-edit-li-photo-gallery").removeAttr("style");
+    } else {
+        $("#visit-promo-edit-li-photo-gallery").attr("style", "display: none;");
     }
     $(".editable").prop("readonly", visit.readonly);
 }
@@ -580,6 +586,7 @@ function visitPromoItemClear(step) {
         visitPromoItem.promoId = null;
         visitPromoItem.promoName = null;
         visitPromoItem.extInfoKind = null;
+        visitPromoItem.photoEnabled = null;
     }
     if (step <= 5) {
         visitPromoItem.extInfoType = 1;
