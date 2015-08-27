@@ -59,7 +59,7 @@ function visitPromoPromosListClick(e) {
 function visitPromoSubCatShow(e) {
     log("..visitPromoSubCatShow");
     visitPromoItemClear(1);
-    goToNextViewIfEmpty = visitPromoItem.subCatGoToNextViewIfEmpty
+    goToNextViewIfEmpty = visitPromoItem.subCatGoToNextViewIfEmpty;
     dbTools.visitPromoSubCatListGet(settings.skuCatId, function(tx, rs) {renderVisitPromoSubCatView(tx, rs, goToNextViewIfEmpty);});
 }
 

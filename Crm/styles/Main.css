@@ -207,16 +207,16 @@ body {
 
 @media screen and (orientation: landscape) {
     .gallery-tag-edit-image-flex-box {
+        -webkit-box-flex: 4;
+        -webkit-flex: 4;
+        -ms-flex: 4;
+        flex: 4; 
+    }
+    .gallery-tag-edit-tag-list-flex-box {
         -webkit-box-flex: 2;
         -webkit-flex: 2;
         -ms-flex: 2;
-        flex: 2; 
-    }
-    .gallery-tag-edit-tag-list-flex-box {
-        -webkit-box-flex: 3;
-        -webkit-flex: 3;
-        -ms-flex: 3;
-        flex: 3;
+        flex: 2;
     }
     .gallery-tag-edit-image {
         width: 100%; 
