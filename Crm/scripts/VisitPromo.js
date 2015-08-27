@@ -181,6 +181,14 @@ function visitPromoPromoAfterShow(e) {
 function renderVisitPromoPromoView(tx, rs) {
     log("..renderVisitPromoPromoView");
     renderListView(rs, "#visit-promo-promo-list");
+    if (rs.rows.length == 1) {
+        if (visitPromoItem.promoGoForward) {
+            visitPromoPromoGoForward(rs.rows.item(0).promoId, rs.rows.item(0).name, rs.rows.item(0).extInfoKind, rs.rows.item(0).photoEnabled);
+        } else {
+            navigateBackTo("#visit-promo-promo-grp-view");
+        }
+        visitPromoItem.promoGoForward = !visitPromoItem.promoGoForward;
+    }
 }
  
 function visitPromoPromoNavBackClick(e) {
@@ -190,10 +198,15 @@ function visitPromoPromoNavBackClick(e) {
 
 function visitPromoPromoListClick(e) {
     log("..visitPromoPromoListClick");
-    visitPromoItem.promoId = e.dataItem.promoId;
-    visitPromoItem.promoName = e.dataItem.name;
-    visitPromoItem.extInfoKind = e.dataItem.extInfoKind;
-    visitPromoItem.photoEnabled = e.dataItem.photoEnabled;
+    visitPromoPromoGoForward(e.dataItem.promoId, e.dataItem.name, e.dataItem.extInfoKind, e.dataItem.photoEnabled);
+}
+ 
+function visitPromoPromoGoForward(promoId, promoName, extInfoKind, photoEnabled) {
+    log("..visitPromoPromoGoForward("+ promoId + ", " + promoName + ", " + extInfoKind + ", " + photoEnabled + ")");
+    visitPromoItem.promoId = promoId;
+    visitPromoItem.promoName = promoName;
+    visitPromoItem.extInfoKind = extInfoKind;
+    visitPromoItem.photoEnabled = photoEnabled;
     navigateTo("#visit-promo-edit-view");
 }
 
@@ -564,7 +577,6 @@ function visitPromoItemClear(step) {
         step = 0;
     }
     if (step <= 0) {
-        visitPromoItem.visitPromoId = null;
         visitPromoItem.isNotDataReload = false;
         visitPromoItem.isEdited = false;
         visitPromoItem.subCatGoToNextViewIfEmpty = true;
@@ -581,8 +593,10 @@ function visitPromoItemClear(step) {
     if (step <= 3) {
         visitPromoItem.promoGrpId = null;
         visitPromoItem.promoGrpName = null;
+        visitPromoItem.promoGoForward = true;
     }
     if (step <= 4) {
+        visitPromoItem.visitPromoId = null;
         visitPromoItem.promoId = null;
         visitPromoItem.promoName = null;
         visitPromoItem.extInfoKind = null;
