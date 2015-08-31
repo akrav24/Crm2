@@ -83,6 +83,8 @@ function renderVisitSkuPriceEditView(tx, rs) {
     }
     visitSkuPriceEditFillControls();
     visitSkuPriceEditEnableControls();
+    $("#visit-sku-price-edit-name").focus();
+    $("#visit-sku-price-edit-price").focus();
     //app.scroller().reset();
 }
 
