@@ -9,6 +9,7 @@ function visitShow(e) {
     log("..visitShow");
     visitProductsObjInit();
     visitPromoObjInit();
+    visitOurPromoObjInit();
     renderVisit(visit.visitPlanItemId, visit.visitId);
 }
 
@@ -230,8 +231,9 @@ function hrefByActivityIdGet(stageId, activityId) {
             break;
         case 15:
             result = "views/VisitReport.html";
-// TODO DEL
-//if (settings.nodeId != 20) {result = ""}
+            break;
+        case 16:
+            result = "views/VisitOurPromo.html";
             break;
         default:
             result = "";
