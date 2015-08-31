@@ -198,6 +198,10 @@ dbTools.visitProductCategoryMatrixGet = function(visitId, isItemAllShow, dataset
                     + "      UNION ALL"
                     + "      SELECT 14 AS activityId, -1 AS skuCatId"
                     + "        WHERE EXISTS(SELECT 1 FROM VisitSku VS WHERE VS.visitId = @visitId AND VS.reasonId IS NOT NULL)"
+                    + "      UNION ALL"
+                    + "      SELECT 16 AS activityId, VP.skuCatId"
+                    + "        FROM VisitOurPromo VP"
+                    + "        WHERE VP.visitId = @visitId"
                     + "      ) A"
                     + "      GROUP BY A.activityId, A.skuCatId"
                     + "  )"
@@ -517,6 +521,11 @@ dbTools.visitActivityGet = function(visitPlanItemId, visitId, skuCatId, custId, 
             + "    SELECT 2 AS stageId, 14 AS activityId, SC.skuCatId"
             + "      FROM SkuCat SC"
             + "      WHERE EXISTS(SELECT 1 FROM VisitSku VS WHERE VS.visitId = @visitId AND VS.reasonId IS NOT NULL)"
+            + "    UNION ALL"
+            + "    SELECT 2 AS stageId, 16 AS activityId, VP.skuCatId"
+            + "      FROM VisitOurPromo VP"
+            + "      WHERE VP.visitId = @visitId"
+            + "      GROUP BY VP.skuCatId"
             + "    ) AC ON A.stageId = AC.stageId AND A.activityId = AC.activityId AND (@skuCatId = -1 OR AC.skuCatId = @skuCatId)"
             + "  WHERE (@stageId = -1 OR A.stageId = @stageId) AND (@activityId = -1 OR A.activityId = @activityId)"
             + "  GROUP BY A.stageId, A.activityId, A.name, A.blk, A.lvl"
@@ -736,7 +745,7 @@ dbTools.visitPromoGet = function(visitPromoId, visitId, skuCatId, skuSubCatId, b
 }
 
 dbTools.visitPromoUpdate = function(visitId, visitPromoId, skuCatId, skuSubCatId, brandId, promoId, extInfoType, extInfoVal, extInfoVal2, extInfoName, onSuccess, onError) {
-    log("visitPromoUpdate(" + visitId + ", " + visitPromoId + ", " + skuCatId + ", " + skuSubCatId + ", " + promoId + ", " + extInfoType + ", " + extInfoVal + ", " + extInfoVal2 + ", " + extInfoName + ")");
+    log("visitPromoUpdate(" + visitId + ", " + visitPromoId + ", " + skuCatId + ", " + skuSubCatId + ", " + brandId + ", " + promoId + ", " + extInfoType + ", " + extInfoVal + ", " + extInfoVal2 + ", " + extInfoName + ")");
     dbTools.db.transaction(function(tx) {
         if (visitPromoId > 0) {
             if (visitId != null || skuCatId != null || skuSubCatId != null || brandId != null 
@@ -803,6 +812,134 @@ dbTools.visitPromoPhotoUpdate = function(visitId, visitPromoId, visitPromoPhotoI
                 function(tx, visitPromoPhotoId) {
                     dbTools.sqlInsertUpdate(tx, "VisitPromoPhoto", ["visitPromoPhotoId"], ["visitId", "visitPromoId", "fileId"], [visitPromoPhotoId], [visitId, visitPromoId, fileId], 
                         function() {if (onSuccess != undefined) {onSuccess(visitPromoPhotoId);}},
+                        onError
+                    );
+                }, 
+                onError
+            );
+        }
+    }, function(error) {if (onError != undefined) {onError("!!! SQLite transaction error, " + dbTools.errorMsg(error));}});
+}
+
+dbTools.visitOurPromoListGet = function(visitId, skuCatId, datasetGet) {
+    log("visitOurPromoPromoListGet(" + visitId + ", " + skuCatId + ")");
+    dbTools.db.transaction(function(tx) {
+        var sql = "SELECT VP.visitId, VP.visitOurPromoId, VP.skuCatId, SC.name AS skuCatName, VP.skuSubCatId, SSC.name AS skuSubCatName,"
+            + "    P.promoGrpId, PG.name AS promoGrpName, VP.promoId, P.name AS promoName,"
+            + "    P.extInfoKind, P.photoEnabled, VP.extInfoType, VP.extInfoVal, VP.extInfoVal2, VP.extInfoName"
+            + "  FROM VisitOurPromo VP"
+            + "  LEFT JOIN SkuCat SC ON VP.skuCatId = SC.skuCatId"
+            + "  LEFT JOIN SkuSubCat SSC ON VP.skuSubCatId = SSC.skuSubCatId"
+            + "  LEFT JOIN Promo P ON VP.promoId = P.promoId"
+            + "  LEFT JOIN PromoGrp PG ON P.promoGrpId = PG.promoGrpId"
+            + "  WHERE VP.visitId = ?"
+            + "    AND VP.skuCatId = ?";
+        tx.executeSql(sql, [visitId, skuCatId], datasetGet, dbTools.onSqlError);
+    }, dbTools.onTransError);
+}
+
+dbTools.visitOurPromoGet = function(visitOurPromoId, visitId, skuCatId, skuSubCatId, promoId, datasetGet) {
+    log("visitOurPromoGet(" + visitOurPromoId + ", " + visitId + ", " + skuCatId + ", " + skuSubCatId + ", " + promoId + ")");
+    dbTools.db.transaction(function(tx) {
+        var sql = "";
+        var params = [];
+        if (visitOurPromoId > 0) {
+            sql = "SELECT VP.visitId, VP.visitOurPromoId, VP.skuCatId, SC.name AS skuCatName, VP.skuSubCatId, SSC.name AS skuSubCatName,"
+                + "    P.promoGrpId, PG.name AS promoGrpName, VP.promoId, P.name AS promoName,"
+                + "    P.extInfoKind, P.photoEnabled, VP.extInfoType, VP.extInfoVal, VP.extInfoVal2, VP.extInfoName, VPP.visitOurPromoPhotoCnt"
+                + "  FROM VisitOurPromo VP"
+                + "  LEFT JOIN SkuCat SC ON VP.skuCatId = SC.skuCatId"
+                + "  LEFT JOIN SkuSubCat SSC ON VP.skuSubCatId = SSC.skuSubCatId"
+                + "  LEFT JOIN Promo P ON VP.promoId = P.promoId"
+                + "  LEFT JOIN PromoGrp PG ON P.promoGrpId = PG.promoGrpId"
+                + "  LEFT JOIN (SELECT visitOurPromoId, COUNT(*) AS visitOurPromoPhotoCnt FROM VisitOurPromoPhoto WHERE fileId IS NOT NULL GROUP BY visitOurPromoId) VPP ON VP.visitOurPromoId = VPP.visitOurPromoId"
+                + "  WHERE VP.visitOurPromoId = ?";
+            params = [visitOurPromoId];
+        } else {
+            sql = "SELECT VP.visitId, VP.visitOurPromoId, VP.skuCatId, SC.name AS skuCatName, VP.skuSubCatId, SSC.name AS skuSubCatName,"
+                + "    P.promoGrpId, PG.name AS promoGrpName, VP.promoId, P.name AS promoName,"
+                + "    P.extInfoKind, P.photoEnabled, VP.extInfoType, VP.extInfoVal, VP.extInfoVal2, VP.extInfoName, VPP.visitOurPromoPhotoCnt"
+                + "  FROM VisitOurPromo VP"
+                + "  LEFT JOIN SkuCat SC ON VP.skuCatId = SC.skuCatId"
+                + "  LEFT JOIN SkuSubCat SSC ON VP.skuSubCatId = SSC.skuSubCatId"
+                + "  LEFT JOIN Promo P ON VP.promoId = P.promoId"
+                + "  LEFT JOIN PromoGrp PG ON P.promoGrpId = PG.promoGrpId"
+                + "  LEFT JOIN (SELECT visitOurPromoId, COUNT(*) AS visitOurPromoPhotoCnt FROM VisitOurPromoPhoto WHERE fileId IS NOT NULL GROUP BY visitOurPromoId) VPP ON VP.visitOurPromoId = VPP.visitOurPromoId"
+                + "  WHERE VP.visitId = ? AND VP.skuCatId = ? AND VP.skuSubCatId = ? AND VP.promoId = ?";
+            params = [visitId, skuCatId, skuSubCatId, promoId];
+        }
+        tx.executeSql(sql, params, datasetGet, dbTools.onSqlError);
+    }, dbTools.onTransError);
+}
+
+dbTools.visitOurPromoUpdate = function(visitId, visitOurPromoId, skuCatId, skuSubCatId, promoId, extInfoType, extInfoVal, extInfoVal2, extInfoName, onSuccess, onError) {
+    log("visitOurPromoUpdate(" + visitId + ", " + visitOurPromoId + ", " + skuCatId + ", " + skuSubCatId + ", " + promoId + ", " + extInfoType + ", " + extInfoVal + ", " + extInfoVal2 + ", " + extInfoName + ")");
+    dbTools.db.transaction(function(tx) {
+        if (visitOurPromoId > 0) {
+            if (visitId != null || skuCatId != null || skuSubCatId != null
+                    || promoId != null || extInfoVal != null || extInfoVal2 != null || extInfoName != null) {
+                dbTools.sqlInsertUpdate(tx, "VisitOurPromo", ["visitOurPromoId"], ["visitId", "skuCatId", "skuSubCatId", "promoId", "extInfoType", "extInfoVal", "extInfoVal2", "extInfoName"], 
+                        [visitOurPromoId], [visitId, skuCatId, skuSubCatId, promoId, extInfoType, extInfoVal, extInfoVal2, extInfoName], 
+                    function() {if (onSuccess != undefined) {onSuccess(visitOurPromoId);}},
+                    onError
+                );
+            } else {
+                dbTools.sqlDelete(tx, "VisitOurPromo", ["visitOurPromoId"], [visitOurPromoId],
+                    function() {if (onSuccess != undefined) {onSuccess(visitOurPromoId);}},
+                    onError
+                );
+            }
+        } else {
+            dbTools.visitOurPromoGet(visitOurPromoId, visitId, skuCatId, skuSubCatId, promoId, 
+                function(tx, rs) {
+                    if (rs.rows.length > 0) {
+                        visitOurPromoId = rs.rows.item(0).visitOurPromoId;
+                        dbTools.sqlInsertUpdate(tx, "VisitOurPromo", ["visitOurPromoId"], ["visitId", "skuCatId", "skuSubCatId", "promoId", "extInfoType", "extInfoVal", "extInfoVal2", "extInfoName"], 
+                                [visitOurPromoId], [visitId, skuCatId, skuSubCatId, promoId, extInfoType, extInfoVal, extInfoVal2, extInfoName], 
+                            function() {if (onSuccess != undefined) {onSuccess(visitOurPromoId);}},
+                            onError
+                        );
+                    } else {
+                        dbTools.tableNextIdGet(tx, "VisitOurPromo", 
+                            function(tx, visitOurPromoId) {
+                                dbTools.sqlInsertUpdate(tx, "VisitOurPromo", ["visitOurPromoId"], ["visitId", "skuCatId", "skuSubCatId", "promoId", "extInfoType", "extInfoVal", "extInfoVal2", "extInfoName"], 
+                                        [visitOurPromoId], [visitId, skuCatId, skuSubCatId, promoId, extInfoType, extInfoVal, extInfoVal2, extInfoName], 
+                                    function() {if (onSuccess != undefined) {onSuccess(visitOurPromoId);}},
+                                    onError
+                                );
+                            }, 
+                            onError
+                        );
+                    }
+                }
+            );
+        }
+    }, function(error) {if (onError != undefined) {onError("!!! SQLite transaction error, " + dbTools.errorMsg(error));}});
+}
+
+dbTools.visitOurPromoPhotoListGet = function(visitOurPromoId, datasetGet) {
+    log("visitOurPromoPhotoListGet(" + visitOurPromoId + ")");
+    dbTools.db.transaction(function(tx) {
+        var sql = "SELECT VPP.visitOurPromoId, VPP.visitOurPromoPhotoId, VPP.fileId"
+            + "  FROM VisitOurPromoPhoto VPP"
+            + "  WHERE VPP.visitOurPromoId = ?";
+        tx.executeSql(sql, [visitOurPromoId], datasetGet, dbTools.onSqlError);
+    }, dbTools.onTransError);
+}
+
+dbTools.visitOurPromoPhotoUpdate = function(visitId, visitOurPromoId, visitOurPromoPhotoId, fileId, onSuccess, onError) {
+    log("visitOurPromoPhotoUpdate(" + visitId + ", " + visitOurPromoId + ", " + visitOurPromoPhotoId + ", " + fileId + ")");
+    dbTools.db.transaction(function(tx) {
+        if (visitOurPromoPhotoId > 0) {
+                dbTools.sqlInsertUpdate(tx, "VisitOurPromoPhoto", ["visitOurPromoPhotoId"], ["visitId", "visitOurPromoId", "fileId"], [visitOurPromoPhotoId], [visitId, visitOurPromoId, fileId], 
+                    function() {if (onSuccess != undefined) {onSuccess(visitOurPromoPhotoId);}},
+                    onError
+                );
+        } else {
+            dbTools.tableNextIdGet(tx, "VisitOurPromoPhoto", 
+                function(tx, visitOurPromoPhotoId) {
+                    dbTools.sqlInsertUpdate(tx, "VisitOurPromoPhoto", ["visitOurPromoPhotoId"], ["visitId", "visitOurPromoId", "fileId"], [visitOurPromoPhotoId], [visitId, visitOurPromoId, fileId], 
+                        function() {if (onSuccess != undefined) {onSuccess(visitOurPromoPhotoId);}},
                         onError
                     );
                 }, 

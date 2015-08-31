@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <script src="scripts/VisitOurPromo.js"></script>
+    <script src="scripts/PhotoGallery.js"></script>
+    
+    <div id="visit-our-promo-promos-view"
+        data-role="view" 
+        data-title="Дополнительная промо-активность NIVEA" 
+        data-layout="main" 
+        data-init="visitOurPromoPromosInit" 
+        data-show="visitOurPromoPromosShow"
+        data-after-show="visitOurPromoPromosAfterShow">
+        
+        <header data-role="header">
+            <div data-role="navbar">
+                <a class="nav-button" data-align="left" data-role="button" data-icon="back" data-click="visitOurPromoPromosNavBackClick"></a>
+                <span data-role="view-title"></span>
+                <a class="nav-button" data-align="right" data-role="button" data-icon="add" data-click="visitOurPromoAddClick"></a>
+            </div>
+        </header>
+        
+        <ul id="visit-our-promo-promos-list" class="list list-item-header" data-role="listview" data-template="visit-our-promo-promos-list-tmpl" data-click="visitOurPromoPromosListClick"></ul>
+    
+        <script id="visit-our-promo-promos-list-tmpl" type="text/x-kendo-template">
+            <a class="list-item-header">
+                <p>
+                    <div>#if (skuSubCatName != null) {# (#:skuSubCatName#)#}#: #:promoName#</div>
+                    <div class="list-item-comment">
+                        #switch (extInfoKind) {
+                            case 1:
+                                switch (extInfoType) {
+                                    case 1:
+                                        #% скидки: #:(extInfoVal != null ? extInfoVal * 100 + "%" : "")##
+                                    break;
+                                    case 2:
+                                        #Сумма скидки: #:(extInfoVal != null ? extInfoVal : "")##
+                                    break;
+                                    case 3:
+                                        #Старая цена: #:(extInfoVal != null ? extInfoVal : "")###, новая цена: #:(extInfoVal2 != null ? extInfoVal2 : "")##
+                                    break;
+                                }
+                                break;
+                            case 2:
+                                #Количество к оплате: #:(extInfoVal != null ? extInfoVal : "")#, количество к получению: #:(extInfoVal2 != null ? extInfoVal2 : "")##
+                                break;
+                            case 3:
+                                #Механика: #:(extInfoName != null ? extInfoName : "")#, объем: #:(extInfoVal != null ? extInfoVal : "")##
+                                break;
+                            case 4:
+                                #Механика: #:(extInfoName != null ? extInfoName : "")##
+                                break;
+                            case 5:
+                                #Примечание: #:(extInfoName != null ? extInfoName : "")##
+                                break;
+                        }#
+                    </div>
+                </p>
+            </a>
+        </script>
+        
+    </div>
+    
+    <div id="visit-our-promo-sub-cat-view"
+        data-role="view" 
+        data-title="Подкатегория" 
+        data-layout="main" 
+        data-show="visitOurPromoSubCatShow"
+        data-after-show="visitOurPromoSubCatAfterShow">
+        
+        <header data-role="header">
+            <div data-role="navbar">
+                <a class="nav-button" data-align="left" data-role="button" data-icon="back" data-click="visitOurPromoSubCatNavBackClick"></a>
+                <span data-role="view-title"></span>
+            </div>
+        </header>
+        
+        <ul id="visit-our-promo-sub-cat-list" class="list list-item-header" data-role="listview" data-template="visit-our-promo-sub-cat-list-tmpl" data-click="visitOurPromoSubCatListClick"></ul>
+    
+        <script id="visit-our-promo-sub-cat-list-tmpl" type="text/x-kendo-template">
+            <a class="list-item-header">
+                <p><div>#:name#</div></p>
+            </a>
+        </script>
+    </div>
+    
+    <div id="visit-our-promo-promo-grp-view"
+        data-role="view" 
+        data-title="Группа промо-активности" 
+        data-layout="main" 
+        data-show="visitOurPromoPromoGrpShow"
+        data-after-show="visitOurPromoPromoGrpAfterShow">
+        
+        <header data-role="header">
+            <div data-role="navbar">
+                <a class="nav-button" data-align="left" data-role="button" data-icon="back" href="#:back"></a>
+                <span data-role="view-title"></span>
+            </div>
+        </header>
+        
+        <ul id="visit-our-promo-promo-grp-list" class="list list-item-header" data-role="listview" data-template="visit-our-promo-promo-grp-list-tmpl" data-click="visitOurPromoPromoGrpListClick"></ul>
+    
+        <script id="visit-our-promo-promo-grp-list-tmpl" type="text/x-kendo-template">
+            <a class="list-item-header">
+                <p><div>#:name#</div></p>
+            </a>
+        </script>
+    </div>
+    
+    <div id="visit-our-promo-promo-view"
+        data-role="view" 
+        data-title="Промо-активность" 
+        data-layout="main" 
+        data-init="visitOurPromoPromoInit" 
+        data-show="visitOurPromoPromoShow"
+        data-after-show="visitOurPromoPromoAfterShow">
+        
+        <header data-role="header">
+            <div data-role="navbar">
+                <a class="nav-button" data-align="left" data-role="button" data-icon="back" href="#:back"></a>
+                <span data-role="view-title"></span>
+            </div>
+        </header>
+        
+        <ul id="visit-our-promo-promo-list" class="list list-item-header" data-role="listview" data-template="visit-our-promo-promo-list-tmpl" data-click="visitOurPromoPromoListClick"></ul>
+    
+        <script id="visit-our-promo-promo-list-tmpl" type="text/x-kendo-template">
+            <a class="list-item-header">
+                <p><div>#:name#</div></p>
+            </a>
+        </script>
+    </div>
+    
+    <div id="visit-our-promo-edit-view"
+        data-role="view" 
+        data-title="Промо-активность" 
+        data-layout="main" 
+        data-init="visitOurPromoEditInit"
+        data-show="visitOurPromoEditShow"
+        data-after-show="visitOurPromoEditAfterShow">
+        
+        <header data-role="header">
+            <div data-role="navbar">
+                <a class="nav-button" data-align="left" data-role="button" data-icon="back" data-click="visitOurPromoEditNavBackClick"></a>
+                <span data-role="view-title"></span>
+                <a id="visit-our-promo-edit-save-button" class="nav-button hidden" data-align="right" data-role="button" data-click="visitOurPromoEditSaveClick">Сохранить</a>
+                <a id="visit-our-promo-edit-del-button" class="nav-button hidden" data-align="right" data-role="button" data-click="visitOurPromoEditDelClick">Удалить</a>
+            </div>
+        </header>
+        
+        <form>
+            <ul id="visit-our-promo-edit-list" class="list form-list" data-role="listview" data-click="visitOurPromoEditListClick">
+                <li>
+                    <label>Описание
+                        <div><span id="visit-our-promo-edit-brand-name"></span><span id="visit-our-promo-edit-sub-cat-name"></span>: <span id="visit-our-promo-edit-promo-name"></span></div>
+                    </label>
+                </li>
+                <li class="visit-our-promo-edit-ext-kind1">
+                    <label class="visit-our-promo-edit-ext-kind1">Вид скидки
+                        <input id="visit-our-promo-edit-ext-type" class="editable" />
+                    </label>
+                </li>
+                <li class="visit-our-promo-edit-ext-kind1 visit-our-promo-edit-ext-type1">
+                    <label class="visit-our-promo-edit-ext-kind1 visit-our-promo-edit-ext-type1">% скидки
+                        <input id="visit-our-promo-edit-ext-discount-percent" class="editable" type="number" onchange="visitOurPromoEditControlChange(this.id, this.value)" onkeyup="visitOurPromoEditControlKeyUp(this)"/>
+                    </label>
+                </li>
+                <li class="visit-our-promo-edit-ext-kind1 visit-our-promo-edit-ext-type2">
+                    <label class="visit-our-promo-edit-ext-kind1 visit-our-promo-edit-ext-type2">Сумма скидки
+                        <input id="visit-our-promo-edit-ext-discount-value" class="editable" type="number" onchange="visitOurPromoEditControlChange(this.id, this.value)" onkeyup="visitOurPromoEditControlKeyUp(this)"/>
+                    </label>
+                </li>
+                <li class="visit-our-promo-edit-ext-kind1 visit-our-promo-edit-ext-type3">
+                    <label class="visit-our-promo-edit-ext-kind1 visit-our-promo-edit-ext-type3">Старая цена
+                        <input id="visit-our-promo-edit-ext-discount-price-old" class="editable" type="number" onchange="visitOurPromoEditControlChange(this.id, this.value)" onkeyup="visitOurPromoEditControlKeyUp(this)"/>
+                    </label>
+                </li>
+                <li class="visit-our-promo-edit-ext-kind1 visit-our-promo-edit-ext-type3">
+                    <label class="visit-our-promo-edit-ext-kind1 visit-our-promo-edit-ext-type3">Новая цена
+                        <input id="visit-our-promo-edit-ext-discount-price-new" class="editable" type="number" onchange="visitOurPromoEditControlChange(this.id, this.value)" onkeyup="visitOurPromoEditControlKeyUp(this)"/>
+                    </label>
+                </li>
+                <li class="visit-our-promo-edit-ext-kind2">
+                    <label class="visit-our-promo-edit-ext-kind2">Количество к оплате
+                        <input id="visit-our-promo-edit-ext-qty-pay" class="editable" type="number" onchange="visitOurPromoEditControlChange(this.id, this.value)" onkeyup="visitOurPromoEditControlKeyUp(this)"/>
+                    </label>
+                </li>
+                <li class="visit-our-promo-edit-ext-kind2">
+                    <label class="visit-our-promo-edit-ext-kind2">Количество к получению
+                        <input id="visit-our-promo-edit-ext-qty-get" class="editable" type="number" onchange="visitOurPromoEditControlChange(this.id, this.value)" onkeyup="visitOurPromoEditControlKeyUp(this)"/>
+                    </label>
+                </li>
+                <li class="visit-our-promo-edit-ext-kind3">
+                    <label class="visit-our-promo-edit-ext-kind3">Механика
+                        <input id="visit-our-promo-edit-ext-name" class="editable" type="text" onchange="visitOurPromoEditControlChange(this.id, this.value)" onkeyup="visitOurPromoEditControlKeyUp(this)"/>
+                    </label>
+                </li>
+                <li class="visit-our-promo-edit-ext-kind3">
+                    <label class="visit-our-promo-edit-ext-kind3">Объем
+                        <input id="visit-our-promo-edit-ext-volume" class="editable" type="number" onchange="visitOurPromoEditControlChange(this.id, this.value)" onkeyup="visitOurPromoEditControlKeyUp(this)"/>
+                    </label>
+                </li>
+                <li class="visit-our-promo-edit-ext-kind4">
+                    <label class="visit-our-promo-edit-ext-kind4">Механика
+                        <input id="visit-our-promo-edit-ext-name2" class="editable" type="text" onchange="visitOurPromoEditControlChange(this.id, this.value)" onkeyup="visitOurPromoEditControlKeyUp(this)"/>
+                    </label>
+                </li>
+                <li class="visit-our-promo-edit-ext-kind5">
+                    <label class="visit-our-promo-edit-ext-kind5">Примечание
+                        <input id="visit-our-promo-edit-ext-name3" class="editable" type="text" onchange="visitOurPromoEditControlChange(this.id, this.value)" onkeyup="visitOurPromoEditControlKeyUp(this)"/>
+                    </label>
+                </li>
+                <li id="visit-our-promo-edit-li-photo-gallery">
+                    <a id="visit-our-promo-edit-photo-gallery"
+                        style="background-image: url(styles/images/TakePhoto1.png); background-repeat: no-repeat; background-position: 15px center">
+                        <p><div style="margin-left: 60px;">Фотоотчет</div></p>
+                    </a>
+                </li>
+            </ul>
+        </form>
+    </div>
+    
+</body>
+</html>
