@@ -29,7 +29,7 @@
         <script id="visit-our-promo-promos-list-tmpl" type="text/x-kendo-template">
             <a class="list-item-header">
                 <p>
-                    <div>#if (skuSubCatName != null) {# (#:skuSubCatName#)#}#: #:promoName#</div>
+                    <div>#if (skuSubCatName != null) {##:skuSubCatName##}#: #:promoName#</div>
                     <div class="list-item-comment">
                         #switch (extInfoKind) {
                             case 1:
@@ -156,7 +156,7 @@
             <ul id="visit-our-promo-edit-list" class="list form-list" data-role="listview" data-click="visitOurPromoEditListClick">
                 <li>
                     <label>Описание
-                        <div><span id="visit-our-promo-edit-brand-name"></span><span id="visit-our-promo-edit-sub-cat-name"></span>: <span id="visit-our-promo-edit-promo-name"></span></div>
+                        <div><span id="visit-our-promo-edit-sub-cat-name"></span>: <span id="visit-our-promo-edit-promo-name"></span></div>
                     </label>
                 </li>
                 <li class="visit-our-promo-edit-ext-kind1">

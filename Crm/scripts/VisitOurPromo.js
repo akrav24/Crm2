@@ -59,7 +59,7 @@ function visitOurPromoPromosListClick(e) {
 function visitOurPromoSubCatShow(e) {
     log("..visitOurPromoSubCatShow");
     visitOurPromoItemClear(1);
-    dbTools.visitOurPromoSubCatListGet(settings.skuCatId, function(tx, rs) {renderVisitOurPromoSubCatView(tx, rs, visitOurPromoItem.subCatGoToNextViewIfEmpty);});
+    dbTools.visitPromoSubCatListGet(settings.skuCatId, function(tx, rs) {renderVisitOurPromoSubCatView(tx, rs, visitOurPromoItem.subCatGoToNextViewIfEmpty);});
 }
 
 function visitOurPromoSubCatAfterShow(e) {
@@ -72,7 +72,7 @@ function renderVisitOurPromoSubCatView(tx, rs, goToNextViewIfEmpty) {
     visitOurPromoItem.skuSubCatCount = rs.rows.length;
     if (visitOurPromoItem.skuSubCatCount === 0) {
         if (goToNextViewIfEmpty) {
-            navigateTo("#visit-our-promo-brand-view");
+            navigateTo("#visit-our-promo-promo-grp-view");
         }
     }
 }
@@ -139,7 +139,7 @@ function visitOurPromoBrandListClick(e) {
 function visitOurPromoPromoGrpShow(e) {
     log("..visitOurPromoPromoGrpShow");
     visitOurPromoItemClear(3);
-    dbTools.visitOurPromoPromoGrpListGet(renderVisitOurPromoPromoGrpView);
+    dbTools.visitPromoPromoGrpListGet(renderVisitOurPromoPromoGrpView);
 }
 
 function visitOurPromoPromoGrpAfterShow(e) {
@@ -178,7 +178,7 @@ function visitOurPromoPromoGrpListClick(e) {
 function visitOurPromoPromoShow(e) {
     log("..visitOurPromoPromoShow");
     visitOurPromoItemClear(4);
-    dbTools.visitOurPromoPromoListGet(visitOurPromoItem.promoGrpId, renderVisitOurPromoPromoView);
+    dbTools.visitPromoPromoListGet(visitOurPromoItem.promoGrpId, renderVisitOurPromoPromoView);
 }
 
 function visitOurPromoPromoAfterShow(e) {
@@ -219,7 +219,7 @@ function visitOurPromoPromoGoForward(promoId, promoName, extInfoKind, photoEnabl
 
 function visitOurPromoSave(onSuccess) {
     dbTools.objectListItemSet("visit-list", true);
-    dbTools.visitOurPromoUpdate(visit.visitId, visitOurPromoItem.visitOurPromoId, settings.skuCatId, visitOurPromoItem.skuSubCatId, visitOurPromoItem.brandId, 
+    dbTools.visitOurPromoUpdate(visit.visitId, visitOurPromoItem.visitOurPromoId, settings.skuCatId, visitOurPromoItem.skuSubCatId, 
             visitOurPromoItem.promoId, visitOurPromoItem.extInfoType, visitOurPromoItem.extInfoVal, visitOurPromoItem.extInfoVal2, visitOurPromoItem.extInfoName, 
         function(visitOurPromoId) {if (onSuccess != undefined) {onSuccess(visitOurPromoId);}}, 
         dbTools.onSqlError
@@ -250,7 +250,7 @@ function visitOurPromoEditShow(e) {
     log("..visitOurPromoEditShow");
     if (!visitOurPromoItem.isNotDataReload) {
         visitOurPromoItemClear(5);
-        dbTools.visitOurPromoGet(visitOurPromoItem.visitOurPromoId, visit.visitId, settings.skuCatId, visitOurPromoItem.skuSubCatId, visitOurPromoItem.brandId, 
+        dbTools.visitOurPromoGet(visitOurPromoItem.visitOurPromoId, visit.visitId, settings.skuCatId, visitOurPromoItem.skuSubCatId, 
             visitOurPromoItem.promoId, renderVisitOurPromoEditView);
     }
     visitOurPromoItem.isNotDataReload = false;
@@ -296,8 +296,7 @@ function visitOurPromoEditNavBackClick() {
 
 function visitOurPromoEditFillControls() {
     log("..visitOurPromoEditFillControls");
-    $("#visit-our-promo-edit-brand-name").text(visitOurPromoItem.brandName);
-    $("#visit-our-promo-edit-sub-cat-name").text(visitOurPromoItem.skuSubCatName != null ? (" (" + visitOurPromoItem.skuSubCatName + ")") : "");
+    $("#visit-our-promo-edit-sub-cat-name").text(visitOurPromoItem.skuSubCatName != null ? (visitOurPromoItem.skuSubCatName) : "");
     $("#visit-our-promo-edit-promo-name").text(visitOurPromoItem.promoName);
     $("#visit-our-promo-edit-ext-type").data("kendoDropDownList").value(visitOurPromoItem.extInfoType);
     $("#visit-our-promo-edit-ext-discount-percent").val(null);
@@ -478,7 +477,7 @@ function visitOurPromoEditSave(onSuccess) {
     if (visitOurPromoItem.visitOurPromoId == null) {
         visitOurPromos.Count++;
     }
-    dbTools.visitOurPromoUpdate(visit.visitId, visitOurPromoItem.visitOurPromoId, settings.skuCatId, visitOurPromoItem.skuSubCatId, visitOurPromoItem.brandId, 
+    dbTools.visitOurPromoUpdate(visit.visitId, visitOurPromoItem.visitOurPromoId, settings.skuCatId, visitOurPromoItem.skuSubCatId, 
             visitOurPromoItem.promoId, visitOurPromoItem.extInfoType, visitOurPromoItem.extInfoVal, visitOurPromoItem.extInfoVal2, visitOurPromoItem.extInfoName, 
         function(visitOurPromoId) {
             for (; visitOurPromoItem.newPhotoLst.length > 0; ) {
@@ -592,10 +591,6 @@ function visitOurPromoItemClear(step) {
         visitOurPromoItem.skuSubCatCount = 0;
         visitOurPromoItem.skuSubCatId = null;
         visitOurPromoItem.skuSubCatName = null;
-    }
-    if (step <= 2) {
-        visitOurPromoItem.brandId = null;
-        visitOurPromoItem.brandName = null;
     }
     if (step <= 3) {
         visitOurPromoItem.promoGrpId = null;

@@ -83,8 +83,10 @@ function renderVisitSkuPriceEditView(tx, rs) {
     }
     visitSkuPriceEditFillControls();
     visitSkuPriceEditEnableControls();
-    $("#visit-sku-price-edit-name").focus();
-    $("#visit-sku-price-edit-price").focus();
+    if (!visit.readonly) {
+        $("#visit-sku-price-edit-price").focus();
+        //cordova.plugins.Keyboard.show();
+    }
     //app.scroller().reset();
 }
 
