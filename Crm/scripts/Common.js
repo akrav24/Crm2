@@ -1,11 +1,16 @@
-inArray = Array.prototype.indexOf ?
+var bizlg = {};
+bizlg.cmn = {};
+
+bizlg.cmn.inArray = Array.prototype.indexOf ?
     function (arr, val) {
-        return arr.indexOf(val) != -1
+        //log("..inArray[1](" + JSON.stringify(arr) + ", " + val + ")");
+        return arr.indexOf(val) != -1;
     } :
     function (arr, val) {
-        var i = arr.length
+        //log("..inArray[2](" + JSON.stringify(arr) + ", " + val + ")");
+        var i = arr.length;
         while (i--) {
-            if (arr[i] === val) return true
+            if (arr[i] === val) return true;
         }
         return false
     }
@@ -236,7 +241,7 @@ function viewTitleSet(view, title) {
 
 function windowOrientation() {
     log("....window.orientation=" + window.orientation);
-    return inArray([0, 180], window.orientation);
+    return bizlg.cmn.inArray([0, 180], window.orientation);
 }
 
 function translit(str, v) {
@@ -276,4 +281,30 @@ function appVersionToStr(appVersion) {
         }
     }
     return res;
+}
+
+function filterInput(e, regexp) {
+  e = e || window.event;
+  var target = e.target || e.srcElement;
+  var isIE = document.all;
+
+  if (target.tagName.toUpperCase() == 'INPUT')
+  {
+    var code=isIE ? e.keyCode : e.which;
+log("====code: " + code);
+    if (code<32 || e.ctrlKey || e.altKey) {
+log("====TRUE");
+        return true;
+    }
+
+    var char=String.fromCharCode(code);
+log("====char: " + char);
+    if (!regexp.test(char)) {
+log("====FALSE");
+        return false;
+    }
+  }
+    
+log("====TRUE");
+    return true;
 }

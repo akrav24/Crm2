@@ -32,8 +32,8 @@
         
         <script id="visit-history-list-tmpl" type="text/x-kendo-template">
             <a class="list-item-header"
-                #if (inArray([2, 3, 4, 5], visitType)) {#
-                    style="background-image: url(styles/images/Route0#if (inArray([4, 5], visitType)) {#1#} else {#2#}#.png); background-repeat: no-repeat; background-position: 15px center"
+                #if (bizlg.cmn.inArray([2, 3, 4, 5], visitType)) {#
+                    style="background-image: url(styles/images/Route0#if (bizlg.cmn.inArray([4, 5], visitType)) {#1#} else {#2#}#.png); background-repeat: no-repeat; background-position: 15px center"
                 #}#
             >
                 <p><div style="margin-left: 45px;">#:periodToStr(sqlDateToDate(timeBgn), sqlDateToDate(timeEnd))#</div></p>

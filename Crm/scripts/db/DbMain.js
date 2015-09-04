@@ -51,17 +51,17 @@ dbTools.createSystemTables = function(onSuccess) {
         tx.executeSql("CREATE TABLE IF NOT EXISTS Script(versionId int, sql varchar(8000), constraint pkScript primary key(versionId))", [], undefined, dbTools.onSqlError);
         
         dbTools.tableFieldListGet(tx, "MailExchParm", function(tx, tableName, fieldList) {
-            if (!inArray(fieldList, "appVersion")) {tx.executeSql("ALTER TABLE MailExchParm ADD appVersion int", [], undefined, dbTools.onSqlError);}
+            if (!bizlg.cmn.inArray(fieldList, "appVersion")) {tx.executeSql("ALTER TABLE MailExchParm ADD appVersion int", [], undefined, dbTools.onSqlError);}
          }, function(errMsg) {log(errMsg);});
         
         dbTools.tableFieldListGet(tx, "parm", function(tx, tableName, fieldList) {
-            if (!inArray(fieldList, "password")) {tx.executeSql("ALTER TABLE Parm ADD password varchar(250)", [], undefined, dbTools.onSqlError);}
-            if (!inArray(fieldList, "exchDataFromOfficeSent")) {tx.executeSql("ALTER TABLE Parm ADD exchDataFromOfficeSent datetime", [], undefined, dbTools.onSqlError);}
-            if (!inArray(fieldList, "exchDataFromOfficeReceived")) {tx.executeSql("ALTER TABLE Parm ADD exchDataFromOfficeReceived datetime", [], undefined, dbTools.onSqlError);}
-            if (!inArray(fieldList, "exchDataToOfficeSent")) {tx.executeSql("ALTER TABLE Parm ADD exchDataToOfficeSent datetime", [], undefined, dbTools.onSqlError);}
-            if (!inArray(fieldList, "serverName")) {tx.executeSql("ALTER TABLE Parm ADD serverName varchar(250)", [], undefined, dbTools.onSqlError);}
-            if (!inArray(fieldList, "serverPort")) {tx.executeSql("ALTER TABLE Parm ADD serverPort int", [], undefined, dbTools.onSqlError);}
-            if (!inArray(fieldList, "appVersion")) {tx.executeSql("ALTER TABLE Parm ADD appVersion int", [], undefined, dbTools.onSqlError);}
+            if (!bizlg.cmn.inArray(fieldList, "password")) {tx.executeSql("ALTER TABLE Parm ADD password varchar(250)", [], undefined, dbTools.onSqlError);}
+            if (!bizlg.cmn.inArray(fieldList, "exchDataFromOfficeSent")) {tx.executeSql("ALTER TABLE Parm ADD exchDataFromOfficeSent datetime", [], undefined, dbTools.onSqlError);}
+            if (!bizlg.cmn.inArray(fieldList, "exchDataFromOfficeReceived")) {tx.executeSql("ALTER TABLE Parm ADD exchDataFromOfficeReceived datetime", [], undefined, dbTools.onSqlError);}
+            if (!bizlg.cmn.inArray(fieldList, "exchDataToOfficeSent")) {tx.executeSql("ALTER TABLE Parm ADD exchDataToOfficeSent datetime", [], undefined, dbTools.onSqlError);}
+            if (!bizlg.cmn.inArray(fieldList, "serverName")) {tx.executeSql("ALTER TABLE Parm ADD serverName varchar(250)", [], undefined, dbTools.onSqlError);}
+            if (!bizlg.cmn.inArray(fieldList, "serverPort")) {tx.executeSql("ALTER TABLE Parm ADD serverPort int", [], undefined, dbTools.onSqlError);}
+            if (!bizlg.cmn.inArray(fieldList, "appVersion")) {tx.executeSql("ALTER TABLE Parm ADD appVersion int", [], undefined, dbTools.onSqlError);}
             
             if (settings.nodeId > 0) {
                 tx.executeSql("INSERT INTO Parm(nodeId, dataVersionId, password, serverName, serverPort) SELECT ?, 0, ?, ?, ? WHERE NOT EXISTS(SELECT 1 FROM Parm WHERE nodeId = ?)", 
@@ -171,11 +171,12 @@ dbTools.tableNextIdGet = function(tx, tableName, onSuccess, onError) {
 }
 
 dbTools.tableUpdateDateFieldExists = function(tableName) {
-    return 
-        !inArray(
+    //log("tableUpdateDateFieldExists(" + tableName + ")");
+    var res = !bizlg.cmn.inArray(
             ["parm", "visitpromo", "visitsku", "visitskucat", "visitpromophoto", "visitsurveyanswer", "visittask", "visitskuprice", 
                 "visitphoto", "visitplanogramanswer", "visitphototag", "visitsubtask", "visitplanogram", "visitourpromo", "visitourpromophoto"
             ], tableName.toLowerCase());
+    return res;
 }
 
 dbTools.sqlInsert = function(tx, tableName, keyFieldNameArray, fieldNameArray, keyFieldValueArray, fieldValueArray, onSuccess, onError) {

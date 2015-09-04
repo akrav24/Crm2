@@ -36,11 +36,17 @@ function renderVisitSkuPriceView(tx, rs) {
         app.scroller().reset();
         visitSkuPriceList.scrollerReset = false;
     }
+    visitSkuPriceEnableControls();
 }
 
 function visitSkuPriceNavBackClick(e) {
     log("..visitSkuPriceNavBackClick");
     navigateBack(visitSkuPriceList.navBackCount);
+}
+
+function visitSkuPriceEnableControls() {
+    log("..visitSkuPriceEnableControls");
+    $("#visit-sku-price-list-view .editable").prop("readonly", visit.readonly);
 }
 
 function visitSkuPriceListClick(e) {
@@ -52,6 +58,47 @@ function visitSkuPriceListClick(e) {
     visitSkuPriceItem.suppName = e.dataItem.suppName;
     visitSkuPriceItem.price = e.dataItem.price;
     app.navigate("#visit-sku-price-edit-view");
+}
+
+function visitSkuPriceControlFocus(e) {
+    log("..visitSkuPriceControlFocus('" + e.id + "')");
+    if (!visit.readonly) {
+        switch (e.id) {
+            case "visit-sku-price-price":
+                    if (e.value == 0) {
+                        $(e).val("");
+                    }
+                break;
+        }
+    }
+}
+
+function visitSkuPriceControlChange(id, skuId, value) {
+    log("..visitSkuPriceControlChange('" + id + "', " + skuId + ", '" + value + "')");
+    var val = value != "" && !isNaN(value) ? value : null;
+    switch (id) {
+        case "visit-sku-price-price":
+            dbTools.objectListItemSet("visit-list", true);
+            dbTools.visitSkuPriceUpdate(visit.visitId, skuId, val, 
+                undefined, 
+                dbTools.onSqlError
+            );
+            break;
+    }
+}
+
+function visitSkuPriceControlKeyPress(id, skuId, value) {
+    log("..visitSkuPriceControlChange('" + id + "', " + skuId + ", '" + value + "')");
+    var val = value != "" && !isNaN(value) ? value : null;
+    switch (id) {
+        case "visit-sku-price-price":
+            dbTools.objectListItemSet("visit-list", true);
+            dbTools.visitSkuPriceUpdate(visit.visitId, skuId, val, 
+                undefined, 
+                dbTools.onSqlError
+            );
+            break;
+    }
 }
 
 //----------------------------------------

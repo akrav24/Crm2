@@ -96,7 +96,7 @@ dbTools.visitAddCheck = function(onSuccess, onError) {
 }
 
 dbTools.visitAdd = function(dateBgn, custId, onSuccess, onError) {
-    log("visitAdd(" + custId + ")");
+    log("visitAdd('" + dateToSqlDate(dateBgn) + "', " + custId + ")");
     dbTools.db.transaction(function(tx) {
         dbTools.tableNextIdGet(tx, "Visit", 
             function(tx, visitId) {
@@ -1206,7 +1206,7 @@ dbTools.visitSkuPriceGet = function(visitId, skuId, datasetGet) {
 }
 
 dbTools.visitSkuPriceUpdate = function(visitId, skuId, price, onSuccess, onError) {
-    log("visitTaskDoneUpdate(" + visitId + ", " + skuId + ", " + price + ")");
+    log("visitSkuPriceUpdate(" + visitId + ", " + skuId + ", " + price + ")");
     dbTools.db.transaction(function(tx) {
         dbTools.sqlInsertUpdate(tx, "VisitSkuPrice", ["visitId", "skuId"], ["price"], [visitId, skuId], [price], 
             function() {if (onSuccess != undefined) {onSuccess(visitId, skuId);}},
