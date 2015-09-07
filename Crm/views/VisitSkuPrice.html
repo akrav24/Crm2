@@ -21,27 +21,47 @@
             </div>
         </header>
         
+        <form>
+        
         <ul id="visit-sku-price-list" class="list" data-role="listview" data-template="visit-sku-price-list-tmpl" data-click="visitSkuPriceListClick1"></ul>
         
         <script id="visit-sku-price-list-tmpl" type="text/x-kendo-template">
             <!--<a class="list-item-header">-->
                 <p>
-                    <table width="100%">
+                    <table width="100%"#if (visitSkuPriceList.skuMode == 2 && data.lvl == 1) {# class="color-selected"#}#>
                         <tr class="table-text-align#if (data.ext != 0) {# color-ext#}#">
                             <td width="60px"><span style="margin-left: 10px">#:code#</span></td>
-                            <td width="100%"><div>#:name#, #:suppName#</div></td>
-                            <!--<td width="100px"><div>\#:price\#</div></td>-->
-                            <td width="50px">
-                                <input id="visit-sku-price-price" class="editable" type="#if (device.model == 'SM-T230') {#text#} else {#number#}#" value="#:price#" style="width: inherit;" 
-                                    onfocus="visitSkuPriceControlFocus(this)" oninput="visitSkuPriceControlChange(this.id, #:skuId#, this.valueAsNumber)"
-                                    onkeypress="return filterInput(event, /[0-9\.]/)"/>
+                            <td width="100%">
+                                <div style="margin-left: 5px; padding-right: 5px; width: 100%;">#:name#, #:suppName#</div>
                             </td>
-                            <td><div class="list-item-table-last-empty-cell"></div></td>
+                            <!--<td width="100px"><div>\#:price\#</div></td>-->
+                            <td>
+                                <div style="height: 1em; width: 100px;">
+                                <input id="visit-sku-price-price" class="editable" type="#if (device.model == 'SM-T230') {#text#} else {#number#}#" pattern="[\d\.]*"
+                                    value="#:price#" data-old-value="" style="width: inherit; margin-right: 55px;" 
+                                    onfocus="visitSkuPriceControlFocus(this)" 
+                                    onkeydown="visitSkuPriceControlKeyDown(this, event)"
+                                    onkeypress="return visitSkuPriceControlKeyPress(this, event)"
+                                    oninput="visitSkuPriceControlChange(this, #:skuId#, #:lvl#)"
+                                />
+                                </div>
+                            </td>
+                            <td>
+                                <div style="#if (data.lvl != 1) {#height: 1em; #}#width: 50px;">
+                                    #if (visitSkuPriceList.skuMode == 1 && data.lvl == 1) {#
+                                    <a class="list-item-details-button" data-role="button" data-icon="details" href="views/VisitSkuPrice.html?skuMode=2&skuId=#:skuId#"></a>
+                                    <!--<a class="list-item-details-button" data-role="button" data-icon="details"></a>-->
+                                    #}#
+                                </div>
+                            </td>
+                            <!--<td><div class="list-item-table-last-empty-cell"></div></td>-->
                         </tr>
                     </table>
                 </p>
             <!--</a>-->
         </script>
+        
+        </form>
         
     </div>
     

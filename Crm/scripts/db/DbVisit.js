@@ -1175,19 +1175,41 @@ dbTools.visitSubTaskDoneUpdate = function(visitId, taskId, subTaskId, done, onSu
     }, function(error) {if (onError != undefined) {onError("!!! SQLite transaction error, " + dbTools.errorMsg(error));}});
 }
 
-dbTools.visitSkuPriceListGet = function(visitId, skuCatId, datasetGet) {
+dbTools.visitSkuPriceListGet = function(visitId, skuCatId, mode, skuId, datasetGet) {
     log("visitTaskListGet(" + visitId + ", " + skuCatId + ")");
     dbTools.db.transaction(function(tx) {
-        var sql = "SELECT S.skuId, CASE WHEN B.ext = 0 THEN IFNULL(S.code, '') ELSE '' END AS code, S.name, IFNULL(SP.name, '') AS suppName, B.ext, IFNULL(VSP.price, 0) AS price"
-            + "  FROM Sku S"
+        var sql = "SELECT S.skuId, CASE WHEN B.ext = 0 THEN IFNULL(S.code, '') ELSE '' END AS code, S.name, IFNULL(SP.name, '') AS suppName, B.ext, S.lvl, IFNULL(VSP.price, 0) AS price"
+            + "  FROM "
+            + "    (SELECT S.*, 1 AS lvl"
+            + "      FROM Sku S"
+            + "      WHERE @mode = 1"
+            + "        AND S.skuId IN (SELECT dstSkuId FROM skuLink)"
+            + "    UNION ALL"
+            + "    SELECT S.*, 2 AS lvl"
+            + "      FROM Sku S"
+            + "      WHERE @mode = 1"
+            + "        AND S.skuId NOT IN (SELECT skuId FROM skuLink)"
+            + "        AND S.skuId NOT IN (SELECT dstSkuId FROM skuLink)"
+            + "    UNION ALL"
+            + "    SELECT S.*, 1 AS lvl"
+            + "      FROM Sku S"
+            + "      WHERE @mode = 2"
+            + "        AND S.skuId = @skuId"
+            + "    UNION ALL"
+            + "    SELECT S.*, 2 AS lvl"
+            + "      FROM Sku S"
+            + "      WHERE @mode = 2"
+            + "        AND S.skuId IN (SELECT skuId FROM skuLink WHERE dstSkuId = @skuId)"
+            + "    ) S"
             + "  LEFT JOIN BrandGrp BG ON S.brandGrpId = BG.brandGrpId"
             + "  LEFT JOIN Brand B ON BG.brandId = B.brandId"
             + "  LEFT JOIN Supp SP ON S.suppId = SP.suppId"
-            + "  LEFT JOIN VisitSkuPrice VSP ON VSP.visitId = ? AND S.skuId = VSP.skuId"
+            + "  LEFT JOIN VisitSkuPrice VSP ON VSP.visitId = @visitId AND S.skuId = VSP.skuId"
             + "  WHERE S.pAudit <> 0 AND S.active = 1"
-            + "    AND S.skuCatId = ?"
-            + "  ORDER BY CASE WHEN B.ext = 0 THEN 0 ELSE 1 END, S.name";
-        tx.executeSql(sql, [visitId, skuCatId], datasetGet, dbTools.onSqlError);
+            + "    AND S.skuCatId = @skuCatId"
+            + "  ORDER BY CASE WHEN B.ext = 0 THEN 0 ELSE 1 END, S.lvl, S.name";
+        sql = sql.replace(/@mode/g, mode).replace(/@skuId/g, skuId).replace(/@visitId/g, visitId).replace(/@skuCatId/g, skuCatId);
+        tx.executeSql(sql, [], datasetGet, dbTools.onSqlError);
     }, dbTools.onTransError);
 }
 
@@ -1205,13 +1227,26 @@ dbTools.visitSkuPriceGet = function(visitId, skuId, datasetGet) {
     }, dbTools.onTransError);
 }
 
-dbTools.visitSkuPriceUpdate = function(visitId, skuId, price, onSuccess, onError) {
-    log("visitSkuPriceUpdate(" + visitId + ", " + skuId + ", " + price + ")");
+dbTools.visitSkuPriceUpdate = function(visitId, skuId, mode, lvl, price, onSuccess, onError) {
+    log("visitSkuPriceUpdate(" + visitId + ", " + skuId + ", " + mode + ", " + lvl + ", " + price + ")");
     dbTools.db.transaction(function(tx) {
         dbTools.sqlInsertUpdate(tx, "VisitSkuPrice", ["visitId", "skuId"], ["price"], [visitId, skuId], [price], 
-            function() {if (onSuccess != undefined) {onSuccess(visitId, skuId);}},
+            function() {if (onSuccess != undefined) {if (lvl != 1) {onSuccess(visitId, skuId);}}},
             onError
         );
+        if (mode == 1 && lvl == 1) {
+            tx.executeSql("SELECT skuId FROM SkuLink WHERE dstSkuId = ?", [skuId], 
+                function(tx, rs) {
+                    for (var i = 0; i < rs.rows.length; i++) {
+                        dbTools.sqlInsertUpdate(tx, "VisitSkuPrice", ["visitId", "skuId"], ["price"], [visitId, rs.rows.item(i).skuId], [price], 
+                            function() {if (onSuccess != undefined) {if (i == rs.rows.length - 1) {onSuccess(visitId, rs.rows.item(i).skuId);}}},
+                            onError
+                        );
+                    }
+                }, 
+                dbTools.onSqlError
+            );
+        }
     }, function(error) {if (onError != undefined) {onError("!!! SQLite transaction error, " + dbTools.errorMsg(error));}});
 }
 
