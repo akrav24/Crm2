@@ -12,7 +12,11 @@ function visitSkuPriceInit(e) {
  
 function visitSkuPriceShow(e) {
     log("..visitSkuPriceShow navBackCount=" + e.view.params.navBackCount);
-    visitSkuPriceList.navBackCount = e.view.params.navBackCount;
+    visitSkuPriceList.skuMode = e.view.params.skuMode || 1;
+    if (visitSkuPriceList.skuMode == 1) {
+        visitSkuPriceList.navBackCount = e.view.params.navBackCount;
+    }
+    visitSkuPriceList.skuId = e.view.params.skuId || -1;
     if (visitSkuPriceList.navBackCount < 1) {
         visitSkuPriceList.navBackCount = 1;
     }
@@ -24,7 +28,7 @@ function visitSkuPriceAfterShow(e) {
 }
 
 function renderVisitSkuPrice(visitId, skuCatId) {
-    dbTools.visitSkuPriceListGet(visitId, skuCatId, renderVisitSkuPriceView);
+    dbTools.visitSkuPriceListGet(visitId, skuCatId, visitSkuPriceList.skuMode, visitSkuPriceList.skuId, renderVisitSkuPriceView);
 }
 
 function renderVisitSkuPriceView(tx, rs) {
@@ -41,7 +45,11 @@ function renderVisitSkuPriceView(tx, rs) {
 
 function visitSkuPriceNavBackClick(e) {
     log("..visitSkuPriceNavBackClick");
-    navigateBack(visitSkuPriceList.navBackCount);
+    if (visitSkuPriceList.skuMode == 1) {
+        navigateBack(visitSkuPriceList.navBackCount);
+    } else {
+        navigateBack(1);
+    }
 }
 
 function visitSkuPriceEnableControls() {
@@ -73,32 +81,47 @@ function visitSkuPriceControlFocus(e) {
     }
 }
 
-function visitSkuPriceControlChange(id, skuId, value) {
-    log("..visitSkuPriceControlChange('" + id + "', " + skuId + ", '" + value + "')");
-    var val = value != "" && !isNaN(value) ? value : null;
-    switch (id) {
+function visitSkuPriceControlChange(e, skuId, lvl) {
+    log("..visitSkuPriceControlChange(e[id='" + e.id + "'], " + skuId + ")");
+    var val = e.value;
+//log("....1.val='" + val + "'");
+    switch (e.id) {
         case "visit-sku-price-price":
-            dbTools.objectListItemSet("visit-list", true);
-            dbTools.visitSkuPriceUpdate(visit.visitId, skuId, val, 
-                undefined, 
-                dbTools.onSqlError
-            );
+            var oldValue = $(e).attr("data-old-value");
+//log("....2.oldValue='" + oldValue + "'");
+//log("....2.1.val.search(/[^0-9\.,]+/)=" + val.search(/[^0-9\.,]*/));
+            if (val.search(/[^0-9\.,]+/) != -1) {
+                val = oldValue;
+//log("....3.val='" + val + "'");
+            }
+            val = val.replace(/,/g, ".");
+//log("....4.val='" + val + "'");
+            if (val != oldValue) {
+                dbTools.objectListItemSet("visit-list", true);
+//log("....SAVE(" + (val != "" ? val : null) + ")");
+                dbTools.visitSkuPriceUpdate(visit.visitId, skuId, visitSkuPriceList.skuMode, lvl, val != "" ? val : null, 
+                    undefined, 
+                    dbTools.onSqlError
+                );
+            }
+            if (e.value != val) {
+//log("....VALUE(" + val + ")");
+                e.value = val;
+            }
             break;
     }
 }
 
-function visitSkuPriceControlKeyPress(id, skuId, value) {
-    log("..visitSkuPriceControlChange('" + id + "', " + skuId + ", '" + value + "')");
-    var val = value != "" && !isNaN(value) ? value : null;
-    switch (id) {
-        case "visit-sku-price-price":
-            dbTools.objectListItemSet("visit-list", true);
-            dbTools.visitSkuPriceUpdate(visit.visitId, skuId, val, 
-                undefined, 
-                dbTools.onSqlError
-            );
-            break;
-    }
+function visitSkuPriceControlKeyDown(e, evnt) {
+    log("..visitSkuPriceControlKeyDown(e, evnt, '" + evnt.type + "')");
+    $(e).attr("data-old-value", e.value);
+//log("....data-old-value:" + $(e).attr("data-old-value"));
+//log("....value: " + e.value);
+}
+
+function visitSkuPriceControlKeyPress(e, evnt) {
+    log("..visitSkuPriceControlKeyPress(e, evnt, '" + evnt.type + "')");
+    return filterInput(evnt, /[0-9\.]/);
 }
 
 //----------------------------------------
@@ -182,7 +205,7 @@ function visitSkuPriceEditDelClick(e) {
 
 function visitSkuPriceEditSave(onSuccess) {
     dbTools.objectListItemSet("visit-list", true);
-    dbTools.visitSkuPriceUpdate(visit.visitId, visitSkuPriceItem.skuId, visitSkuPriceItem.price, 
+    dbTools.visitSkuPriceUpdate(visit.visitId, visitSkuPriceItem.skuId, 2, visitSkuPriceItem.price, 
         function(visitId, skuId) {if (onSuccess != undefined) {onSuccess(visitId, skuId);}}, 
         dbTools.onSqlError
     );
@@ -190,7 +213,7 @@ function visitSkuPriceEditSave(onSuccess) {
 
 function visitSkuPriceEditDel(onSuccess) {
     dbTools.objectListItemSet("visit-list", true);
-    dbTools.visitSkuPriceUpdate(visit.visitId, visitSkuPriceItem.skuId, null, 
+    dbTools.visitSkuPriceUpdate(visit.visitId, visitSkuPriceItem.skuId, 2, null, 
         function(visitId, skuId) {if (onSuccess != undefined) {onSuccess(visitId, skuId);}}, 
         dbTools.onSqlError
     );
@@ -216,6 +239,9 @@ function visitSkuPriceObjInit() {
     visitSkuPriceList = {};
     visitSkuPriceList.navBackCount = 1;
     visitSkuPriceList.scrollerReset = true;
+    visitSkuPriceList.skuMode = 1;
+    visitSkuPriceList.skuId = null;
+    
     visitSkuPriceItem = {};
     visitSkuPriceItem.isEdited = false;
     visitSkuPriceItem.skuId = 0;
