@@ -1,0 +1,13 @@
+.num-keyboard-grid {
+     float: right;
+}
+.num-keyboard-button {
+    height: 3em;
+    width: 4em;
+    font-weight: bold !important;
+}
+.num-keyboard-value {
+    width: 100%;
+    font-weight: bold;
+}
+

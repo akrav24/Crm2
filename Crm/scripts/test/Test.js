@@ -146,6 +146,3 @@ function getTableFieldList() {
         dbTools.onTransError
     );
 }
-
-function test() {
-}

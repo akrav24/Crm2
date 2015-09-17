@@ -21,6 +21,8 @@ function visitSkuPriceShow(e) {
         visitSkuPriceList.navBackCount = 1;
     }
     renderVisitSkuPrice(visit.visitId, settings.skuCatId);
+    
+    visitSkuPriceNumPadInit();
 }
 
 function visitSkuPriceAfterShow(e) {
@@ -55,73 +57,70 @@ function visitSkuPriceNavBackClick(e) {
 function visitSkuPriceEnableControls() {
     log("..visitSkuPriceEnableControls");
     $("#visit-sku-price-list-view .editable").prop("readonly", visit.readonly);
+    visitSkuPriceNumPadShow(!visit.readonly);
 }
 
 function visitSkuPriceListClick(e) {
     log("..visitSkuPriceListClick");
-    visitSkuPriceItem.isEdited = false;
+    /*visitSkuPriceItem.isEdited = false;
     visitSkuPriceItem.skuId = e.dataItem.skuId;
     visitSkuPriceItem.name = e.dataItem.name;
     visitSkuPriceItem.code = e.dataItem.code;
     visitSkuPriceItem.suppName = e.dataItem.suppName;
     visitSkuPriceItem.price = e.dataItem.price;
-    app.navigate("#visit-sku-price-edit-view");
+    app.navigate("#visit-sku-price-edit-view");*/
+    
+    visitSkuPriceNumPadInit(e.item, e.dataItem);
 }
 
-function visitSkuPriceControlFocus(e) {
-    log("..visitSkuPriceControlFocus('" + e.id + "')");
-    if (!visit.readonly) {
-        switch (e.id) {
-            case "visit-sku-price-price":
-                    if (e.value == 0) {
-                        $(e).val("");
-                    }
-                break;
-        }
+function visitSkuPriceNumPadShow(visible) {
+    log("..visitSkuPriceNumPadShow(" + visible + ")");
+    if (visible) {
+        $(app.view().footer).removeClass("hidden");
+    } else {
+        $(app.view().footer).addClass("hidden");
     }
 }
 
-function visitSkuPriceControlChange(e, skuId, lvl) {
-    log("..visitSkuPriceControlChange(e[id='" + e.id + "'], " + skuId + ")");
-    var val = e.value;
-//log("....1.val='" + val + "'");
-    switch (e.id) {
-        case "visit-sku-price-price":
-            var oldValue = $(e).attr("data-old-value");
-//log("....2.oldValue='" + oldValue + "'");
-//log("....2.1.val.search(/[^0-9\.,]+/)=" + val.search(/[^0-9\.,]*/));
-            if (val.search(/[^0-9\.,]+/) != -1) {
-                val = oldValue;
-//log("....3.val='" + val + "'");
-            }
-            val = val.replace(/,/g, ".");
-//log("....4.val='" + val + "'");
-            if (val != oldValue) {
+function visitSkuPriceNumPadInit(item, dataItem) {
+    log("..visitSkuPriceNumPadInit");
+    
+    var numPad = $("#visit-sku-price-num-pad").data("kendoNumKeyboard");
+    if (item) {
+        var skuId, 
+            lvl,
+            input;
+        skuId = dataItem.skuId;
+        lvl = dataItem.lvl;
+        input = $(item).find("input").first();
+        
+        if (!visit.readonly) {
+            numPad.enable(true);
+            numPad.value(0);
+            numPad.options.change = function (keybObj, value) {
+                $(input).val(value);
+                dataItem.price = value;
                 dbTools.objectListItemSet("visit-list", true);
-//log("....SAVE(" + (val != "" ? val : null) + ")");
-                dbTools.visitSkuPriceUpdate(visit.visitId, skuId, visitSkuPriceList.skuMode, lvl, val != "" ? val : null, 
+                dbTools.visitSkuPriceUpdate(visit.visitId, skuId, visitSkuPriceList.skuMode, lvl, value != "" ? value : null, 
                     undefined, 
                     dbTools.onSqlError
                 );
+                $("#visit-sku-price-value").text(value);
             }
-            if (e.value != val) {
-//log("....VALUE(" + val + ")");
-                e.value = val;
-            }
-            break;
+            $(input).closest("ul").find("li").removeClass("list-item-selected");
+            $(input).closest("li").addClass("list-item-selected");
+            
+            $("#visit-sku-price-product").text(dataItem.code + " " + dataItem.name + ", " + dataItem.suppName);
+            $("#visit-sku-price-value").text(dataItem.price);
+        }
+    } else {
+        numPad.enable(false);
+        numPad.value(0);
+        numPad.options.change = undefined;
+        $("#visit-sku-price-list").find("li").removeClass("list-item-selected");
+        $("#visit-sku-price-product").text("Продукт не выбран");
+        $("#visit-sku-price-value").text("");
     }
-}
-
-function visitSkuPriceControlKeyDown(e, evnt) {
-    log("..visitSkuPriceControlKeyDown(e, evnt, '" + evnt.type + "')");
-    $(e).attr("data-old-value", e.value);
-//log("....data-old-value:" + $(e).attr("data-old-value"));
-//log("....value: " + e.value);
-}
-
-function visitSkuPriceControlKeyPress(e, evnt) {
-    log("..visitSkuPriceControlKeyPress(e, evnt, '" + evnt.type + "')");
-    return filterInput(evnt, /[0-9\.]/);
 }
 
 //----------------------------------------

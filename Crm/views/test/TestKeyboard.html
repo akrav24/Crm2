@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title></title>
+    </head>
+    <body>
+        <script src="scripts/test/TestKeyboard.js"></script>
+        
+        <div id="test-keyboard-view" data-role="view" data-title="Keyboard" data-layout="main" data-init="testKeyboardInit" data-show="testKeyboardShow" onclick="testKeyboardInputClick(event, this)">
+            <header data-role="header">
+                <div data-role="navbar">
+                    <a class="nav-button" data-align="left" data-role="button" data-icon="back" href="#:back"></a>
+                    <span data-role="view-title"></span>
+                </div>
+            </header>
+            
+            <ul id="test-keyboard-list-view" data-role="listview" class="list">
+                <li><label>Span<span class="numpad-edit" style="left: 50%; position: absolute;">0</span></label></li>
+                <li><label>Div<div class="numpad-edit" style="left: 50%; top: -1em; position: relative; width: 50%;">1</div></label></li>
+                <li><label>Input text (readonly)<input id="text-basic" class="numpad-edit" type="text" readonly value="2" onclick="testKeyboardInputClick(event, this)"/></label></li>
+                <li><label>Input text 1 (readonly)<input class="numpad-edit" type="text" value="3" readonly onclick="testKeyboardInputClick(event, this)"/></label></li>
+                <li><label>Input number (readonly)<input class="numpad-edit" type="number" value="4" readonly onclick="testKeyboardInputClick(event, this)"/></label></li>
+                <li><label>Input number 1 (readonly)<input class="numpad-edit" type="number" value="5" readonly onclick="testKeyboardInputClick(event, this)" oninput="log('====oninput')"/></label></li>
+                <li><label>Input number 2 (readonly)<input class="numpad-edit" type="number" value="6" readonly onclick="testKeyboardInputClick(event, this)"/></label></li>
+                <li><label>Input number 3 (readonly)<input class="numpad-edit" type="number" value="7" readonly onclick="testKeyboardInputClick(event, this)"/></label></li>
+                <li><label>Input number 4 (readonly)<input class="numpad-edit" type="number" value="8" readonly onclick="testKeyboardInputClick(event, this)"/></label></li>
+                <li><label>Input number 5 (readonly)<input class="numpad-edit" type="number" value="9" readonly onclick="testKeyboardInputClick(event, this)"/></label></li>
+                <li><label>Input number 6 (readonly)<input class="numpad-edit" type="number" value="10" readonly onclick="testKeyboardInputClick(event, this)"/></label></li>
+                <li><label>Input number 7 (readonly)<input class="numpad-edit" type="number" value="11" readonly onclick="testKeyboardInputClick(event, this)"/></label></li>
+            </ul>
+            
+            <footer data-role="footer" class="hidden" onclick="testKeyboardInputClick(event, this)">
+                <!--<div id="test-keyboard-place" style="height: 10em; width: 100%">
+                    Footer
+                </div>-->
+                <!--<button data-role="button" data-click="testKeyboardValueSetClick">Set value = 128.6</button>-->
+                
+                <div id="testNumKeyboard" data-role="numkeyboard" data-value="18.35" data-change="testKeyboardTestNumKeyboardChange" onchange="log('====onchange')"></div>
+                
+                <!--<table class="keyboard-grid">
+                    <tbody>
+                        <tr>
+                            <td colspan="3">
+                                <input type="number" class="keyboard-value" value="0">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <button class="keyboard-button" data-role="button">7</button>
+                            </td>
+                            <td>
+                                <button class="keyboard-button" data-role="button">8</button>
+                            </td>
+                            <td>
+                                <button class="keyboard-button" data-role="button">9</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <button class="keyboard-button" data-role="button">4</button>
+                            </td>
+                            <td>
+                                <button class="keyboard-button" data-role="button">5</button>
+                            </td>
+                            <td>
+                                <button class="keyboard-button" data-role="button">6</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <button class="keyboard-button" data-role="button">1</button>
+                            </td>
+                            <td>
+                                <button class="keyboard-button" data-role="button">2</button>
+                            </td>
+                            <td>
+                                <button class="keyboard-button" data-role="button">3</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <button class="keyboard-button" data-role="button">.</button>
+                            </td>
+                            <td>
+                                <button class="keyboard-button" data-role="button">0</button>
+                            </td>
+                            <td>
+                                <button class="keyboard-button" data-role="button">C</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>-->
+            </footer>
+        </div>
+    </body>
+</html>
