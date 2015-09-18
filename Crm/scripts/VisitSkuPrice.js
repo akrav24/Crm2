@@ -22,11 +22,16 @@ function visitSkuPriceShow(e) {
     }
     renderVisitSkuPrice(visit.visitId, settings.skuCatId);
     
+    visitSkuPriceSearchMode(true, "");
     visitSkuPriceNumPadInit();
 }
 
 function visitSkuPriceAfterShow(e) {
-    viewTitleSet(app.view(), "Прайс-аудит - " + settings.skuCatName);
+    visitSkuPriceTitleSet();
+}
+
+function visitSkuPriceTitleSet() {
+    viewTitleSet(app.view(), "Прайс-аудит - " + settings.skuCatName + (!!visitSkuPriceList.searchValue ? " (фильтр: " + visitSkuPriceList.searchValue + ")" : ""));
 }
 
 function renderVisitSkuPrice(visitId, skuCatId) {
@@ -94,10 +99,13 @@ function visitSkuPriceNumPadInit(item, dataItem) {
         lvl = dataItem.lvl;
         input = $(item).find("input").first();
         
+        visitSkuPriceSearchMode(false, visitSkuPriceList.searchValue);
+        
         if (!visit.readonly) {
             numPad.enable(true);
+            numPad.clearMode(1);
             numPad.value(0);
-            numPad.options.change = function (keybObj, value) {
+            numPad.options.change = function (numPad, value) {
                 $(input).val(value);
                 dataItem.price = value;
                 dbTools.objectListItemSet("visit-list", true);
@@ -108,18 +116,60 @@ function visitSkuPriceNumPadInit(item, dataItem) {
                 $("#visit-sku-price-value").text(value);
             }
             $(input).closest("ul").find("li").removeClass("list-item-selected");
+            $(input).closest("ul").find(".visit-sku-price-lvl1").addClass("color-selected");
             $(input).closest("li").addClass("list-item-selected");
+            $(input).closest("li").find(".visit-sku-price-lvl1").removeClass("color-selected");
             
             $("#visit-sku-price-product").text(dataItem.code + " " + dataItem.name + ", " + dataItem.suppName);
             $("#visit-sku-price-value").text(dataItem.price);
         }
     } else {
-        numPad.enable(false);
-        numPad.value(0);
-        numPad.options.change = undefined;
-        $("#visit-sku-price-list").find("li").removeClass("list-item-selected");
-        $("#visit-sku-price-product").text("Продукт не выбран");
-        $("#visit-sku-price-value").text("");
+        if (!visitSkuPriceList.searchMode) {
+            numPad.enable(false);
+            numPad.clearMode(1);
+            numPad.value(0);
+            numPad.options.change = undefined;
+            $("#visit-sku-price-list").find("li").removeClass("list-item-selected");
+            $("#visit-sku-price-list").find(".visit-sku-price-lvl1").addClass("color-selected");
+            $("#visit-sku-price-product").text("Продукт не выбран");
+            $("#visit-sku-price-value").text("");
+        } else {
+            numPad.enable(true);
+            numPad.clearMode(0);
+            numPad.value("");
+            numPad.options.change = function (numPad, value) {
+                $("#visit-sku-price-list").data("kendoMobileListView").dataSource.filter({field: "code", operator: "contains", value: value});
+                visitSkuPriceList.searchValue = value;
+                $("#visit-sku-price-value").text(value);
+                visitSkuPriceTitleSet();
+                app.scroller().reset();
+            };
+            $("#visit-sku-price-list").find("li").removeClass("list-item-selected");
+            $("#visit-sku-price-list").find(".visit-sku-price-lvl1").addClass("color-selected");
+            $("#visit-sku-price-product").text("Продукт не выбран");
+            $("#visit-sku-price-value").text(visitSkuPriceList.searchValue);
+        }
+    }
+}
+
+function visitSkuPriceSearchMode(searchMode, searchValue) {
+    log("..visitSkuPriceSearchMode(" + searchMode + ")");
+    
+    if (searchMode == undefined) {
+        searchMode = !visitSkuPriceList.searchMode;
+    }
+    if (searchValue == undefined) {
+        searchValue = visitSkuPriceList.searchValue;
+    }
+    visitSkuPriceList.searchMode = searchMode;
+    visitSkuPriceList.searchValue = searchValue;
+    
+    if (searchMode) {
+        $("#visit-sku-price-search").removeClass("search");
+        $("#visit-sku-price-search").addClass("search-active");
+    } else {
+        $("#visit-sku-price-search").removeClass("search-active");
+        $("#visit-sku-price-search").addClass("search");
     }
 }
 
@@ -240,6 +290,8 @@ function visitSkuPriceObjInit() {
     visitSkuPriceList.scrollerReset = true;
     visitSkuPriceList.skuMode = 1;
     visitSkuPriceList.skuId = null;
+    visitSkuPriceList.searchMode = true;
+    visitSkuPriceList.searchValue = "";
     
     visitSkuPriceItem = {};
     visitSkuPriceItem.isEdited = false;

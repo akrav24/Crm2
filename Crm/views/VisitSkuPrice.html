@@ -28,7 +28,7 @@
         <script id="visit-sku-price-list-tmpl" type="text/x-kendo-template">
             <!--<a class="list-item-header">-->
                 <p>
-                    <table width="100%"#if (visitSkuPriceList.skuMode == 2 && data.lvl == 1) {# class="color-selected"#}#>
+                    <table width="100%"#if (visitSkuPriceList.skuMode == 2 && data.lvl == 1) {# class="visit-sku-price-lvl1 color-selected"#}#>
                         <tr class="table-text-align#if (data.ext != 0) {# color-ext#}#">
                             <td width="60px"><span style="margin-left: 10px">#:code#</span></td>
                             <td width="100%">
@@ -63,7 +63,7 @@
             <table width="100%">
                 <tr style="height: 113px;">
                     <td valign="top">
-                        <div id="visit-sku-price-product" style="float: left; height: 74px; max-height: 74px; margin: 33px 5px 5px 10px; font-size: 1.3em; overflow: hidden; text-overflow: ellipsis;"></div>
+                        <div id="visit-sku-price-product" style="float: left; height: 74px; max-height: 74px; margin: 33px 5px 5px 20px; font-size: 1.3em; overflow: hidden; text-overflow: ellipsis;"></div>
                     </td>
                     <td rowspan="2" style="width: 1px;">
                         <div id="visit-sku-price-num-pad" data-role="numkeyboard" data-value="0" disabled></div>
@@ -71,6 +71,11 @@
                 </tr>
                 <tr>
                     <td valign="top">
+                        <div style="float: left; height: 102px; width: 102px; margin-top: 4px; margin-left: 5px;">
+                            <div id="visit-sku-price-search" style="height: 60px; width: 60px; margin-top: 20px; margin-left: 10px;"
+                                onclick="if (!visitSkuPriceList.searchMode) {visitSkuPriceSearchMode(true); visitSkuPriceNumPadInit();}">
+                            </div>
+                        </div>
                         <div style="float: right; height: 102px; width: 6em; margin-top: 4px; border: 1px solid lightgray; font-size: 2em; display: table; text-align: center;">
                             <div id="visit-sku-price-value" style="display: table-cell; vertical-align: middle;"></div>
                         </div>

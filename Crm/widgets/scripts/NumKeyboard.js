@@ -19,10 +19,24 @@
         options: {
             // properties
             name: "NumKeyboard",
+            clearMode: 1,        // 0 - value = "", 1 - value = "0"
             enable: true,
             value: 0,
             // events
             change: undefined
+        },
+        
+        
+        clearMode: function(value) {
+            this._log("NumKeyboard.clearMode(" + value + ")");
+            
+            var that = this;
+            
+            if (value != undefined) {
+                that.options.clearMode = value;
+            }
+            
+            return that.options.clearMode;
         },
         
         enable: function(enable) {
@@ -61,7 +75,6 @@
             }
             
             return that.options.value;
-            
         },
         
         _render: function() {
@@ -148,7 +161,7 @@
         _clearClick: function(e, that) {
             that._log("NumKeyboard._clearClick()");
             
-            that.value(0);
+            that.value(that.options.clearMode == 1 ? "0" : "");
             if (that.options.change) {
                 that.options.change(that, that.value());
             }
