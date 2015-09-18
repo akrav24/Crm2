@@ -106,7 +106,7 @@ function visitSkuPriceNumPadInit(item, dataItem) {
             numPad.clearMode(1);
             numPad.value(0);
             numPad.options.change = function (numPad, value) {
-                $(input).val(value);
+                $(input).val(parseFloat(value).toFixed(2));
                 dataItem.price = value;
                 dbTools.objectListItemSet("visit-list", true);
                 dbTools.visitSkuPriceUpdate(visit.visitId, skuId, visitSkuPriceList.skuMode, lvl, value != "" ? value : null, 

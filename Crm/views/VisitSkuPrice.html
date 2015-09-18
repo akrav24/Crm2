@@ -36,10 +36,10 @@
                             </td>
                             <!--<td width="100px"><div>\#:price\#</div></td>-->
                             <td>
-                                <div style="height: 1em; width: 100px;">
-                                <input id="visit-sku-price-price" type="#if (device.model == 'SM-T230') {#text#} else {#number#}#" pattern="[\d\.]*"
-                                    value="#:price#" style="width: inherit; margin-right: 55px;" readonly
-                                />
+                                <div style="height: 1em; width: 85px;">
+                                    <input id="visit-sku-price-price" type="#if (device.model == 'SM-T230') {#text#} else {#number#}#" pattern="[\d\.]*"
+                                        value="#:parseFloat(price).toFixed(2)#" style="min-width: 5em; max-width: 5em; margin-right: 65px; text-align: right;" readonly
+                                    />
                                 </div>
                             </td>
                             <td>
@@ -76,7 +76,7 @@
                                 onclick="if (!visitSkuPriceList.searchMode) {visitSkuPriceSearchMode(true); visitSkuPriceNumPadInit();}">
                             </div>
                         </div>
-                        <div style="float: right; height: 102px; width: 6em; margin-top: 4px; border: 1px solid lightgray; font-size: 2em; display: table; text-align: center;">
+                        <div style="float: right; height: 102px; width: 4em; margin-top: 4px; border: 1px solid lightgray; font-size: 2em; display: table; text-align: center;">
                             <div id="visit-sku-price-value" style="display: table-cell; vertical-align: middle;"></div>
                         </div>
                     </td>
