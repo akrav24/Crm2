@@ -21,9 +21,12 @@
             </div>
         </header>
         
-        <form>
+        <!--<form>-->
         
-        <ul id="visit-sku-price-list" class="list" data-role="listview" data-template="visit-sku-price-list-tmpl" data-click="visitSkuPriceListClick"></ul>
+        <ul id="visit-sku-price-list" class="list" data-role="listview" data-template="visit-sku-price-list-tmpl" 
+            data-endless-scroll="false" data-virtual-view-size="60"
+            data-click="visitSkuPriceListClick">
+        </ul>
         
         <script id="visit-sku-price-list-tmpl" type="text/x-kendo-template">
             <!--<a class="list-item-header">-->
@@ -57,7 +60,7 @@
             <!--</a>-->
         </script>
         
-        </form>
+        <!--</form>-->
         
         <footer data-role="footer" class="hidden">
             <table width="100%">

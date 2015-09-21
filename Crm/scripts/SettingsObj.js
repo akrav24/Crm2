@@ -10,7 +10,7 @@ function settingsObjInit(onSuccess) {
     settings = {};
     
     // версия приложения
-    settings.appVersion = 1062;
+    settings.appVersion = 1063;
     
     // признак выполнения приложения в симуляторе
     settings.simulator = (window.navigator.simulator === true);
