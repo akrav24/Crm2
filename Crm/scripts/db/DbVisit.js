@@ -1200,6 +1200,7 @@ dbTools.visitSkuPriceListGet = function(visitId, skuCatId, mode, skuId, datasetG
             + "      FROM Sku S"
             + "      WHERE @mode = 2"
             + "        AND S.skuId IN (SELECT skuId FROM skuLink WHERE dstSkuId = @skuId)"
+            + "        AND S.skuId <> @skuId"
             + "    ) S"
             + "  LEFT JOIN BrandGrp BG ON S.brandGrpId = BG.brandGrpId"
             + "  LEFT JOIN Brand B ON BG.brandId = B.brandId"
