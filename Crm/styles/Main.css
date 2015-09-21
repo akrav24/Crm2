@@ -1,0 +1,480 @@
+body {
+}
+/*
+.km-android .km-navbar .km-view-title
+{
+    visibility: visible;
+}
+*/
+/*Font Icons Display as Squares in Android v4+*/
+/*
+ .km-root .km-on-android .km-view span.km-icon
+{
+    background: none;
+}
+
+.km-root .km-pane.km-pane.km-on-android .km-view span.km-icon:after
+{
+    background: none;
+    -webkit-text-fill-color: inherit;
+}
+*/
+
+/*--kendo--------------------------------------*/
+
+.k-datepicker .k-select {
+    height: 100%;
+}
+.k-datepicker .k-picker-wrap {
+    height: 100%;
+}
+.k-datepicker .k-input {
+    height: 100%;
+}
+
+/*hide datepicker button*/
+.k-datepicker .k-select {
+    display: none;
+}
+.k-datepicker .k-picker-wrap {
+    padding: 0;
+}
+.k-datepicker .k-input {
+    border-radius: 3px;
+}
+
+.km-footer {
+    background-color: inherit;
+    border-width: 1px 0 0;
+    border-style: solid;
+    border-color: rgba(0,0,0,0.1);
+}
+
+/*-user defined--------------------------------*/
+
+.color-selected {
+    color: #10c4b2 !important;
+}
+.color-ext {
+    color: #754719/*#645452*/;
+}
+.color-old-app-version {
+    color: Red !important;
+}
+
+.collapsible-header {
+    line-height: 2.7em;
+    /*padding: .5em .7em;*/
+}
+
+.date {
+    width: 100px;
+}
+
+.dialog {
+}
+.dialog-message-wrapper {
+    font-size: large;
+    margin: 1em;
+}
+.dialog-button-wrapper {
+    margin: 1.5em 1em 1.5em;
+}
+.dialog-button {
+    width: 5em;
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+}
+
+.drawer {
+    width: 60%;
+}
+
+.edit-modal-view {
+    width: 80%;
+}
+
+.error {
+    color: DarkRed;
+}
+
+.form-list label {
+    width: 100%;
+}
+.km-root .km-pane .km-view .form-list label>input:not([type = checkbox]),
+.km-root .km-pane .form-list label>input:not([type = checkbox]),
+.km-root .km-pane .form-list label>textarea,
+.km-root .km-pane .km-view .form-list label .k-dropdown {
+    position: relative;
+    width: 100%;
+    right: 0;
+    margin-top: 0;
+    top: 0;
+    font-size: large;
+}
+/*.km-root .km-pane .km-view .form-list input[type = checkbox],
+.km-root .km-pane .form-list input[type = checkbox] {
+    position: relative;
+    width: 100%;
+    right: 0;
+    margin-top: 0;
+    top: 0;
+    font-size: large;
+}*/
+.km-root .km-pane .km-view .form-list label>div {
+    position: relative;
+    width: 100%;
+    right: 0;
+    margin-top: 5px;
+    margin-left: 5px;
+    top: 0;
+    font-size: large;
+}
+
+@media screen and (orientation: portrait) {
+    .flex-container {
+        height: 100%;
+        display: -webkit-box; 
+        display: -webkit-flex; 
+        display: -ms-flexbox; 
+        display: flex; 
+        -webkit-box-orient: vertical; 
+        -webkit-box-direction: normal; 
+        -webkit-flex-direction: column; 
+        -ms-flex-direction: column; 
+        flex-direction: column;
+    }
+}
+@media screen and (orientation: landscape) {
+    .flex-container {
+        height: 100%;
+        display: -webkit-box; 
+        display: -webkit-flex; 
+        display: -ms-flexbox; 
+        display: flex; 
+        -webkit-box-orient: horizontal;
+        -webkit-box-direction: normal;
+        -webkit-flex-direction: row;
+        -ms-flex-direction: row;
+        flex-direction: row;
+    }
+}
+
+.gallery-title { 
+    text-align: center;
+    margin: 5px auto;
+    padding: 0px;
+}
+.gallery-image-content {
+    height: 100%;
+    overflow: hidden;
+}
+.gallery-image {
+    display: block;
+    height: 90%;
+    width: 100%; 
+    /*background-size: auto auto;*/
+    background-repeat: no-repeat; 
+    background-position: center center;
+    background-size: contain;
+}
+/*.gallery-image-view img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}*/
+/*.gallery-tag-edit-image {
+    display: block;
+    height: 100%;
+    width: 100%; 
+    background-repeat: no-repeat; 
+    background-position: top center;
+    background-size: contain;
+}*/
+@media screen and (orientation: portrait) {
+    .gallery-tag-edit-image-flex-box {
+    }
+    .gallery-tag-edit-tag-list-flex-box {
+    }
+    .gallery-tag-edit-image {
+        width: 100%; 
+        max-height: 70%;
+    }
+    .gallery-tag-edit-tag-list {
+        height: 100%;
+        margin-left: 0px;
+    }
+}
+
+@media screen and (orientation: landscape) {
+    .gallery-tag-edit-image-flex-box {
+        -webkit-box-flex: 4;
+        -webkit-flex: 4;
+        -ms-flex: 4;
+        flex: 4; 
+    }
+    .gallery-tag-edit-tag-list-flex-box {
+        -webkit-box-flex: 2;
+        -webkit-flex: 2;
+        -ms-flex: 2;
+        flex: 2;
+    }
+    .gallery-tag-edit-image {
+        width: 100%; 
+        max-height: 100%;
+    }
+    .gallery-tag-edit-tag-list {
+        height: 100%;
+        margin-left: 0px;
+    }
+}
+
+.hidden {
+    display: none;
+}
+
+.list {
+}
+.list-item-group-header {
+    font-weight: bold;
+}
+.list-item-header {
+    font-size: large;
+    line-height: inherit !important;
+}
+.list-item-header p {
+    margin: 10px;
+}
+.list-item-text {
+    font-size: medium;
+}
+.list-item-comment {
+    font-size: medium;
+    color: DarkRed;
+}
+.list-item-details-button {
+}
+.list-item-lvl2 {
+    margin-left: 50px;
+}
+.list-item-selected {
+    color: #FFF !important;
+    background-color: #10c4b2 !important;
+}
+.list-item-table {
+    width: 100%;
+}
+.list-item-table tr td div {
+    margin-left: 5px;
+    width: 100%;
+}
+.list-item-table-last-empty-cell {
+    height: 1px;
+    width: 0.5em;
+}
+
+.logo {
+    margin-top: 40px;
+    margin-bottom: 40px;
+    width: 40%;
+}
+
+.menu-buttongroup {
+    height: 40px;
+    width: 100%;
+}
+
+.mark1 {
+    color: DarkRed;
+}
+
+.menu-section {
+    width: 100%;
+}
+.menu-section p {
+    margin: 0 0 5px;
+}
+
+.navbar {
+    height: 60px;
+}
+
+.nav-button {
+    font-size: medium;
+    height: 80%;
+    margin-right: 5px;
+}
+
+.progress-panel-inner {
+    width: 90%;
+    margin-left: 5%;
+    margin-right: 5%;
+}
+.progress-panel-bar {
+    width: 100%;
+}
+
+.rating-container {
+    vertical-align: middle;
+}
+.rating-symbol {
+    border: 2px solid;
+    border-radius: 100em;
+    height: 1.5em;
+    margin-left: 5px;
+    width: 1.5em;
+}
+
+.slide-panel-right {
+    position: absolute;
+    top: 0px;
+    left: 0;
+    /*left: 100%;*/
+    width: 300px;
+    height: 100%;
+    margin-left: 100%;
+    /*margin-left: 0;*/
+    border: solid #e9e9e9;
+    border-width: 1px 1px 1px 1px;
+    background-color: White;
+}
+
+.search {
+    background-image: url(images/Search1.png);
+    background-repeat: no-repeat;
+    background-position: left center;
+    background-size: contain;
+}
+.search-active {
+    background-image: url(images/Search2.png);
+    background-repeat: no-repeat;
+    background-position: left center;
+    background-size: contain;
+}
+
+.start-menu-outer {
+    display: -webkit-box;
+    -webkit-box-pack: center;
+    -webkit-box-align: center;
+}
+.start-menu-inner {
+    width: 80%;
+    margin-top: -10%;
+}
+.start-menu-button {
+    font-size: large;
+    width: 100%;
+}
+
+.table-text-align {
+    vertical-align: top;
+}
+
+.tabstrip-button {
+    font-size: 200%;
+}
+
+div.visit-activity-show-all {
+    padding-left: 60px;
+    padding-right: 60px;
+}
+
+a.visit-activity-show-all {
+    width: 100%;
+}
+
+.visit-item-table {
+     margin-left: 5px;
+}
+.visit-item-table-caption {
+    width: 120px;
+}
+.visit-item-table-code {
+    width: 60px;
+}
+.visit-item-table-name {
+    width: 100%;
+}
+
+.visit-sku-cat-list-item-table {
+    width: 100%;
+}
+.visit-sku-cat-list-item-table-name {
+    margin-left: 5px;
+    width: 100%;
+}
+.visit-sku-cat-list-item-table-activity {
+    width: 1.5em;
+}
+
+.visit-survey-answer-list-item-tree-lvl2 {
+    margin-left: 50px;
+}
+.visit-survey-answer-list-item-switch-container {
+    margin-left: 5px;
+    width: 80px;
+}
+.visit-survey-answer-list-item-switch-container .km-switch {
+    margin-right: 75px;
+}
+.visit-survey-answer-list-item-details-button {
+    margin-left: 15px;
+}
+
+.visit-survey-answer-edit-rating {
+    margin-right: 25px;
+}
+
+.visit-task-done {
+    color: Silver;
+    text-decoration: line-through;
+}
+
+
+
+/*--theming-----------------------------------*/
+
+/*http://docs.telerik.com/kendo-ui/mobile/styling*/
+/*
+.km-flat .km-switch-handle,
+.km-flat .k-slider-selection,
+.km-flat .km-switch-background
+{
+    color: #369;
+}
+
+.km-flat .km-loader,
+.km-flat .km-rowinsert,
+.km-flat .km-state-active,
+.km-flat .km-scroller-pull,
+.km-flat .k-slider-selection,
+.km-flat .km-touch-scrollbar,
+.km-flat .km-pages .km-current-page,
+.km-flat .k-slider .k-draghandle,
+.km-flat .k-slider .k-draghandle:hover,
+.km-flat .km-tabstrip .km-state-active,
+.km-flat .km-scroller-refresh.km-load-more,
+.km-flat .km-popup .k-state-hover,
+.km-flat .km-popup .k-state-focused,
+.km-flat .km-popup .k-state-selected,
+.km-flat .km-actionsheet > li > a:active,
+.km-flat .km-actionsheet > li > a:hover,
+.km-flat li.km-state-active .km-listview-link,
+.km-flat li.km-state-active .km-listview-label,
+.km-flat .km-listview-label input[type=radio]:checked,
+.km-flat .km-listview-label input[type=checkbox]:checked
+{
+    background: #369;
+}
+
+.km-flat .km-filter-wrap > input:focus
+{
+    border-color: #369;
+}
+*/

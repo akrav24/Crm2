@@ -1,0 +1,44 @@
+   /*--font icons---------*/
+/*http://docs.telerik.com/kendo-ui/mobile/icons#additional-icons-in-kendo-ui-mobile-font*/
+
+.km-back:after,
+.km-back:before
+{
+    content: "\e0ed";
+}
+
+.km-check:after,
+.km-check:before
+{
+    content: "\e037";
+}
+
+.km-drawer:after,
+.km-drawer:before
+{
+    content: "\e0f1";
+}
+
+.km-error:after,
+.km-error:before
+{
+    content: "\e0fa";
+}
+
+.km-filter:after,
+.km-filter:before
+{
+    content: "\e06c";
+}
+
+.km-prev-date:after,
+.km-prev-date:before
+{
+    content: "\e003";
+}
+
+.km-next-date:after,
+.km-next-date:before
+{
+    content: "\e000";
+}

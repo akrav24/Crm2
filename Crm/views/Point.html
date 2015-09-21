@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title></title>
+    </head>
+    <body>
+        <script src="scripts/Point.js"></script>
+        <script src="scripts/db/DbPoint.js"></script>
+        <div id="point-view" 
+             data-role="view" 
+             data-title="Торговая точка" 
+             data-layout="main"
+             data-init="pointInit"
+             data-show="pointShow">
+            <header data-role="header">
+                <div data-role="navbar">
+                    <a class="nav-button" data-align="left" data-role="button" data-icon="back" href="#:back"></a>
+                    <span data-role="view-title"></span>
+                </div>
+            </header>
+            <div id="point-touch" 
+                 data-role="touch"
+                 data-swipe="pointSwipe"
+                 data-enable-swipe="1">
+                <form action="./index.html">
+                    <ul data-role="listview" data-style="inset">
+                        <li>
+                            <label>
+                                Название
+                                <input id="custName" type="text" readonly="readonly"/>
+                            </label>
+                        </li>
+                        <li>
+                            <label>
+                                Адрес
+                                <input id="custAddr" type="text" readonly="readonly"/>
+                            </label>
+                        </li>
+                        <li>
+                            <label>
+                                Тип точки
+                                <input id="custOrgType" type="text" readonly="readonly"/>
+                            </label>
+                        </li>
+                        <li>
+                            <label>
+                                Категория
+                                <input id="custOrgCat" type="text" readonly="readonly"/>
+                            </label>
+                        </li>
+                        <li>
+                            <label>
+                                Канал
+                                <input id="custChannel" type="text" readonly="readonly"/>
+                            </label>
+                        </li>
+                        <li>
+                            <a href="views/VisitHistoryList.html">
+                                <label>
+                                    Визиты
+                                </label>
+                            </a>
+                        </li>
+                    </ul>
+                </form>
+            </div>
+        </div>
+    </body>
+</html>

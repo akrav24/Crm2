@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+  <script src="scripts/PhotoNew.js"></script>
+    
+    <div 
+        id="visit-photo-new-view" 
+        data-role="view" 
+        data-title="Новая фотография" 
+        data-layout="main"
+        data-init="visitPhotoNewInit"
+        data-show="visitPhotoNewShow">
+        
+        <header data-role="header">
+            <div data-role="navbar">
+                <a class="nav-button" data-align="left" data-role="button" data-icon="back" data-click="visitPhotoNewNavBackClick"></a>
+                <span data-role="view-title"></span>
+                <a class="nav-button" data-align="right" data-role="button" data-icon="add" data-click="visitPhotoNewClick"></a>
+            </div>
+        </header>
+        
+        <div align="center">
+            <img id="visit-photo-new-img" src=""/>
+        </div>
+      
+    </div>
+    
+  <style>
+      #visit-photo-new-view0 .km-content0
+      {
+        background-image: url("styles/images/Ok.png");
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+      }
+  </style>
+</body>
+</html>

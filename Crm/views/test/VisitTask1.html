@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Visit</title>
+</head>
+<body>
+    <script src="scripts/VisitTask.js"></script>
+    
+    <div id="visit-task-list-view"
+        data-role="view" 
+        data-title="Промо-активность NIVEA" 
+        data-layout="main" 
+        data-init="visitTaskInit" 
+        data-show="visitTaskShow">
+        
+        <header data-role="header">
+            <div data-role="navbar">
+                <a class="nav-button" data-align="left" data-role="button" data-icon="back"  data-click="visitTaskNavBackClick"></a>
+                <span data-role="view-title"></span>
+            </div>
+        </header>
+        
+        <ul id="visit-task-list" class="list" data-role="listview" data-template="visit-task-list-tmpl"></ul>
+        
+        <script id="visit-task-list-tmpl" type="text/x-kendo-template">
+            <div class="list-item-header">
+                <p>
+                    <table width="100%">
+                        <tr class="table-text-align#if (!!taskDone) {# visit-task-done#}#">
+                            <td><input type="checkbox" class="checkbox" data-task-id="#:taskId#" #if (!!done) {# checked#}#/></td>
+                            <td width="100%">
+                                <div>#:descr#</div>
+                                <div class="list-item-comment">#:note#</div>
+                            </td>
+                            <td width="100px">
+                                <a class="list-item-details-button" data-role="button" data-icon="details" href="\\#visit-task-edit-view?taskId=#:taskId#"></a>
+                            </td>
+                        </tr>
+                    </table>
+                </p>
+            </div>
+        </script>
+        
+    </div>
+    
+    <div id="visit-task-edit-view"
+        data-role="view" 
+        data-title="Промо-активность NIVEA" 
+        data-layout="main" 
+        data-init="visitTaskEditInit"
+        data-show="visitTaskEditShow">
+      
+        <header data-role="header">
+            <div data-role="navbar">
+                <a class="nav-button" data-align="left" data-role="button" data-icon="back" data-click="visitTaskEditNavBackClick"></a>
+                <span data-role="view-title"></span>
+                <a id="visit-task-edit-save-button" class="nav-button hidden" data-align="right" data-role="button" data-click="visitTaskEditSaveClick">Сохранить</a>
+                <a id="visit-task-edit-del-button" class="nav-button hidden" data-align="right" data-role="button" data-click="visitTaskEditDelClick">Удалить</a>
+            </div>
+        </header>
+        
+        <form>
+            <ul id="visit-task-edit-list" class="list form-list" data-role="listview">
+                <li>
+                    <label>Задача
+                        <div><span id="visit-task-edit-descr"></span></div>
+                    </label>
+                </li>
+                <li>
+                    <label>Выполнена
+                        <input id="visit-task-edit-done" class="editable" type="checkbox" onchange="visitTaskEditControlChange(this.id, this.checked)"/>
+                    </label>
+                </li>
+                <li>
+                    <label>Примечание
+                        <input id="visit-task-edit-note" class="editable" type="text" onchange="visitTaskEditControlChange(this.id, this.value)"/>
+                    </label>
+                </li>
+            </ul>
+        </form>
+    </div>
+    
+</body>
+</html>

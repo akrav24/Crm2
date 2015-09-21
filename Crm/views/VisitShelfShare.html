@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <script src="scripts/VisitShelfShare.js"></script>
+    
+    <div id="visit-shelf-share-edit-view"
+        data-role="view" 
+        data-title="Доля на полке" 
+        data-layout="main" 
+        data-init="visitShelfShareEditInit" 
+        data-show="visitShelfShareEditShow"
+        data-after-show="visitShelfShareEditAfterShow">
+      
+        <header data-role="header">
+            <div data-role="navbar">
+                <a class="nav-button" data-align="left" data-role="button" data-icon="back" data-click="visitShelfShareEditNavBackClick"></a>
+                <span data-role="view-title"></span>
+                <a id="visit-shelf-share-edit-save-button" class="nav-button hidden" data-align="right" data-role="button" data-click="visitShelfShareEditSaveClick">Сохранить</a>
+                <a id="visit-shelf-share-edit-del-button" class="nav-button hidden" data-align="right" data-role="button" data-click="visitShelfShareEditDelClick">Удалить</a>
+            </div>
+        </header>
+        
+        <ul id="visit-shelf-share-edit-list" class="list form-list" data-role="listview">
+            <!--<li>
+                <label>Категория
+                    <input id="visit-shelf-share-edit-name" type="text" readonly/>
+                </label>
+            </li>-->
+            <li>
+                <label>Рекомендованная доля на полке (%)
+                    <input id="visit-shelf-share-edit-shelf-share-def" type="number"  readonly="readonly"/>
+                </label>
+            </li>
+            <li>
+                <label>Доля на полке (%)
+                    <input id="visit-shelf-share-edit-shelf-share" type="number" onchange="visitShelfShareEditControlChange(this.id, this.value)"/>
+                </label>
+            </li>
+            <li>
+                <label>Размер полки (см)
+                    <input id="visit-shelf-share-edit-shelf-width-total" type="number" onchange="visitShelfShareEditControlChange(this.id, this.value)"/>
+                </label>
+            </li>
+            <li>
+                <label>Наш размер полки (см)
+                    <input id="visit-shelf-share-edit-shelf-width-our" type="number" onchange="visitShelfShareEditControlChange(this.id, this.value)"/>
+                </label>
+            </li>
+        </ul>
+    
+    </div>
+</body>
+</html>

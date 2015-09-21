@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Visit</title>
+</head>
+<body>
+    <script src="scripts/VisitHistoryList.js"></script>
+    <script src="scripts/db/DbVisit.js"></script>
+    <script src="scripts/Visit.js"></script>
+    
+    <div id="visit-history-list-view"
+        data-role="view" 
+        data-title="История визитов" 
+        data-layout="main" 
+        data-init="visitHistoryListInit" 
+        data-show="visitHistoryListShow">
+        
+        <header data-role="header">
+            <div data-role="navbar">
+                <a class="nav-button" data-align="left" data-role="button" data-icon="back" href="#:back"></a>
+                <span data-role="view-title"></span>
+                <a class="nav-button" data-align="right" data-role="button" data-icon="add" data-click="visitHistoryListAddNewVisitClick"></a>
+            </div>
+        </header>
+        
+        <ul id="visit-history-list" class="list" data-role="listview" data-template="visit-history-list-tmpl" data-click="visitHistoryListClick"></ul>
+        <ul id="visit-history-not-exists-list" class="list list-item-header" data-role="listview">
+            <li style="height: 20em;">
+                <p><div style="position: absolute; top: 45%; width: 100%; text-align: center;">Визиты отсутствуют</div></p>
+            </li>
+        </ul>
+        
+        <script id="visit-history-list-tmpl" type="text/x-kendo-template">
+            <a class="list-item-header"
+                #if (bizlg.cmn.inArray([2, 3, 4, 5], visitType)) {#
+                    style="background-image: url(styles/images/Route0#if (bizlg.cmn.inArray([4, 5], visitType)) {#1#} else {#2#}#.png); background-repeat: no-repeat; background-position: 15px center"
+                #}#
+            >
+                <p><div style="margin-left: 45px;">#:periodToStr(sqlDateToDate(timeBgn), sqlDateToDate(timeEnd))#</div></p>
+            </a>
+        </script>
+        
+    </div>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <script src="scripts/Start.js"></script>
+    <script src="scripts/Exchange.js"></script>
+    
+    <div id="start-view"
+        data-role="view"
+        data-layout="main"
+        data-stretch="true"
+        data-title="DSS Mobile"
+        data-init="startOnInit"
+        data-show="startOnShow">
+        
+        <header data-role="header">
+            <div data-role="navbar">
+                <a id="error-button" class="nav-button error hidden" data-align="left" data-role="button" data-icon="error" data-click="startErrorOnClick" style="color: Red;"></a>
+                <span data-role="view-title"></span>
+                <a class="nav-button" data-align="right" data-role="button" data-icon="settings" href="views/test/Test.html"></a>
+            </div>
+        </header>
+        
+        <div class="start-menu-outer">
+            <div class="start-menu-inner">
+                <p>
+                    <a class="start-menu-button" data-role="button" href="views/VisitList.html">Маршрут</a>
+                </p>
+                <p>
+                    <a class="start-menu-button" data-role="button" href="views/PointList.html">Перечень торговых точек</a>
+                </p>
+                <p>
+                    <a id="start-exchange-button" class="start-menu-button" data-role="button" data-rel="modalview" href="#exchange-view">Обмен информацией</a>
+                </p>
+                <p>
+                    <a class="start-menu-button" data-role="button" href="views/Settings.html">Настройки</a>
+                </p>
+                <p>
+                    <a id="start-exit-button" class="start-menu-button hidden" data-role="button" data-click="startExitButtonClick">Выход</a>
+                </p>
+                <div id="start-dialog"></div>
+            </div>
+        </div>
+        
+    </div>
+    
+    <div id="exchange-view"
+        style="width: 80%; min-height: 200px;"
+        data-layout="main"
+        data-role="modalview"
+        data-title="Обмен информацией"
+        data-init="exchangeOnInit"
+        data-open="exchangeOnShow">
+        
+        <header data-role="header">
+            <div data-role="navbar">
+                <a id="exchange-error-button" class="nav-button error hidden" data-role="button" data-align="left" data-icon="error" data-click="exchangeErrorShow"></a>
+                <span data-role="view-title"></span>
+                <a id="exchange-close-button" class="hidden" data-role="button" data-align="right" data-click="exchangeViewClose">Закрыть</a>
+            </div>
+        </header>
+        
+        <div class="progress-panel-inner">
+            <p id="exchange-caption">Подготовка</p>
+            <div id="exchange-progress" class="progress-panel-bar"></div>
+            <p id="exchange-error" class="error"></p>
+        </div>
+    </div>
+</body>
+</html>

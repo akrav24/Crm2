@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!--<title>KendoUI Test Page</title>
+    
+    <link href="http://cdn.kendostatic.com/2013.1.514/styles/kendo.common.min.css" rel="stylesheet" />
+    <link href="http://cdn.kendostatic.com/2013.1.514/styles/kendo.default.min.css" rel="stylesheet" />
+    <link href="http://cdn.kendostatic.com/2013.1.514/styles/kendo.dataviz.min.css" rel="stylesheet" />
+    <link href="http://cdn.kendostatic.com/2013.1.514/styles/kendo.mobile.all.min.css" rel="stylesheet" />
+
+    <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script src="http://cdn.kendostatic.com/2013.1.514/js/kendo.all.min.js"></script>-->
+</head>
+<body>
+<div data-role="view" data-title="Test2" data-layout="main">
+    <div id="listview"></div>
+
+    <script id="tmp" type="text/x-kendo-template">
+        <div class="listItem">
+            <input class="checkbox" type="checkbox" value="#= id #"/>
+            <span>&nbsp;</span>
+            <span>#: item #</span>
+        </div>
+    </script>
+
+    <script>
+        var dataSource = new kendo.data.DataSource({
+            data: [
+                { id: 1, item: "Item 1", foo: 1 },
+                { id: 2, item: "Item 2", foo: 2 },
+                { id: 3, item: "Item 3", foo: 3 },
+                { id: 4, item: "Item 4", foo: 4 },
+                { id: 5, item: "Item 5", foo: 5 },
+                { id: 6, item: "Item 6", foo: 6 }
+            ],
+            schema: {
+                model: {
+                    id: "id",
+                    fields: {
+                        id: { type: "number" },
+                        item: { type: "string" },
+                        foo: { type: "number" } 
+                    }
+                }
+            }
+        });
+        
+        $("#listview").kendoListView({
+            dataSource: dataSource,
+            template: $("#tmp").html(),
+            change: function(e) {
+                var dataItem = this.dataSource.getByUid(e.item.data("uid"));
+
+                console.log(dataItem);
+            },
+            dataBound: function (e) {
+                this.element.find(".checkbox").on("change", onChange);
+            }
+        });
+
+        function onChange(e) {
+            var item = $(e.target).closest(".listItem");
+
+            if(e.target.checked) {
+                item.addClass("k-state-selected");
+                $("#listview").data("kendoListView").trigger("change", { item: item });
+            } else {
+                item.removeClass("k-state-selected");
+            }
+        }
+    </script>
+</div>
+</body>
+</html>

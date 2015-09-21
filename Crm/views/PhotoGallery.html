@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <script src="scripts/PhotoGallery.js"></script>
+    
+    <div data-role="view" 
+        id="photo-gallery-view" 
+        data-layout="main" 
+        data-stretch="true"
+        data-title="Фотогалерея" 
+        data-init="photoGalleryInit" 
+        data-show="photoGalleryShow"
+        data-after-show="photoGalleryAfterShow">
+        
+        <header data-role="header">
+            <div data-role="navbar">
+                <a class="nav-button" data-align="left" data-role="button" data-icon="back" data-click="photoGalleryNavBackClick"></a>
+                <span data-role="view-title"></span>
+                <a id="photo-gallery-add-new-photo-button" class="nav-button" data-align="right" data-role="button" data-icon="add" data-click="photoGalleryAddNewPhotoClick"></a>
+            </div>
+        </header>
+        
+        <div id="photo-gallery-scrollview"
+            data-role="scrollview" 
+            data-auto-bind="true"
+            data-content-height="100%"
+            data-enable-pager="true"
+            data-template="photo-gallery-scrollview-template"
+            page-size="1.00"
+            data-changing="photoGalleryScrollviewOnChanging">
+        </div>
+        
+        <script id="photo-gallery-scrollview-template" type="text/x-kendo-template">
+            <div class="gallery-image-content">
+                <p class="gallery-title">#=title#</p>
+                <div class="gallery-image" data-role="touch" data-tap="photoGalleryShowImage" style="background-image: url(#=fileLocalPath#);"></div>
+                <!--<div class="gallery-image" data-role="touch" data-tap="photoGalleryShowImage">
+                    <div data-role="scroller" data-zoom="true" class="gallery-image" style="background-image: url(#=fileLocalPath#);">
+                    </div>
+                </div>-->
+            <!--data-role="scroller" data-zoom="false" -->
+            </div>
+        </script>
+    </div>
+    
+    <div id="photo-gallery-image-view"
+        data-role="view"
+        data-layout="main"
+        data-stretch="true"
+        data-title="Фотогалерея"
+        data-model="photoGalleryImageViewModel"
+        data-init="photoGalleryImageViewInit"
+        data-show="photoGalleryImageViewShow"
+        data-after-show="photoGalleryImageViewAfterShow">
+        
+        <header data-role="header">
+            <div id="photo-gallery-image-navbar" data-role="navbar">
+                <a class="nav-button" data-align="left" data-role="button" data-icon="back" href="#:back"></a>
+                <span data-role="view-title"></span>
+            </div>
+        </header>
+        
+        <div data-role="content" class="flex-container">
+            <div id="photo-gallery-image-scroller" data-role="scroller" data-zoom="true" class="gallery-tag-edit-image-flex-box">
+                <img class="gallery-tag-edit-image" data-bind="attr: {src: imageSrc}">
+            </div>
+            <div data-role="scroller" class="gallery-tag-edit-tag-list-flex-box">
+                <ul data-role="listview" id="photo-gallery-tag-edit-tag-list" class="list" data-bind="source: tagLst" data-template="photo-gallery-tag-edit-tag-list-tmpl"></ul>
+                <ul data-role="listview" id="photo-gallery-image-note-list" class="list list-item-header" style="margin-top: 2px;">
+                    <li>
+                        <a class="list-item-header" href="#photo-gallery-image-note-edit-view">
+                            <p>
+                                <div>Примечание</div>
+                                <div id="photo-gallery-image-note" class="list-item-comment"></div>
+                            </p>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <script id="photo-gallery-tag-edit-tag-list-tmpl" type="text/x-kendo-template">
+            <div class="list-item-header">
+                <p>
+                    <table  width="100%">
+                        <tr class="table-text-align">
+                            <td><input type="checkbox" class="checkbox" data-tag-id="#:id#" #if ((value == 1)) {# checked#}#/></td>
+                            <td width="100%">
+                                <div style="margin-left: 5px; width: 100%">#:name#</div>
+                            </td>
+                        </tr>
+                    </table>
+                </p>
+            </div>
+        </script>
+    </div>
+    
+    <div id="photo-gallery-image-note-edit-view"
+        data-role="view" 
+        data-title="Фотогалерея" 
+        data-layout="main" 
+        data-model="photoGalleryImageViewModel"
+        data-init="photoGalleryImageNoteEditInit"
+        data-show="photoGalleryImageNoteEditShow"
+        data-after-show="photoGalleryImageNoteEditAfterShow">
+        
+        <header data-role="header">
+            <div data-role="navbar">
+                <a class="nav-button" data-align="left" data-role="button" data-icon="back" data-click="photoGalleryImageNoteEditNavBackClick"></a>
+                <span data-role="view-title"></span>
+                <a id="photo-gallery-image-note-edit-save-button" class="nav-button hidden" data-align="right" data-role="button" data-click="photoGalleryImageNoteEditSaveClick">Сохранить</a>
+                <a id="photo-gallery-image-note-edit-del-button" class="nav-button hidden" data-align="right" data-role="button" data-click="photoGalleryImageNoteEditDelClick">Удалить</a>
+            </div>
+        </header>
+        
+        <!--<form>-->
+            <ul class="list form-list" data-role="listview">
+                <li>
+                    <label>Примечание
+                        <input id="photo-gallery-image-note-edit-note" class="editable" type="text" data-bind="attr: {value: imageNote}" onchange="photoGalleryImageNoteEditControlChange(this.id, this.value)" onkeyup="photoGalleryImageNoteEditControlKeyUp(this)"/>
+                        <!--<textarea id="photo-gallery-image-note-edit-note" class="editable" rows="3" data-bind="text: imageNote" onchange="photoGalleryImageNoteEditControlChange(this.id, this.value)" onkeyup="photoGalleryImageNoteEditControlKeyUp(this)"></textarea>-->
+                    </label>
+                </li>
+            </ul>
+        <!--</form>-->
+    </div>
+    
+</body>
+</html>

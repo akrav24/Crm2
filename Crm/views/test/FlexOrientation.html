@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title></title>
+    </head>
+    <body>
+      <div data-role="view" data-title="Percents" data-stretch="true">
+      <div data-role="header">
+        <div data-role="navbar">
+          <div data-role="view-title"></div>
+        </div>
+      </div>
+      <div class="fb-container">
+        <div class="fb1"></div>
+        <div class="fb2"></div>
+        <div class="fb3"></div>
+      </div>
+      <div data-role="footer">
+        <div data-role="tabstrip">
+          <a href="" data-icon="home">Home</a>
+          <a href="" data-icon="settings">Settings</a>
+        </div>
+      </div>
+    </div>
+        <style>
+            .fb-container {
+                display: -webkit-box; 
+                display: -webkit-flex; 
+                display: -ms-flexbox; 
+                display: flex; 
+                -webkit-box-orient: vertical; 
+                -webkit-box-direction: normal; 
+                -webkit-flex-direction: column; 
+                -ms-flex-direction: column; 
+                flex-direction: column;
+            }
+            .fb1 {
+                -webkit-box-flex: 1;-webkit-flex: 1;-ms-flex: 1;flex: 1; 
+                background: red;
+            }
+            .fb2 {
+                -webkit-box-flex: 3;-webkit-flex: 3;-ms-flex: 3;flex: 3; 
+                background: blue;
+            }
+            .fb3 {
+                -webkit-box-flex: 2;-webkit-flex: 2;-ms-flex: 2;flex: 2; 
+                background: green;
+            }
+        </style>
+    </body>
+</html>

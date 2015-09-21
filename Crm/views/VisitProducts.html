@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <script src="scripts/VisitProducts.js"></script>
+    
+    <div id="visit-products-view"
+        data-role="view" 
+        data-title="Наличие продукции" 
+        data-layout="main" 
+        data-init="visitProductsInit" 
+        data-show="visitProductsShow"
+        data-after-show="visitProductsAfterShow">
+        
+        <header data-role="header">
+            <div data-role="navbar">
+                <a class="nav-button" data-align="left" data-role="button" data-icon="back" data-click="visitProductsNavBackClick"></a>
+                <span data-role="view-title"></span>
+                <a id="visit-products-check-all-button" class="nav-button" data-align="right" data-role="button" data-icon="check" data-click="visitProductsCheckAllClick"></a>
+            </div>
+            <ul id="visit-products-show-all-button" class="menu-buttongroup" data-role="buttongroup" data-index="0" data-select="visitProductsShowAll">
+                <li>МА</li>
+                <li>Все</li>
+            </ul>
+        </header>
+        
+        <form>
+            <ul data-role="listview" id="visit-products-list" class="list" data-fixed-headers="true" data-template="visit-products-list-tmpl" 
+                data-header-template="visit-products-list-header-tmpl">
+            </ul>
+            
+            <script id="visit-products-list-tmpl" type="text/x-kendo-template">
+                <div class="list-item-header" onclick="visitProductsListItemClick(#:skuId#)">
+                    <p>
+                        <table  width="100%">
+                            <tr class="table-text-align#if (!!isNew) {# color-selected#}#">
+                                #if ((visitProducts.mode & 1) !== 0) {#
+                                <td><input type="checkbox" class="checkbox" data-sku-id="#:skuId#" #if ((visitProducts.stageId == 1 && sel0 == 1) || (visitProducts.stageId == 2 && sel == 1)) {# checked#}#/></td>
+                                #}#
+                                <td width="60px"><span style="margin-left: 10px">#:code#</span></td>
+                                <td width="100%">
+                                    <div style="margin-left: 5px; width: 100%">#:name#</div>
+                                    <div style="margin-left: 5px;" class="list-item-comment">
+                                        #if (qntRest != null && qntRest != "") {#Остаток: #:qntRest##}#
+                                        #if (qntOrder != null && qntOrder != "") { if (qntRest != null && qntRest != "") {#, заказ: #:qntOrder##} else {#Заказ: #:qntOrder##} }#
+                                    </div>
+                                </td>
+                                #if ((visitProducts.mode & 2) !== 0) {#
+                                <td width="100px">
+                                    <a class="list-item-details-button" data-role="button" data-icon="details" href="\\#visit-product-edit-view?skuId=#:skuId#"></a>
+                                </td>
+                                #}#
+                            </tr>
+                        </table>
+                    </p>
+                </div>
+            </script>
+            
+            <script id="visit-products-list-header-tmpl" type="text/x-kendo-template">
+                #: value #
+            </script>
+        </form>
+        
+        <div id="visit-products-dialog"></div>
+    </div>
+    
+    <div id="visit-product-edit-view"
+        data-role="view" 
+        data-title="Наличие продукции" 
+        data-layout="main" 
+        data-init="visitProductEditInit" 
+        data-show="visitProductEditShow"
+        data-after-show="visitProductEditAfterShow">
+        
+        <header data-role="header">
+            <div data-role="navbar">
+                <a class="nav-button" data-align="left" data-role="button" data-icon="back" data-click="visitProductEditNavBackClick"></a>
+                <span data-role="view-title"></span>
+            </div>
+        </header>
+        
+        <div data-role="touch"
+            data-swipe="visitProductEditTouchSwipe"
+            data-enable-swipe="1">
+            <form>
+                <ul id="visit-product-edit-list" class="list form-list" data-role="listview">
+                    <li>
+                        <label>Продукт
+                            <input id="visit-product-edit-full-name" type="text" readonly="readonly"/>
+                        </label>
+                    </li>
+                    <li>
+                        <label>Наличие
+                            <input id="visit-product-edit-sel" type="checkbox"/>
+                        </label>
+                    </li>
+                    <li>
+                        <label>Остаток
+                            <input id="visit-product-edit-qnt-rest" type="number"/>
+                        </label>
+                    </li>
+                    <li>
+                        <label>Заказ
+                            <input id="visit-product-edit-qnt-order" type="number"/>
+                        </label>
+                    </li>
+                </ul>
+            </form>
+        </div>
+        
+    </div>
+    
+</body>
+</html>

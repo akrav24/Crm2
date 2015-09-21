@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <script src="scripts/VisitReport.js"></script>
+    <script src="scripts/Visit.js"></script>
+    
+    <div id="visit-report-view"
+        data-role="view" 
+        data-title="Отчет о визите" 
+        data-layout="main" 
+        data-init="visitReportInit" 
+        data-show="visitReportShow">
+        
+        <header data-role="header">
+            <div data-role="navbar">
+                <a class="nav-button" data-align="left" data-role="button" data-icon="back" data-click="visitReportNavBackClick"></a>
+                <span data-role="view-title"></span>
+            </div>
+        </header>
+        
+        <!--<div id="visit-report-collapsible1" data-role="collapsible" class="collapsible-list">
+            <h3>Новинки</h3>
+            <p>some content 1</p>
+        </div>-->
+        
+        <!--<ul id="visit-report-list" class="list list-item-header" data-role="listview" data-template="visit-report-list-tmpl"></ul>-->
+        
+        <script id="visit-report-list-tmpl" type="text/x-kendo-template">
+            #if (activityId > 0) {#<a class="list-item-header">#}#
+                <p class="list-item-header">
+                    <div class="mark#:mark#">#:name#</div>
+                </p>
+            #if (activityId > 0) {#</a>#}#
+        </script>
+        
+    </div>
+    
+</body>
+</html>

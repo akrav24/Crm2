@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <script src="scripts/VisitPlanogramList.js"></script>
+    <div data-role="view" 
+        id="visit-planogram-list-view" 
+        data-layout="main" 
+        data-stretch="true"
+        data-title="Планограмма" 
+        data-init="visitPlanogramListInit" 
+        data-show="visitPlanogramListShow">
+        
+        <header data-role="header">
+            <div data-role="navbar">
+                <a class="nav-button" data-align="left" data-role="button" data-icon="back" href="#:back"></a>
+                <span data-role="view-title"></span>
+            </div>
+        </header>
+        
+        <div id="scrollview"
+            data-role="scrollview" 
+            data-auto-bind="true"
+            data-content-height="100%"
+            data-enable-pager="true"
+            data-template="scrollview-template"
+            page-size="1.00"
+            data-changing="scrollviewOnChanging"
+            data-change="scrollviewOnChange">
+        </div>
+    </div>
+    
+    <div id="visit-planogram-image-view"
+        class="gallery-image-view"
+        data-role="view"
+        data-layout="main"
+        data-model="viewModel"
+        data-zoom="true"
+        data-show="imageViewShow">
+        
+        <header data-role="header">
+            <div data-role="navbar">
+                <a class="nav-button" data-align="left" data-role="backbutton" data-icon="back"></a>
+                <span data-role="view-title"></span>
+            </div>
+        </header>
+        
+        <div data-role="content">
+            <img data-bind="attr: {src: imageSrc}">
+        </div>
+    </div>
+    
+    <script id="scrollview-template" type="text/x-kendo-template">
+        <div class="gallery-image-content">
+            <p class="gallery-title">#=name#</p>
+            <div class="gallery-image" data-role="touch" data-tap="showImage" style="background-image: url(#= filePath #);"></div>
+        </div>
+    </script>
+</body>
+</html>

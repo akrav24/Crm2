@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <script src="scripts/PointFilter.js"></script>
+    <script src="scripts/db/DbPoint.js"></script>
+    
+    <div id="filter-points-view"
+        data-role="view" 
+        data-title="Отбор точек" 
+        data-layout="main" 
+        data-init="filterPointsInit" 
+        data-show="filterPointsShow">
+        
+        <header data-role="header">
+            <div data-role="navbar">
+                <a class="nav-button" data-align="left" data-role="button" data-icon="back" href="#:back"></a>
+                <span data-role="view-title"></span>
+                <a class="nav-button" data-align="right" data-role="button" data-click="filterApply">Отбор</a>
+            </div>
+        </header>
+        
+        <form>
+            <ul data-role="listview">
+                <li>
+                    <label>
+                        Сеть:
+                        <input id="chain-list">
+                    </label>
+                </li>
+                <li>
+                    <label>
+                        Город:
+                        <input id="city-list">
+                    </label>
+                </li>
+                <li>
+                    <label>
+                        Канал:
+                        <input id="channel-list">
+                    </label>
+                </li>
+                <li>
+                    <label>
+                        Категория:
+                        <input id="orgcat-list">
+                    </label>
+                </li>
+                <li>
+                    <label>
+                        Тип точки:
+                        <input id="orgtype-list">
+                    </label>
+                </li>
+            </ul>
+        </form>
+    </div>
+</body>
+</html>

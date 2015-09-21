@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Points</title>
+</head>
+<body>
+    <script src="scripts/PointList.js"></script>
+    <script src="scripts/db/DbPoint.js"></script>
+    <script src="scripts/PointFilter.js"></script>
+    <script src="scripts/Point.js"></script>
+    
+    <div id="point-list-view"
+        data-role="view" 
+        data-title="Торговые точки" 
+        data-layout="main" 
+        data-init="pointListInit" 
+        data-show="pointListShow">
+        
+        <header data-role="header">
+            <div data-role="navbar">
+                <a class="nav-button" data-align="left" data-role="button" data-icon="back" href="#:back"></a>
+                <span data-role="view-title"></span>
+                <!--<a class="nav-button" data-align="right" data-role="button" data-icon="filter" data-rel="drawer" href="#point-list-filter0">Drawer</a>-->
+                <a id="point-list-filter-button" class="nav-button" data-align="right" data-role="button" data-icon="filter" data-click="pointListFilterShow"></a>
+            </div>
+        </header>
+        
+        <ul data-role="listview" id="point-list" class="list" data-template="point-tmpl" data-click="pointListClick"></ul>
+        
+        <!--<div id="point-list-filter" class="slide-panel-right">
+            <ul data-role="listview">
+                <li>Сеть:</li>
+                <li>Город:</li>
+                <li>Канал:</li>
+                <li>Категория:</li>
+                <li>Тип точки:</li>
+            </ul>
+        </div>-->
+        
+        <script id="point-tmpl" type="text/x-kendo-template">
+            <a class="list-item-header">
+                <p>#: name #, #: addr #</p>
+            </a>
+        </script>
+    </div>
+    
+    <!--<div id="point-list-filter0"
+        data-role="drawer" 
+        data-position="right" 
+        data-swipe-to-open="false"
+        data-title="Фильтр"
+        data-views='["views/PointList.html"]'>
+        
+        <div data-role="header">
+            <div data-role="navbar">
+                <span data-align="left" data-role="view-title"></span>
+                <a data-align="right" data-role="button" data-click="applyFilterOnClick">Отбор</a>
+            </div>
+        </div>
+        
+        <ul data-role="listview">
+            <li>Сеть:</li>
+            <li>Город:</li>
+            <li>Канал:</li>
+            <li>Категория:</li>
+            <li>Тип точки:</li>
+        </ul>
+    </div>-->
+    
+</body>
+</html>

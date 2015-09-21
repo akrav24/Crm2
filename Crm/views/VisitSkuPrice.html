@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Visit</title>
+</head>
+<body>
+    <script src="scripts/VisitSkuPrice.js"></script>
+    
+    <div id="visit-sku-price-list-view"
+        data-role="view" 
+        data-title="Прайс-аудит" 
+        data-layout="main" 
+        data-init="visitSkuPriceInit" 
+        data-show="visitSkuPriceShow"
+        data-after-show="visitSkuPriceAfterShow">
+        
+        <header data-role="header">
+            <div data-role="navbar">
+                <a class="nav-button" data-align="left" data-role="button" data-icon="back" data-click="visitSkuPriceNavBackClick"></a>
+                <span data-role="view-title"></span>
+            </div>
+        </header>
+        
+        <!--<form>-->
+        
+        <ul id="visit-sku-price-list" class="list" data-role="listview" data-template="visit-sku-price-list-tmpl" 
+            data-endless-scroll="false" data-virtual-view-size="60"
+            data-click="visitSkuPriceListClick">
+        </ul>
+        
+        <script id="visit-sku-price-list-tmpl" type="text/x-kendo-template">
+            <!--<a class="list-item-header">-->
+                <p>
+                    <table width="100%"#if (visitSkuPriceList.skuMode == 2 && data.lvl == 1) {# class="visit-sku-price-lvl1 color-selected"#}#>
+                        <tr class="table-text-align#if (data.ext != 0) {# color-ext#}#">
+                            <td width="60px"><span style="margin-left: 10px">#:code#</span></td>
+                            <td width="100%">
+                                <div style="margin-left: 5px; padding-right: 5px; width: 100%;">#:name#, #:suppName#</div>
+                            </td>
+                            <!--<td width="100px"><div>\#:price\#</div></td>-->
+                            <td>
+                                <div style="height: 1em; width: 85px;">
+                                    <input id="visit-sku-price-price" type="#if (device.model == 'SM-T230') {#text#} else {#number#}#" pattern="[\d\.]*"
+                                        value="#:parseFloat(price).toFixed(2)#" style="min-width: 5em; max-width: 5em; margin-right: 65px; text-align: right;" readonly
+                                    />
+                                </div>
+                            </td>
+                            <td>
+                                <div style="#if (data.lvl != 1) {#height: 1em; #}#width: 50px;">
+                                    #if (visitSkuPriceList.skuMode == 1 && data.lvl == 1) {#
+                                    <a class="list-item-details-button" data-role="button" data-icon="details" href="views/VisitSkuPrice.html?skuMode=2&skuId=#:skuId#"></a>
+                                    <!--<a class="list-item-details-button" data-role="button" data-icon="details"></a>-->
+                                    #}#
+                                </div>
+                            </td>
+                            <!--<td><div class="list-item-table-last-empty-cell"></div></td>-->
+                        </tr>
+                    </table>
+                </p>
+            <!--</a>-->
+        </script>
+        
+        <!--</form>-->
+        
+        <footer data-role="footer" class="hidden">
+            <table width="100%">
+                <tr style="height: 113px;">
+                    <td valign="top">
+                        <div id="visit-sku-price-product" style="float: left; height: 74px; max-height: 74px; margin: 33px 5px 5px 20px; font-size: 1.3em; overflow: hidden; text-overflow: ellipsis;"></div>
+                    </td>
+                    <td rowspan="2" style="width: 1px;">
+                        <div id="visit-sku-price-num-pad" data-role="numkeyboard" data-value="0" disabled></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td valign="top">
+                        <div style="float: left; height: 102px; width: 102px; margin-top: 4px; margin-left: 5px;">
+                            <div id="visit-sku-price-search" style="height: 60px; width: 60px; margin-top: 20px; margin-left: 10px;"
+                                onclick="if (!visitSkuPriceList.searchMode) {visitSkuPriceSearchMode(true); visitSkuPriceNumPadInit();}">
+                            </div>
+                        </div>
+                        <div style="float: right; height: 102px; width: 4em; margin-top: 4px; border: 1px solid lightgray; font-size: 2em; display: table; text-align: center;">
+                            <div id="visit-sku-price-value" style="display: table-cell; vertical-align: middle;"></div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </footer>
+    </div>
+    
+    <div id="visit-sku-price-edit-view"
+        data-role="view" 
+        data-title="Прайс-аудит" 
+        data-layout="main" 
+        data-init="visitSkuPriceEditInit"
+        data-show="visitSkuPriceEditShow"
+        data-after-show="visitSkuPriceEditAfterShow">
+      
+        <header data-role="header">
+            <div data-role="navbar">
+                <a class="nav-button" data-align="left" data-role="button" data-icon="back" data-click="visitSkuPriceEditNavBackClick"></a>
+                <span data-role="view-title"></span>
+                <a id="visit-sku-price-edit-save-button" class="nav-button hidden" data-align="right" data-role="button" data-click="visitSkuPriceEditSaveClick">Сохранить</a>
+                <a id="visit-sku-price-edit-del-button" class="nav-button hidden" data-align="right" data-role="button" data-click="visitSkuPriceEditDelClick">Удалить</a>
+            </div>
+        </header>
+        
+        <form>
+            <ul id="visit-sku-price-edit-list" class="list form-list" data-role="listview">
+                <li>
+                    <label>Продукт
+                        <div><span id="visit-sku-price-edit-name"></span></div>
+                    </label>
+                </li>
+                <li>
+                    <label>Цена
+                        <input id="visit-sku-price-edit-price" class="editable" type="number" onchange="visitSkuPriceEditControlChange(this.id, this.valueAsNumber)"/>
+                    </label>
+                </li>
+            </ul>
+        </form>
+    </div>
+    
+</body>
+</html>

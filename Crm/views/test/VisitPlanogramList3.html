@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Untitled</title>
+
+        <link rel="stylesheet" href="http://cdn.kendostatic.com/2014.2.716/styles/kendo.common.min.css">
+        <link rel="stylesheet" href="http://cdn.kendostatic.com/2014.2.716/styles/kendo.rtl.min.css">
+        <link rel="stylesheet" href="http://cdn.kendostatic.com/2014.2.716/styles/kendo.default.min.css">
+        <link rel="stylesheet" href="http://cdn.kendostatic.com/2014.2.716/styles/kendo.dataviz.min.css">
+        <link rel="stylesheet" href="http://cdn.kendostatic.com/2014.2.716/styles/kendo.dataviz.default.min.css">
+        <link rel="stylesheet" href="http://cdn.kendostatic.com/2014.2.716/styles/kendo.mobile.all.min.css">
+
+        <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+        <script src="http://cdn.kendostatic.com/2014.2.716/js/kendo.all.min.js"></script>
+    </head>
+    <body>
+        <div data-role="view"
+             id="galleryView" 
+             data-stretch="true">
+
+            <header data-role="header">
+                <div data-role="navbar">                    
+                    <span id="viewTitle" data-role="view-title" >Gallery</span>
+                </div>
+            </header>
+
+            <div data-role="scrollview"
+                 data-source="dataSource" 
+                 data-template="scrollview-template"
+                 data-content-height="100%"      
+                 page-size="1.00"
+                 data-enable-pager="false"
+                 data-changing="changing"
+                 data-change="change">
+            </div>
+        </div>
+
+        <div id="image-view"
+             data-role="view"
+             data-model="viewModel"
+             data-zoom="true">
+
+            <header data-role="header">
+                <div data-role="navbar">
+                    <a data-role="button" data-align="left" data-click="backNavigate">
+                        <span>Back</span>
+                    </a>
+                    <span id="viewTitle" data-role="view-title" >Image view</span>
+                </div>
+            </header>
+            
+            <div data-role="content">
+                <img data-bind="attr: {src: imageSrc}">
+            </div>
+        </div>
+
+        <script id="scrollview-template" type="text/x-kendo-template">
+            <div class="img-content">
+                <p class="galleryTitle">#: title #</p>
+                <p class="galleryDescription">#: description #</p>
+                <div class="galleryImage" data-role="touch" data-tap="showImage" style="background-image: url(#: url #);"></div>
+            </div>
+        </script>
+
+        <script>
+           //var app = new kendo.mobile.Application();
+          
+           var imageSrc = "http://appfabrikken.no/backend_v2/v2.1/gallery/1.jpg"
+                            
+           var viewModel = kendo.observable({
+             imageSrc: imageSrc,
+           });
+            
+           var pictures = [{"id":"4","url":"http:\/\/appfabrikken.no\/backend_v2\/v2.1\/gallery\/4.jpg","title":"Baked bread","description":"Will it display correctly and allow for pinch-and-zoom when the image is in landscape mode?"},
+                {"id":"5","url":"http:\/\/appfabrikken.no\/backend_v2\/v2.1\/gallery\/5.jpg","title":"Portrait image","description":"Now the other way around. How will it look with an image in portrait mode? All images will have different sizes and dimensions, so it's importan to check that they are all displayed correctly."},
+                {"id":"6","url":"http:\/\/appfabrikken.no\/backend_v2\/v2.1\/gallery\/6.jpg","title":"Super-portrait image","description":"This girl on the phone is in a picture that's truly in portrait. Very small width and at the same time great height."},
+                {"id":"7","url":"http:\/\/appfabrikken.no\/backend_v2\/v2.1\/gallery\/7.jpg","title":"LAST PAGE","description":"description"}];
+          
+          var dataSource = new kendo.data.DataSource({
+            data: pictures,                                                           
+          });
+
+          function changing(e) {
+            console.log("currentPage=" + e.currentPage + ", nextPage=" + e.nextPage);
+            var id = e.nextPage + 4;
+            var imageSrc = "http://appfabrikken.no/backend_v2/v2.1/gallery/" + id + ".jpg"
+
+            viewModel.set("imageSrc", imageSrc);
+          }
+
+          function change(e) {
+              console.log("page=" + e.page + ", data=" + JSON.stringify(e.data));
+          }
+            
+          function backNavigate(){
+            app.navigate("#galleryView");
+          }
+          
+          function showImage() {
+            app.navigate("#image-view");
+          }
+            
+        </script>
+
+        <style>
+          	.img-content
+            {
+              height: 100%;
+              overflow: hidden;
+            }
+          
+            .galleryImage
+            {
+                display: block;
+                height: 80%;
+                width: 100%; 
+                background-size: 100% auto;
+                background-repeat: no-repeat; 
+            }
+            
+            .galleryTitle
+            { 
+                text-align: center;
+                margin: 5px auto;
+                padding: 0px;
+            }
+            .galleryDescription
+            {
+                /*   text-overflow: ellipsis;
+                white-space: nowrap;
+                overflow: hidden;*/
+                margin: 5px;
+                text-align: center;
+                display: block;
+                word-wrap: normal;
+                width: 95%;
+                white-space: normal;
+            }
+            
+            #modalview-id
+            {
+                position: relative; 
+                top: 40%;
+                left: 20%;
+                width: 100px; 
+                height: 80px; 
+                border-radius: 10px; 
+                text-align: center;
+            }
+            
+            #galleryError
+            {
+                display: none;
+                min-width: 100%; 
+                margin: auto;
+                padding: 0;
+                text-align: center; 
+            }
+            
+            #galleryImageBtn
+            {
+                position: absolute;
+                display: block;
+                height: 80%;
+                width: 100%; 
+                border: none;
+                background: none;
+                padding: 0px;
+                margin: 0px;
+            }
+            
+            #image-view img
+            {
+                /*width: 100%;*/
+                /*height: 100%;*/ 
+                display: block;
+                max-width: 100%;
+                max-height: 100%;
+                left: 0;
+                right: 0;
+                top: 0;
+                bottom: 0;
+            }
+        </style>
+    </body>
+</html>

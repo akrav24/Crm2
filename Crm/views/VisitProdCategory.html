@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <script src="scripts/VisitProdCategory.js"></script>
+    <script src="scripts/Visit.js"></script>
+    <div data-role="view" 
+        data-title="Категория" 
+        data-layout="main" 
+        data-init="visitProdCatInit" 
+        data-show="visitProdCatShow">
+      
+        <header data-role="header">
+            <div data-role="navbar">
+                <a class="nav-button" data-align="left" data-role="button" data-icon="back" href="#:back"></a>
+                <span data-role="view-title"></span>
+            </div>
+        </header>
+        
+        <ul id="prod-cat-list" class="list" data-role="listview" data-template="prod-cat-list-tmpl" data-click="prodCatListClick"></ul>
+    
+        <script id="prod-cat-list-tmpl" type="text/x-kendo-template">
+            <a class="list-item-header" href="#if (skuCatId === -1) {#\\#:back#} else {##: visitCategory.navigateTo##}#">
+                <p>
+                    <table class="visit-sku-cat-list-item-table">
+                        <tr class="table-text-align">
+                            <td class="visit-sku-cat-list-item-table-name">
+                                <div>#:name#</div>
+                            </td>
+                            #var usedActivity = [];
+                            for (var i = 0; i < visit.activityLst.length; i++) {
+                                if (visit.activityLst[i].activityId > 0 && !bizlg.cmn.inArray(usedActivity, visit.activityLst[i].activityId) && data["A" + visit.activityLst[i].activityId] > 0) {
+                                usedActivity.push(visit.activityLst[i].activityId);
+                            #
+                            <td style="
+            						background-image: url(styles/images/visitActivity/set#if (data["A" + visit.activityLst[i].activityId] > 0) {#2#} else {#1#}#/VisitActivity#:visit.activityLst[i].activityId#.png);
+            						background-repeat: no-repeat; background-size: contain; background-position: center center">
+                                <div class="visit-sku-cat-list-item-table-activity"></div>
+                            </td>
+                            #
+                                }
+                            }#
+                            <td><div class="list-item-table-last-empty-cell"></div></td>
+                        </tr>
+                    </table>
+                </p>
+            </a>
+        </script>
+    </div>
+</body>
+</html>
